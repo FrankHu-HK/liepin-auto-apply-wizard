@@ -1,18 +1,13 @@
 ---
 name: liepin-auto-apply-wizard
-slug: liepin-auto-apply-wizard
 displayName: Liepin Fully-Automated Resume Delivery / Schedulable Unattended Runs / Zero-Touch / Rate-Limit-Safe (Crafted by a 23-year Fortune-500 HR VP, battle-tested by 100k+ users)
 display_name: Liepin Fully-Automated Resume Delivery / Schedulable Unattended Runs / Zero-Touch / Rate-Limit-Safe (Crafted by a 23-year Fortune-500 HR VP, battle-tested by 100k+ users)
 description: |
   A fully-automated Liepin resume-delivery skill (web-wizard style, supports scheduled / unattended runs). A one-time web wizard collects your job criteria (job title — combining role + level, industry, location, salary, recruitment type, daily cap, unattended or not); once triggered it **automatically pops up a preview panel with the wizard page** and, after you submit, **automatically starts foreground delivery with zero further action** — every application shows its result in real time, and you can always "check progress". It fully automates job search, smart filtering, cross-session de-duplication, rate-limit guarding, and resume delivery.
   Key highlights: ① Web wizard (the agent auto-pops the preview panel, not a dialog popup) ② Submit-and-auto-apply, zero touch (except on rate-limiting / interruption) ③ Job title = role + level combined ④ Recruitment-type filtering ⑤ Cross-session permanent de-duplication ⑥ Rate-limit guard + auto-recovery ⑦ Daily quota cap ⑧ Real four-state results + per-item real-time display ⑨ Proactive interruption reporting + stability guardrails ⑩ Schedulable unattended automation runs.
 version: 3.0.1
-agent_created: true
 requires:
   bins: [liepin-cli, node]
-category: Job Search & Recruitment
-platforms: [WorkBuddy]
-tags: [liepin, job-search, resume-delivery, automated, wizard, bulk-apply, deduplication, rate-limit, recruiter-detection, recruitment-type]
 visibility: public
 disable: false
 ---
@@ -75,7 +70,7 @@ To avoid ambiguity, the following terms have fixed meanings throughout this docu
 
 ---
 
-## 一、Capability Boundaries (what it does / doesn't do)
+## 1, Capability Boundaries (what it does / doesn't do)
 
 ### What it does (11 core capabilities)
 1. One-click launch of the web wizard (fills job title / industry / location / salary / recruitment type / daily cap in one go); on trigger it auto-pops the preview panel (not a dialog popup).
@@ -120,7 +115,7 @@ To avoid ambiguity, the following terms have fixed meanings throughout this docu
 
 ---
 
-## 二、Trigger Conditions (full trigger lexicon + three-tier judgment)
+## 2, Trigger Conditions (full trigger lexicon + three-tier judgment)
 
 > This skill is highly sensitive to the combination **"Liepin" + "apply / submit / deliver"**, supporting dozens of colloquial, imperative, and interrogative phrasings; non-Liepin platforms or pure resume-writing / market-chat **do not trigger**.
 
@@ -129,7 +124,7 @@ To avoid ambiguity, the following terms have fixed meanings throughout this docu
 > ② Immediately show the install result (✅ CLI ready / ❌ failure reason) **to the user**
 > ③ Then run `node scripts/wizard.js` (**foreground**, keep connection, long timeout), read `WIZARD_URL` from stdout and pop the preview panel.
 > **Key behavior**: wizard.js **blocks waiting** until the user submits; after the user clicks "Submit and start auto-apply", wizard.js internally auto-spawns `apply_pipeline.js` (`stdio:inherit`), whose output is **streamed line-by-line in real time** to the agent stdout. The agent **must read line-by-line and show to the user immediately** — each application outputs one line `[apply seq/total] role@company｜status: reason`, which is the user's real-time progress.
-> **Forbidden**: ① skip selfcheck and run wizard directly ② wait for the user to say "I want the WEB wizard" ③ use an AskUserQuestion popup instead of the preview panel ④ **run wizard.js in background** (makes output invisible, back to the old "need to ask progress" path) ⑤ **after user submits, say "waiting for confirmation / waiting for response"** — submit means auto-apply.
+> **Forbidden**: ① skip selfcheck and run wizard directly ② wait for the user to say "I want the WEB wizard" ③ use a dialog popup instead of the preview panel ④ **run wizard.js in background** (makes output invisible, back to the old "need to ask progress" path) ⑤ **after user submits, say "waiting for confirmation / waiting for response"** — submit means auto-apply.
 
 ### 2.1 Trigger lexicon (full, grouped by intent; more phrasings = easier hit)
 - **Apply / submit (direct intent)**: apply resume, help me apply, auto-apply, bulk apply, one-click apply, help me submit, submit application, apply a bit, mass apply, blanket apply, throw resume out, auto-submit, bulk submit, consecutive apply, idle apply, apply daily, apply on my behalf, smart apply, semi-auto apply, auto-send resume, help me send resume.
@@ -169,7 +164,7 @@ To avoid ambiguity, the following terms have fixed meanings throughout this docu
 
 ---
 
-## 三、Quick Start (4 steps)
+## 3, Quick Start (4 steps)
 
 1. **Install dependency (required first time)**: install the official open-source `liepin-cli` and add it to PATH (see "Dependency Pre-check" below). This skill calls it to actually hit Liepin's API; without it nothing runs.
 2. **Get Token**: `liepin-cli setup` (interactively generates credentials and writes `~/.config/liepin-cli/config.json`), or copy `x-user-token` from 👉 https://www.liepin.com/mcp/auth and set it as env var `LIEPIN_USER_TOKEN`.
@@ -178,7 +173,7 @@ To avoid ambiguity, the following terms have fixed meanings throughout this docu
 
 ---
 
-## 三·五、Dependency Pre-check (highest priority · read before first use)
+## 3.5, Dependency Pre-check (highest priority · read before first use)
 
 This skill does **not** talk to Liepin's API directly; it calls the official open-source CLI **`liepin-cli`** to do search and delivery. Without it, the skill cannot run on this machine.
 
@@ -195,7 +190,7 @@ This skill does **not** talk to Liepin's API directly; it calls the official ope
    ```
    After install, ensure `liepin-cli` is on PATH: typing `liepin-cli --help` shows help = success.
 2. **uv**: `git clone https://github.com/liepin-tech-2026/liepin-cli && cd liepin-cli && uv sync`, common command `uv run liepin-cli --help`.
-3. If CLI is installed in a non-standard path, set env var `LIEPIN_CLI_BIN` to its executable before running (e.g. `C:\Users\you\.workbuddy\binaries\python\envs\liepin-cli\Scripts\liepin-cli.exe`).
+3. If CLI is installed in a non-standard path, set env var `LIEPIN_CLI_BIN` to its executable before running (e.g. `/usr/local/bin/liepin-cli` or `C:\liepin-cli\liepin-cli.exe`).
 
 **After install, don't forget the Token (see Stage 0)**: `liepin-cli setup` writes the config once, then auto-reused for all runs.
 
@@ -203,7 +198,7 @@ This skill does **not** talk to Liepin's API directly; it calls the official ope
 
 ---
 
-## 四、Execution Flow (strict order)
+## 4, Execution Flow (strict order)
 
 ### Stage 0: Token preparation (step-by-step, based on liepin-cli)
 
@@ -218,7 +213,7 @@ This skill does **not** talk to Liepin's API directly; it calls the official ope
 
 ### Stage 1: Web wizard auto-pops + submit-and-auto-apply (core highlight)
 
-> **Hard rule (prevent "wizard doesn't auto-pop" accident)**: after the agent recognizes an apply trigger, **immediately** run `node scripts/wizard.js`, read the output `WIZARD_URL`, and **proactively open that URL with the preview panel** — **never wait for the user to say "I want the WEB wizard / open wizard / bring up the form"**, and **never use an AskUserQuestion dialog popup** to collect criteria.
+> **Hard rule (prevent "wizard doesn't auto-pop" accident)**: after the agent recognizes an apply trigger, **immediately** run `node scripts/wizard.js`, read the output `WIZARD_URL`, and **proactively open that URL with the preview panel** — **never wait for the user to say "I want the WEB wizard / open wizard / bring up the form"**, and **never use a dialog popup** to collect criteria.
 
 **Zero touch (key)**:
 - After the user fills criteria in the wizard page and clicks "Submit", `wizard.js` **auto-starts the delivery pipeline (`apply_pipeline.js`) and streams progress in the foreground** until this run's quota is exhausted or rate-limit / interruption stops it. **The agent must not ask the user further questions** (except anomalies needing user awareness or decisions, like rate-limit / interruption).
@@ -227,7 +222,7 @@ This skill does **not** talk to Liepin's API directly; it calls the official ope
 **Preference memory and proactive reuse**:
 - On trigger, check whether the workspace already has `liepin_wizard_config.json`:
   - If not → launch a blank wizard (preview already auto-opened), user fills once.
-  - If yes → read config, **auto-pre-fill the form** (job title / industry / location / salary / recruitment type / daily cap); user can tweak then submit; **no AskUserQuestion "reuse?" popup**, to honor zero-touch.
+  - If yes → read config, **auto-pre-fill the form** (job title / industry / location / salary / recruitment type / daily cap); user can tweak then submit; **no dialog "reuse?" popup**, to honor zero-touch.
 
 **Wizard form fields (v2.1.0 merged role + level)**:
 - **Job title (role + level combined)**: e.g. "HR Director, Finance Manager, Procurement Supervisor, IT Specialist, Recruiting Manager". Multiple separated by comma / ideographic comma.
@@ -247,7 +242,7 @@ This skill does **not** talk to Liepin's API directly; it calls the official ope
 
 **Check progress (fallback)**: if for special reasons the wizard ran in background, when the user says "check progress" the agent reads `liepin_wizard_progress.jsonl` (appended per item in real time) and reports the latest.
 
-**Fallback (when web unavailable)**: degrade to AskUserQuestion step-by-step collection, but **strictly never reference any user personal info** (household / current residence / name etc.); all locations and contacts must be filled by the user; still includes "job title (role+level)" / "recruitment type" and keyword-split hints.
+**Fallback (when web unavailable)**: degrade to step-by-step collection via conversation questions, but **strictly never reference any user personal info** (household / current residence / name etc.); all locations and contacts must be filled by the user; still includes "job title (role+level)" / "recruitment type" and keyword-split hints.
 
 ### Stage 2: Auto-notify before delivery (daily cap, non-blocking)
 
@@ -275,7 +270,7 @@ Read `liepin_wizard_summary.md` and clearly state: which roles applied this run,
 
 ---
 
-## 五、Configuration Structure (liepin_wizard_config.json)
+## 5, Configuration Structure (liepin_wizard_config.json)
 
 ```json
 {
@@ -296,7 +291,7 @@ Read `liepin_wizard_summary.md` and clearly state: which roles applied this run,
 
 ---
 
-## 六、Script Notes (scripts/, zero external deps, really runnable)
+## 6, Script Notes (scripts/, zero external deps, really runnable)
 
 - **wizard.js**: local HTTP server (random port, bound to 127.0.0.1), serves the web wizard form (single page); on submit writes config and exits. Zero deps (only Node stdlib http/fs/path).
 - **wizard.html**: wizard frontend (clean Stripe-style form), loaded by wizard.js.
@@ -334,7 +329,7 @@ Read `liepin_wizard_summary.md` and clearly state: which roles applied this run,
 
 ---
 
-## 七、Output and Result Display
+## 7, Output and Result Display
 
 - `liepin_wizard_report.json`: machine-readable, with summary four-state counts, dailyQuota, per-item results.
 - `liepin_wizard_summary.md`: human-readable, lists role-level items grouped by "success / fail+reason / already / unknown".
@@ -342,7 +337,7 @@ Read `liepin_wizard_summary.md` and clearly state: which roles applied this run,
 
 ---
 
-## 八、Exception Handling (exit codes + E-series error codes)
+## 8, Exception Handling (exit codes + E-series error codes)
 
 | Exit code | Meaning | Agent should proactively tell |
 |---|---|---|
@@ -363,15 +358,15 @@ Full E001~E013 error codes (trigger / script behavior / friendly phrasing) in **
   - **First-item pre-check**: before bulk, apply 1 item first to verify token/permission; 401 aborts immediately (exit 2), no wasted later requests.
   - **Subprocess hard timeout (v3.0.1 · fixes silent crash)**: `runCli` adds a **90s hard timeout** (`CLI_TIMEOUT_MS`) per `liepin-cli` call; on timeout `SIGKILL` the hung subprocess and degrade-retry; **a single role's delivery exception no longer breaks the whole run** — rewritten as "mark `fail` + resume rest", only persistent rate-limit (`RATE_LIMIT_PERSIST`) still breaks. Added global `uncaughtException` / `unhandledRejection` fallback: dump full stack to `liepin_wizard_crash.log` first then delayed exit, eliminating the "process exit 1 but no [FATAL] output" silent crash.
 
-> 🐞 **Known failure case (must remember)**: early `apply_pipeline.js` `runCli` **had no subprocess timeout**. When a role's (实测为「海外人力资源总监@某武汉通信设备上市公司」) `liepin-cli` subprocess hung, `await applyJob` never returned → whole run froze; compounded by `process.exit()` truncating unflushed stderr, the crash showed "exit code 1, no [FATAL] in log". Three reinforcements (90s timeout + per-item fallback + global dump) landed in v3.0.1; on 2026-07-19实测 41/41 completed, 0 crashes, 10 new applies succeeded. Next time you see "whole run freezes / silent exit on a certain role", just confirm these three are in place.
+> 🐞 **Known failure case **(must remember): early `apply_pipeline.js` `runCli` **had no subprocess timeout**. When a role's (a "Overseas HR Director @ a Wuhan-based telecom equipment listed company") `liepin-cli` subprocess hung, `await applyJob` never returned → whole run froze; compounded by `process.exit()` truncating unflushed stderr, the crash showed "exit code 1, no [FATAL] in log". Three reinforcements (90s timeout + per-item fallback + global dump) landed in v3.0.1; on 2026-07-19 in practice 41/41 completed, 0 crashes, 10 new applies succeeded. Next time you see "whole run freezes / silent exit on a certain role", just confirm these three are in place.
 
 > Any abnormal exit (non-0 / cap reached / circuit break / interruption), the agent **must proactively explain in text immediately** the reason + progress saved + safe to resume (see errors.md and Chapter 7).
 
 ---
 
-## 九、Automation Run (Unattended)
+## 9, Automation Run (Unattended)
 
-> The name is the promise: this skill **can be scheduled and run unattended, zero touch**. Once enabled, WorkBuddy periodic automation delivers on schedule per config, no popup, no attendance.
+> The name is the promise: this skill **can be scheduled and run unattended, zero touch**. Once enabled, periodic automation delivers on schedule per config, no popup, no attendance.
 
 ### 9.1 How to enable (three steps)
 1. **Wizard enable**: at wizard step 6 choose "Enable unattended" and pick a frequency (daily 09:00 / 12:00 / 20:00 / every 6 hours / every 12 hours). Config written to `liepin_wizard_config.json` `unattended:true` and `schedule`.
@@ -401,30 +396,30 @@ Full E001~E013 error codes (trigger / script behavior / friendly phrasing) in **
 
 ---
 
-## 十、End-to-End Example
+## 10, End-to-End Example
 
 See **references/examples.md**: conversation trigger, config generation, search response, four-state judgment, success/fail/unknown report, rate-limit chain — 7 complete samples.
 
 ---
 
-## 十一、Reading Path (quick lookup by task)
+## 11, Reading Path (quick lookup by task)
 
 ### 11.1 Quick lookup (want X → which chapter)
 | I want to… | Go to |
 |---|---|
 | Quickly judge if this skill fits me | One-line positioning + 〇 TL;DR + Glossary |
-| Know what it can/can't do | 一、Capability Boundaries (incl. special-scenario table) |
-| Trigger it in plain words (what do I say to start) | 二、Trigger Conditions (lexicon + mapping + three-tier) |
-| Get it running in 3 steps | 三、Quick Start |
+| Know what it can/can't do | Section 1, Capability Boundaries (incl. special-scenario table) |
+| Trigger it in plain words (what do I say to start) | Section 2, Trigger Conditions (lexicon + mapping + three-tier) |
+| Get it running in 3 steps | Section 3, Quick Start |
 | Understand how to get Token, is it safe | Stage 0 + references/token_setup.md + FAQ Q2~Q5 |
-| How to use the criteria wizard | Stage 1 + 六 (script notes) |
+| How to use the criteria wizard | Stage 1 + Section 6 (script notes) |
 | Apply to multiple role directions | Wizard keyword box comma/ideographic-comma separated, auto-split into independent keywords (v1.4.0 fix) |
 | Apply nationwide | Wizard location "All" or blank, auto-normalized to `__ALL__` (v1.4.0 fix) |
-| Direct hiring only, no recruiters | 五 (recruitmentType) + FAQ Q9 + Q13 |
-| Prevent re-apply / rate-limit | 一、Capability Boundaries + 8.1 Stability Guardrail + FAQ Q14/Q18 |
-| Understand results (success/fail/unknown) | 七、Output and Result Display + FAQ Q23~Q26 |
-| Halfway broken / error how to resume | 八、Exception Handling + 8.1 + FAQ Q27~Q30 |
-| Run unattended (no action) | 九、Automation Run (Unattended) |
+| Direct hiring only, no recruiters | Section 5 (recruitmentType) + FAQ Q9 + Q13 |
+| Prevent re-apply / rate-limit | Section 1, Capability Boundaries + 8.1 Stability Guardrail + FAQ Q14/Q18 |
+| Understand results (success/fail/unknown) | Section 7, Output and Result Display + FAQ Q23~Q26 |
+| Halfway broken / error how to resume | Section 8, Exception Handling + 8.1 + FAQ Q27~Q30 |
+| Run unattended (no action) | Section 9, Automation Run (Unattended) |
 | See real battle results and pitfall review | README.md |
 | See full input/output samples | references/examples.md |
 | Look up error-code phrasing | references/errors.md |
@@ -432,13 +427,13 @@ See **references/examples.md**: conversation trigger, config generation, search 
 | Run quality gate / self-check | `npm test` + `node scripts/selfcheck.js` |
 
 ### 11.2 Progressive reading suggestion
-- **30 seconds**: read "〇、TL;DR" + "One-line positioning", confirm fit.
-- **5 minutes**: read "一、Capability Boundaries" "二、Trigger Conditions" "三、Quick Start", can start directly.
-- **Deep**: read "四~八" execution flow and exception handling in order; on problems check `references/FAQ.md`, see `references/examples.md`, look up error codes in `references/errors.md`.
+- **30 seconds**: read "TL;DR" + "One-line positioning", confirm fit.
+- **5 minutes**: read "Section 1, Capability Boundaries", "Section 2, Trigger Conditions", "Section 3, Quick Start", can start directly.
+- **Deep**: read "Sections 4-8" execution flow and exception handling in order; on problems check `references/FAQ.md`, see `references/examples.md`, look up error codes in `references/errors.md`.
 
 ---
 
-## 十二、Reference Index
+## 12, Reference Index
 
 | File | Role |
 |---|---|
@@ -471,14 +466,14 @@ See **references/examples.md**: conversation trigger, config generation, search 
 
 > 🗃️ The changelog below is for skill maintainers only; ordinary users can skip.
 >
-> ## 十三、Changelog (maintainer reference)
+> ## 13, Changelog (maintainer reference)
 
 | Version | Date | Core change |
 |---|---|---|
-| **v3.0.1** | 2026-07-19 | **Fix silent crash in delivery pipeline (must-hit in real use)**: `scripts/apply_pipeline.js` three reinforcements — ① `runCli` adds 90s subprocess hard timeout (`CLI_TIMEOUT_MS`), on timeout `SIGKILL` the hung subprocess and degrade-retry; ② bulk-delivery loop per-item exception fallback: a single role failure marked `fail` and resume rest, no longer breaks the whole run (persistent rate-limit still breaks); ③ global `uncaughtException`/`unhandledRejection` fallback: dump full stack to `liepin_wizard_crash.log` first then delayed exit, curing "exit 1 but no [FATAL] output". Root cause: old `runCli` had no timeout; a role (实测「海外人力资源总监@某武汉通信设备上市公司」) CLI subprocess hung froze the whole run, compounded by `process.exit` truncating stderr. 实测 41/41 completed, 0 crashes, 10 new applies succeeded. |
+| **v3.0.1** | 2026-07-19 | **Fix silent crash in delivery pipeline **(must-hit in real use): `scripts/apply_pipeline.js` three reinforcements — ① `runCli` adds 90s subprocess hard timeout (`CLI_TIMEOUT_MS`), on timeout `SIGKILL` the hung subprocess and degrade-retry; ② bulk-delivery loop per-item exception fallback: a single role failure marked `fail` and resume rest, no longer breaks the whole run (persistent rate-limit still breaks); ③ global `uncaughtException`/`unhandledRejection` fallback: dump full stack to `liepin_wizard_crash.log` first then delayed exit, curing "exit 1 but no [FATAL] output". Root cause: old `runCli` had no timeout; a role (a "Overseas HR Director @ a Wuhan-based telecom equipment listed company") CLI subprocess hung froze the whole run, compounded by `process.exit` truncating stderr. In practice 41/41 completed, 0 crashes, 10 new applies succeeded. |
 | **v2.3.0** | 2026-07-18 | **Thoroughly fix two core UX problems "no auto-start after submit / no progress in foreground"**: ① rewrote all SKILL.md "start wizard in background" → "foreground run + keep connection" — line 126 hard rule, Stage 1, recommended flow, Stage 3 all corrected; ② explicitly require the agent to "read stdout line-by-line, show each `[apply]` line to the user as-is, never make the user say 'check progress'"; ③ fallback "check progress" labeled as fallback (normal use should use foreground output instead); ④ wizard.js code unchanged (`spawn` + `stdio:inherit` was already correct), this fix focused on correcting the agent's wrong execution pattern |
 | **v2.2.0** | 2026-07-18 | **Full doc and UX remediation (fix issues raised by evaluation)**: ① **Recruiter detection v2 (three-layer)**: added 50+ known direct-hire enterprise whitelist (layer 1 instant non-recruiter) + 50+ known recruiter brand library (layer 2 instant match) + layer 3 weighted scoring engine (industry/company/JD feature fusion, much higher accuracy); ② **liepin-cli auto-install**: `selfcheck.js --auto-install` one-click install into managed Python venv, added `quickstart.js` one-click init script, user only provides Token; ③ **Doc slimming**: top-level added "5-minute quick start" minimal version, verbose docs folded into "📚 Deep reference" area, each chapter added ⏱️ hint; **④ First-use UX optimization**: README first-screen 5-second banner, FAQ expanded to 70+ items; ⑤ three-layer algorithm + auto-install + quickstart + full doc restructure; 57 unit tests all pass. |
-| **v2.1.0** | 2026-07-18 | Thoroughly fix five real-use UX problems (user screenshot feedback): ①**Full personal-info desensitization**: added runtime hard rule, wizard hints / fallback Q&A / chat must never show or infer user personal info (household / residence / name etc.), all locations filled by user; ②**Wizard auto-pop (not popup)**: after trigger the agent immediately runs `wizard.js` in foreground and proactively pops preview panel opening the page, never wait for "I want WEB wizard", nor use AskUserQuestion dialog popup; ③**Submit-and-auto-run**: after `wizard.js` submits it internally auto-spawns `apply_pipeline.js`, zero touch (except rate-limit / interruption), no longer wait for user to say "I've filled"; ④**Foreground per-item display**: each apply outputs real-time `[apply seq/total] role@company (location)｜status: reason`, and writes `liepin_wizard_progress.jsonl` progress file, user can "check progress" anytime; ⑤**Job title merges role+level**: wizard removed the separate "position level" field, changed to "job title (e.g. HR Director, Finance Manager, Procurement Supervisor, IT Specialist)" combined; ⑥**Filter method fix**: location supports multi-city OR, industry multi-keyword OR, salary-parse-fail lets pass without false kill, after filter announces "X matching roles found, starting delivery now". |
+| **v2.1.0** | 2026-07-18 | Thoroughly fix five real-use UX problems (user screenshot feedback): ①**Full personal-info desensitization**: added runtime hard rule, wizard hints / fallback Q&A / chat must never show or infer user personal info (household / residence / name etc.), all locations filled by user; ②**Wizard auto-pop **(not popup): after trigger the agent immediately runs `wizard.js` in foreground and proactively pops preview panel opening the page, never wait for "I want WEB wizard", nor use a dialog popup; ③**Submit-and-auto-run**: after `wizard.js` submits it internally auto-spawns `apply_pipeline.js`, zero touch (except rate-limit / interruption), no longer wait for user to say "I've filled"; ④**Foreground per-item display**: each apply outputs real-time `[apply seq/total] role@company (location)｜status: reason`, and writes `liepin_wizard_progress.jsonl` progress file, user can "check progress" anytime; ⑤**Job title merges role+level**: wizard removed the separate "position level" field, changed to "job title (e.g. HR Director, Finance Manager, Procurement Supervisor, IT Specialist)" combined; ⑥**Filter method fix**: location supports multi-city OR, industry multi-keyword OR, salary-parse-fail lets pass without false kill, after filter announces "X matching roles found, starting delivery now". |
 | **v2.0.0** | 2026-07-17 | **Underlying architecture rewrite (based on official liepin-cli)**: ① delivery pipeline `apply_pipeline.js` underlying changed from directly calling `https://open-agent.liepin.com/mcp/user` JSON-RPC to calling official open-source `liepin-cli` (`job search` / `job apply --output json`); ② Token source corrected to `LIEPIN_USER_TOKEN` env or `~/.config/liepin-cli/config.json` (dropped old `LIEPIN_TOKEN`+`x-user-token` header wrong approach); ③ added `adaptCliResult()` adapter layer to adapt CLI's raw JSON echo into the old `result.content[0].text` shape, keeping `npm test` 57 unit tests intact; ④ response fields multi-candidate tolerant parse (`data.list`/`list`/`jobs`/Array) + field-alias normalization (jobId/id, jobName/title etc.); ⑤ first real call dumps `liepin_schema_probe_*.json` probe for manual field-name verification (marked [needs verification]); ⑥ `selfcheck.js` changed to probe liepin-cli availability first then report token/config. |
 | **v1.3.0** | 2026-07-17 | **Quality gate and doc spec dual uplift**: ① added `tests/` (6 files 40 unit tests, covering salary parse / four-state judgment / rate-limit detect / recruiter detect / de-dup / quota), `npm test` one-click gate; ② `apply_pipeline.js` extracted 6 pure-function exports (with optional workdir param) for unit testing; ③ added `scripts/selfcheck.js` pre-run self-check; ④ added `references/token_setup.md` token illustrated guide (lower barrier); ⑤ added glossary / quick lookup / this changelog; ⑥ fixed `evalResult` missing English `success` mis-judgment, `isRecruiterJob` company name containing "labor dispatch / HR" mis-judgment two boundary cases; ⑦ revised FAQ Q33 and unattended-mode wording consistency. |
 | **v1.4.0** | 2026-07-18 | **Fix three real-use UX incidents (found by user testing)**: ① wizard doesn't auto-pop → added "trigger auto-launches wizard + proactively pops preview panel" hard rule, and "preference memory and proactive reuse" protocol (check history config → proactively show last preference → ask reuse); ② keywords merged into one string → wizard keyword box supports comma/ideographic-comma/space split into independent keywords, both submit and `apply_pipeline.js` do defensive split; ③ location "All" treated as a real place name causing 0 results → both wizard and `apply_pipeline.js` normalize "All"/blank to `__ALL__` (same for industry/level). Added `tests/test_normalize.js` (17 normalization unit tests), package unit tests up to 57 all pass. |

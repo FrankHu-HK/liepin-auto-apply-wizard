@@ -58,10 +58,10 @@ A web wizard captures your criteria; the agent then runs an automated, **rate-li
 
 ## Quick Start
 
-This is an **AI-agent skill** (runs inside the WorkBuddy agent platform) and depends on `liepin-cli` + `node`.
+This is an **AI-agent skill** (runs inside any AI-agent platform) and depends on `liepin-cli` + `node`.
 
 ```
-1. Load the skill in WorkBuddy and say "help me apply on Liepin".
+1. Load the skill in your AI agent and say "help me apply on Liepin".
 2. The wizard panel opens — fill: job title (+ level), industry, city, salary, type, daily cap, unattended?
 3. Submit. The agent installs/delegates and starts delivering; watch live results, or "check progress" anytime.
 ```

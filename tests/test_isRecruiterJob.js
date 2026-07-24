@@ -1,5 +1,5 @@
 // tests/test_isRecruiterJob.js
-// 覆盖猎头识别启发式：行业/公司品牌库/JD 关键词
+// ：//JD 
 const assert = require('assert');
 const { isRecruiterJob } = require('../scripts/apply_pipeline.js');
 
@@ -10,29 +10,29 @@ function runTests() {
     catch (e) { failed++; errors.push(`${label}: ${e.message}`); }
   }
 
-  test('猎头行业（人力资源服务） → true', () => {
-    assert.strictEqual(isRecruiterJob({ industry: '人力资源服务', company: '某某科技', jobDetail: '招聘' }), true);
+  test('（） → true', () => {
+    assert.strictEqual(isRecruiterJob({ industry: '', company: '', jobDetail: '' }), true);
   });
-  test('猎头行业（劳务派遣） → true', () => {
-    assert.strictEqual(isRecruiterJob({ industry: '互联网', company: '劳务派遣公司', jobDetail: '招聘' }), true);
+  test('（） → true', () => {
+    assert.strictEqual(isRecruiterJob({ industry: '', company: '', jobDetail: '' }), true);
   });
-  test('猎头品牌库（科锐） → true', () => {
-    assert.strictEqual(isRecruiterJob({ industry: '互联网', company: '科锐国际', jobDetail: '招聘' }), true);
+  test('（） → true', () => {
+    assert.strictEqual(isRecruiterJob({ industry: '', company: '', jobDetail: '' }), true);
   });
-  test('猎头品牌库（锐仕方达） → true', () => {
-    assert.strictEqual(isRecruiterJob({ industry: '金融', company: '锐仕方达', jobDetail: '招聘' }), true);
+  test('（） → true', () => {
+    assert.strictEqual(isRecruiterJob({ industry: '', company: '', jobDetail: '' }), true);
   });
-  test('JD 含猎头代招 → true', () => {
-    assert.strictEqual(isRecruiterJob({ industry: '互联网', company: '某某', jobDetail: '本岗位为猎头代招' }), true);
+  test('JD  → true', () => {
+    assert.strictEqual(isRecruiterJob({ industry: '', company: '', jobDetail: '' }), true);
   });
-  test('JD 含劳务派遣 → true', () => {
-    assert.strictEqual(isRecruiterJob({ industry: '互联网', company: '某某', jobDetail: '本岗位为劳务派遣' }), true);
+  test('JD  → true', () => {
+    assert.strictEqual(isRecruiterJob({ industry: '', company: '', jobDetail: '' }), true);
   });
-  test('普通企业直招 → false', () => {
-    assert.strictEqual(isRecruiterJob({ industry: '互联网', company: '某某科技', jobDetail: '负责产品规划' }), false);
+  test(' → false', () => {
+    assert.strictEqual(isRecruiterJob({ industry: '', company: '', jobDetail: '' }), false);
   });
-  test('制造业直招 → false', () => {
-    assert.strictEqual(isRecruiterJob({ industry: '新能源', company: '某电池厂', jobDetail: '负责工艺' }), false);
+  test(' → false', () => {
+    assert.strictEqual(isRecruiterJob({ industry: '', company: '', jobDetail: '' }), false);
   });
 
   console.log(`[test_isRecruiterJob] passed=${passed} failed=${failed}`);

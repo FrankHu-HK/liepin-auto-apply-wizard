@@ -18,7 +18,7 @@
 
 ## How to use
 
-**Method A: Send directly to the WorkBuddy agent**
+**Method A: Send directly to your AI agent**
 - Copy the token to the chat; the agent will inject `LIEPIN_TOKEN` and run the scripts.
 
 **Method B: Manual command line**

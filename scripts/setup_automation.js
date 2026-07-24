@@ -1,7 +1,7 @@
 // Liepin Auto-Apply · Automation-run setup helper (v1.2.0)
 // Zero external deps: only Node stdlib fs/path
 // Role: read liepin_wizard_config.json; when unattended=true, generate a
-//       WorkBuddy periodic automation (automation) spec for the AI agent to register via automation_update,
+//       periodic automation spec for the AI agent to register,
 //       achieving "zero-touch" scheduled auto-delivery.
 //
 // Usage (run by the AI agent):
@@ -16,7 +16,7 @@ const WORKDIR = process.cwd();
 const CONFIG_PATH = path.join(WORKDIR, 'liepin_wizard_config.json');
 const SPEC_PATH = path.join(WORKDIR, 'liepin_automation_spec.json');
 
-// Best-effort mapping cron(5-field) -> WorkBuddy RRULE (RFC5545)
+// Best-effort mapping cron(5-field) -> RRULE (RFC5545)
 function cronToRRule(cron) {
   const p = String(cron || '').trim().split(/\s+/);
   if (p.length !== 5) return null;

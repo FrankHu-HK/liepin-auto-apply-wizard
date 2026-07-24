@@ -1,5 +1,5 @@
 // tests/test_evalResult.js
-// 覆盖四态结果判定：成功/已投过/失败(401/岗位关闭)/未知/空返回/error对象
+// ：//(401/)///error
 const assert = require('assert');
 const { evalResult } = require('../scripts/apply_pipeline.js');
 
@@ -12,35 +12,35 @@ function runTests() {
 
   const makeText = (obj) => ({ result: { content: [{ text: JSON.stringify(obj) }] } });
 
-  test('应聘成功 → success', () => {
-    const r = evalResult(makeText({ errCode: 0, message: '应聘成功' }));
+  test(' → success', () => {
+    const r = evalResult(makeText({ errCode: 0, message: '' }));
     assert.strictEqual(r.status, 'success');
   });
-  test('已投递过 → already', () => {
-    const r = evalResult(makeText({ errCode: 1, message: '您已投递过该职位' }));
+  test(' → already', () => {
+    const r = evalResult(makeText({ errCode: 1, message: '' }));
     assert.strictEqual(r.status, 'already');
   });
   test('401 unauthorized → fail', () => {
     const r = evalResult(makeText({ errCode: 401, message: 'unauthorized' }));
     assert.strictEqual(r.status, 'fail');
   });
-  test('岗位已关闭 → fail', () => {
-    const r = evalResult(makeText({ errCode: 500, message: '该职位已关闭，无法投递' }));
+  test(' → fail', () => {
+    const r = evalResult(makeText({ errCode: 500, message: '，' }));
     assert.strictEqual(r.status, 'fail');
   });
-  test('空返回 → unknown', () => {
+  test(' → unknown', () => {
     const r = evalResult({ result: { content: [] } });
     assert.strictEqual(r.status, 'unknown');
   });
-  test('error对象 → fail', () => {
+  test('error → fail', () => {
     const r = evalResult({ error: { message: 'unauthorized' } });
     assert.strictEqual(r.status, 'fail');
   });
-  test('不命中任何关键词 → unknown', () => {
-    const r = evalResult(makeText({ message: '一个未知状态' }));
+  test(' → unknown', () => {
+    const r = evalResult(makeText({ message: '' }));
     assert.strictEqual(r.status, 'unknown');
   });
-  test('成功英文 → success', () => {
+  test(' → success', () => {
     const r = evalResult(makeText({ message: 'success' }));
     assert.strictEqual(r.status, 'success');
   });

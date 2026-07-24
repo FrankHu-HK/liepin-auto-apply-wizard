@@ -17,8 +17,7 @@ const fs = require('fs');
 const os = require('os');
 
 const HOME = os.homedir();
-const CLI_DIR = path.join(HOME, '.workbuddy', 'binaries', 'python', 'envs', 'liepin-cli', 'Scripts');
-const CLI_EXE = path.join(CLI_DIR, 'liepin-cli.exe');
+const CLI_EXE = process.env.LIEPIN_CLI_BIN || path.join(HOME, '.local', 'bin', 'liepin-cli');
 const BANNER = `
 ╔══════════════════════════════════════════════╗
 ║   Liepin Auto-Apply · One-click Init Wizard v2.2.0    ║

@@ -25,9 +25,8 @@ function check(name, fn) {
   }
 }
 
-// ----- Auto-install liepin-cli into managed Python venv -----
-const MANAGED_PY = 'C:\\Users\\hu_ji\\.workbuddy\\binaries\\python\\versions\\3.13.12\\python.exe';
-const VENV_DIR = path.join(os.homedir(), '.workbuddy', 'binaries', 'python', 'envs', 'liepin-cli');
+// ----- Auto-install liepin-cli into a local Python venv -----
+const VENV_DIR = path.join(os.homedir(), '.local', 'share', 'liepin-cli-venv');
 const BIN_DIR = process.platform === 'win32' ? path.join(VENV_DIR, 'Scripts') : path.join(VENV_DIR, 'bin');
 const CLI_EXE = path.join(BIN_DIR, process.platform === 'win32' ? 'liepin-cli.exe' : 'liepin-cli');
 
@@ -44,18 +43,13 @@ function installLiepinCli() {
     return true;
   }
   console.log('[install] liepin-cli not installed, start auto-install into managed Python venv…');
-  // 1. Ensure managed Python exists
-  if (!fs.existsSync(MANAGED_PY)) {
-    console.error('[install] managed Python not found: ' + MANAGED_PY + ', please configure Python env in WorkBuddy');
-    // Try system python
-    const sysPy = spawnSync('python', ['--version'], { windowsHide: true, timeout: 5000 });
-    if (sysPy.status !== 0) {
-      console.error('[install] python not found in system either, please install Python 3.11+');
-      return false;
-    }
-    console.log('[install] using system python as fallback');
+  // 1. Ensure a usable Python exists (override with PYTHON env if needed)
+  const python = process.env.PYTHON || 'python';
+  const probe = spawnSync(python, ['--version'], { windowsHide: true, timeout: 5000 });
+  if (probe.status !== 0) {
+    console.error('[install] Python not found (' + python + '). Install Python 3.11+ or set the PYTHON env var to its interpreter path.');
+    return false;
   }
-  const python = fs.existsSync(MANAGED_PY) ? MANAGED_PY : 'python';
 
   // 2. Create/reuse venv
   if (!fs.existsSync(path.join(VENV_DIR, 'pyvenv.cfg'))) {

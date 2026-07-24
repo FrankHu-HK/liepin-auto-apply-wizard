@@ -66,33 +66,33 @@
       <label class="fld">Industry (multi-select; check "All" for all industries)</label>
       <div class="chips" id="industry">
         <label class="chip"><input type="checkbox" value="__ALL__" onchange="syncAll(this)"><span>All</span></label>
-        <label class="chip"><input type="checkbox" value="互联网"><span>Internet</span></label>
-        <label class="chip"><input type="checkbox" value="人工智能"><span>AI</span></label>
-        <label class="chip"><input type="checkbox" value="软件/IT"><span>Software/IT</span></label>
-        <label class="chip"><input type="checkbox" value="金融"><span>Finance</span></label>
-        <label class="chip"><input type="checkbox" value="房地产"><span>Real Estate</span></label>
-        <label class="chip"><input type="checkbox" value="建筑/工程"><span>Construction/Engineering</span></label>
-        <label class="chip"><input type="checkbox" value="制造/工业"><span>Manufacturing/Industry</span></label>
-        <label class="chip"><input type="checkbox" value="医疗/医药"><span>Medical/Pharma</span></label>
-        <label class="chip"><input type="checkbox" value="教育/培训"><span>Education/Training</span></label>
-        <label class="chip"><input type="checkbox" value="汽车"><span>Automotive</span></label>
-        <label class="chip"><input type="checkbox" value="新能源"><span>New Energy</span></label>
-        <label class="chip"><input type="checkbox" value="电商/零售"><span>E-commerce/Retail</span></label>
-        <label class="chip"><input type="checkbox" value="文娱/传媒"><span>Media/Entertainment</span></label>
-        <label class="chip"><input type="checkbox" value="法律/咨询"><span>Legal/Consulting</span></label>
-        <label class="chip"><input type="checkbox" value="人力资源服务"><span>HR Services</span></label>
-        <label class="chip"><input type="checkbox" value="物流/供应链"><span>Logistics/Supply Chain</span></label>
-        <label class="chip"><input type="checkbox" value="能源/化工"><span>Energy/Chemical</span></label>
-        <label class="chip"><input type="checkbox" value="快消"><span>Fast Moving Consumer Goods</span></label>
-        <label class="chip"><input type="checkbox" value="通信"><span>Telecom</span></label>
-        <label class="chip"><input type="checkbox" value="政府/事业单位"><span>Government/Public Institution</span></label>
+        <label class="chip"><input type="checkbox" value=""><span>Internet</span></label>
+        <label class="chip"><input type="checkbox" value=""><span>AI</span></label>
+        <label class="chip"><input type="checkbox" value="/IT"><span>Software/IT</span></label>
+        <label class="chip"><input type="checkbox" value=""><span>Finance</span></label>
+        <label class="chip"><input type="checkbox" value=""><span>Real Estate</span></label>
+        <label class="chip"><input type="checkbox" value="/"><span>Construction/Engineering</span></label>
+        <label class="chip"><input type="checkbox" value="/"><span>Manufacturing/Industry</span></label>
+        <label class="chip"><input type="checkbox" value="/"><span>Medical/Pharma</span></label>
+        <label class="chip"><input type="checkbox" value="/"><span>Education/Training</span></label>
+        <label class="chip"><input type="checkbox" value=""><span>Automotive</span></label>
+        <label class="chip"><input type="checkbox" value=""><span>New Energy</span></label>
+        <label class="chip"><input type="checkbox" value="/"><span>E-commerce/Retail</span></label>
+        <label class="chip"><input type="checkbox" value="/"><span>Media/Entertainment</span></label>
+        <label class="chip"><input type="checkbox" value="/"><span>Legal/Consulting</span></label>
+        <label class="chip"><input type="checkbox" value=""><span>HR Services</span></label>
+        <label class="chip"><input type="checkbox" value="/"><span>Logistics/Supply Chain</span></label>
+        <label class="chip"><input type="checkbox" value="/"><span>Energy/Chemical</span></label>
+        <label class="chip"><input type="checkbox" value=""><span>Fast Moving Consumer Goods</span></label>
+        <label class="chip"><input type="checkbox" value=""><span>Telecom</span></label>
+        <label class="chip"><input type="checkbox" value="/"><span>Government/Public Institution</span></label>
       </div>
       <label class="fld">Work location (enter "All" for nationwide; or multiple cities separated by comma, e.g. "Zhuhai, Shenzhen, Guangzhou")</label>
       <input type="text" id="location" value="all" list="citylist" />
       <datalist id="citylist">
-        <option value="all"></option><option value="北京"></option><option value="上海"></option>
-        <option value="深圳"></option><option value="广州"></option><option value="杭州"></option><option value="成都"></option>
-        <option value="珠海"></option><option value="武汉"></option><option value="南京"></option><option value="苏州"></option>
+        <option value="all"></option><option value=""></option><option value=""></option>
+        <option value=""></option><option value=""></option><option value=""></option><option value=""></option>
+        <option value=""></option><option value=""></option><option value=""></option><option value=""></option>
       </datalist>
     </div>
 
@@ -122,7 +122,7 @@
       <div class="row2">
         <div><label class="fld">Full name</label><input type="text" id="realName" placeholder="Real name" /></div>
         <div><label class="fld">Gender</label>
-          <select id="sex"><option value="">Please select</option><option value="男">Male</option><option value="女">Female</option></select>
+          <select id="sex"><option value="">Please select</option><option value="">Male</option><option value="">Female</option></select>
         </div>
       </div>
       <div class="row2">
@@ -131,8 +131,8 @@
       </div>
       <label class="fld">Highest education</label>
       <select id="degree">
-        <option value="">Please select</option><option value="高中">High School</option><option value="大专">Associate</option>
-        <option value="本科">Bachelor</option><option value="硕士">Master</option><option value="博士">PhD</option>
+        <option value="">Please select</option><option value="">High School</option><option value="">Associate</option>
+        <option value="">Bachelor</option><option value="">Master</option><option value="">PhD</option>
       </select>
       <label class="fld">Work experience (company - title - start/end)</label>
       <input type="text" id="workExp" placeholder="e.g. Some Tech Co. - Backend Engineer - 202001-now" />

@@ -1,5 +1,5 @@
 // tests/test_salaryParser.js
-// 覆盖薪资解析核心逻辑：K/万/面议/缺省/单值等
+// ：K////
 const assert = require('assert');
 const { parseSalary } = require('../scripts/apply_pipeline.js');
 
@@ -14,33 +14,33 @@ function runTests() {
     const r = parseSalary('25-40k');
     assert.strictEqual(r.floor, 25); assert.strictEqual(r.ceil, 40);
   });
-  test('15-30K（大写 K）→ floor=15 ceil=30', () => {
+  test('15-30K（ K）→ floor=15 ceil=30', () => {
     const r = parseSalary('15-30K');
     assert.strictEqual(r.floor, 15); assert.strictEqual(r.ceil, 30);
   });
-  test('30万 → floor=300 ceil=300', () => {
-    const r = parseSalary('30万');
+  test('30 → floor=300 ceil=300', () => {
+    const r = parseSalary('30');
     assert.strictEqual(r.floor, 300); assert.strictEqual(r.ceil, 300);
   });
-  test('面议/议薪/negotiable → null/null', () => {
-    ['面议', '议薪', 'Negotiable'].forEach((s) => {
+  test('//negotiable → null/null', () => {
+    ['', '', 'Negotiable'].forEach((s) => {
       const r = parseSalary(s);
       assert.strictEqual(r.floor, null); assert.strictEqual(r.ceil, null);
     });
   });
-  test('20k以上 → floor=20 ceil=20', () => {
-    const r = parseSalary('20k以上');
+  test('20k → floor=20 ceil=20', () => {
+    const r = parseSalary('20k');
     assert.strictEqual(r.floor, 20); assert.strictEqual(r.ceil, 20);
   });
-  test('空/undefined → null/null', () => {
+  test('/undefined → null/null', () => {
     assert.strictEqual(parseSalary('').floor, null);
     assert.strictEqual(parseSalary(undefined).floor, null);
   });
-  test('单个数字 18 → floor=18 ceil=18', () => {
+  test(' 18 → floor=18 ceil=18', () => {
     const r = parseSalary('18');
     assert.strictEqual(r.floor, 18); assert.strictEqual(r.ceil, 18);
   });
-  test('小数 12.5-20k → 12.5/20', () => {
+  test(' 12.5-20k → 12.5/20', () => {
     const r = parseSalary('12.5-20k');
     assert.strictEqual(r.floor, 12.5); assert.strictEqual(r.ceil, 20);
   });

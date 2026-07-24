@@ -1,7 +1,7 @@
 {
   "name": "liepin-auto-apply-wizard",
   "version": "3.0.0",
-  "description": "猎聘简历全自动投递向导（Web 向导式需求收集 + 提交即自动投递/全程无干预 + 智能过滤 + 频控守护 + 跨会话去重 + 真实四态结果 + 可设自动化运行/无人值守）。零外部依赖，仅用 Node 标准库。",
+  "description": "（Web  + / +  +  +  +  + /）。， Node 。",
   "private": true,
   "license": "MIT",
   "engines": {

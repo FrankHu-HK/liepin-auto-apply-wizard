@@ -70,10 +70,11 @@ function cliCandidates() {
   if (process.env.LIEPIN_CLI_BIN) list.push(process.env.LIEPIN_CLI_BIN);
   const home = os.homedir();
   // auto-install path (takes priority over bare command, as it may not be on PATH)
+  // generic install locations (override any of these via LIEPIN_CLI_BIN)
+  list.push(path.join(home, '.local', 'bin', 'liepin-cli'));
+  list.push(path.join(home, '.npm-global', 'bin', 'liepin-cli'));
   if (process.platform === 'win32') {
-    list.push(path.join(home, '.workbuddy', 'binaries', 'python', 'envs', 'liepin-cli', 'Scripts', 'liepin-cli.exe'));
-  } else {
-    list.push(path.join(home, '.workbuddy', 'binaries', 'python', 'envs', 'liepin-cli', 'bin', 'liepin-cli'));
+    list.push(path.join(home, 'AppData', 'Roaming', 'npm', 'liepin-cli.cmd'));
   }
   list.push('liepin-cli');
   return list;
@@ -222,8 +223,8 @@ function saveProbe(p, adapted) {
 function parseSalary(str) {
   if (!str) return { floor: null, ceil: null };
   const s = String(str);
-  if (/面议|议薪|negotiab/i.test(s)) return { floor: null, ceil: null };
-  const unit = /万/.test(s) ? 10 : 1;
+  if (/||negotiab/i.test(s)) return { floor: null, ceil: null };
+  const unit = /[wW]/.test(s) ? 10 : 1;
   const nums = (s.match(/(\d+(?:\.\d+)?)/g) || []).map(Number);
   if (nums.length === 0) return { floor: null, ceil: null };
   return { floor: nums[0] * unit, ceil: (nums.length > 1 ? nums[nums.length - 1] : nums[0]) * unit };
@@ -267,21 +268,21 @@ function normalizeMulti(v) {
 // ----- Layer 1: known direct-hire enterprise whitelist (hit → false directly) -----
 const DIRECT_HIRE_BRANDS = [
   // Internet/tech
-  '腾讯', '阿里', '阿里巴巴', '百度', '字节跳动', '字节', '京东', '美团', '滴滴', '快手', '小米', '华为', 'OPPO', 'vivo', '联想', '中兴', '网易', '新浪', '搜狗', '360', '奇安信', '携程', '去哪儿', '贝壳', 'B站', '哔哩哔哩', '知乎', '小红书', '拼多多', '得物', '蚂蚁', '蚂蚁集团', '菜鸟', '钉钉', '飞猪', '盒马', '饿了么', '淘天', '高德', '唯品会', '58同城', '完美世界', '米哈游', '莉莉丝', '叠纸', '鹰角', '三七互娱', '网易游戏', '腾讯游戏', '游族',
+  '', '', '', '', '', '', '', '', '', '', '', '', 'OPPO', 'vivo', '', '', '', '', '', '360', '', '', '', '', 'B', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '58', '', '', '', '', '', '', '', '', '',
   // Finance/bank/insurance/securities
-  '招商银行', '工商银行', '建设银行', '中国银行', '农业银行', '交通银行', '浦发银行', '平安银行', '中信银行', '光大银行', '民生银行', '兴业银行', '北京银行', '上海银行', '南京银行', '宁波银行', '杭州银行', '江苏银行', '国泰君安', '中信证券', '海通证券', '华泰证券', '招商证券', '广发证券', '中金', '中国平安', '中国人寿', '中国太保', '新华保险', '太平洋保险', '泰康', '人保', '太平保险', '中信信托', '五矿信托', '中航信托', '华夏基金', '易方达', '嘉实基金', '南方基金', '广发基金', '富国基金', '汇添富', '博时基金', '天弘基金',
+  '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
   // Manufacturing/auto/heavy-industry
-  '比亚迪', '宁德时代', '蔚来', '理想', '小鹏', '特斯拉', '宝马', '奔驰', '大众', '丰田', '本田', '福特', '通用', '沃尔沃', '吉利', '长城', '奇瑞', '长安', '广汽', '上汽', '东风', '一汽', '红旗', '北汽', '江淮', '三一', '三一重工', '徐工', '中联重科', '海尔', '美的', '格力', '海信', 'TCL', '京东方', '新华三', '中兴通讯', '烽火', '中芯国际', '华虹', '长鑫', '长江存储', '吉利集团',
+  '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'TCL', '', '', '', '', '', '', '', '', '',
   // Central SOEs/public-institution/infrastructure
-  '中国移动', '中国联通', '中国电信', '中国石化', '中国石油', '中海油', '国家电网', '南方电网', '国铁', '中国铁路', '中国邮政', '国家能源', '中粮', '中烟', '中航工业', '中船', '中国船舶', '兵器工业', '航天科工', '航天科技', '航空工业', '中国电科', '中国电子', '保利', '华润', '招商局', '中信集团', '光大集团', '中化', '中建', '中铁', '中交', '中冶', '中国建材', '五矿', '华侨城',
+  '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
   // Famous foreign companies
-  '微软', 'Microsoft', '谷歌', 'Google', '苹果', 'Apple', 'Meta', '亚马逊', 'Amazon', 'Oracle', '甲骨文', 'IBM', 'Intel', '英特尔', 'NVIDIA', '英伟达', 'AMD', 'Cisco', '思科', 'SAP', 'Salesforce', 'Adobe', 'Dell', '惠普', 'HP', 'LinkedIn', 'Uber', 'Tesla', '沃尔玛', 'Walmart', 'Nike', '耐克', 'Adidas', '阿迪达斯', '百事', 'Pepsi', '宝洁', 'P&G', '联合利华', 'Unilever', '欧莱雅', '雀巢', 'Nestle', '强生', 'Johnson', '辉瑞', 'Pfizer', '默沙东', 'Merck', '礼来', 'Lilly', '诺华', 'Novartis', '罗氏', 'Roche', '拜耳', 'Bayer', '赛诺菲', 'Sanofi', '阿斯利康', 'AstraZeneca', '西门子', 'Siemens', '飞利浦', 'Philips', '通用电气', 'GE', '博世', 'Bosch', '施耐德', 'Schneider', 'ABB', '巴斯夫', 'BASF', '陶氏', 'Dow', '3M',
+  '', 'Microsoft', '', 'Google', '', 'Apple', 'Meta', '', 'Amazon', 'Oracle', '', 'IBM', 'Intel', '', 'NVIDIA', '', 'AMD', 'Cisco', '', 'SAP', 'Salesforce', 'Adobe', 'Dell', '', 'HP', 'LinkedIn', 'Uber', 'Tesla', '', 'Walmart', 'Nike', '', 'Adidas', '', '', 'Pepsi', '', 'P&G', '', 'Unilever', '', '', 'Nestle', '', 'Johnson', '', 'Pfizer', '', 'Merck', '', 'Lilly', '', 'Novartis', '', 'Roche', '', 'Bayer', '', 'Sanofi', '', 'AstraZeneca', '', 'Siemens', '', 'Philips', '', 'GE', '', 'Bosch', '', 'Schneider', 'ABB', '', 'BASF', '', 'Dow', '3M',
   // Famous private/new-consumer/service
-  '伊利', '蒙牛', '农夫山泉', '娃哈哈', '星巴克', 'Starbucks', '麦当劳', 'McDonald', '百胜', '肯德基', '海底捞', '瑞幸', '喜茶', '奈雪', '波司登', '李宁', '安踏', '特步', '良品铺子', '百果园', '孩子王', '京东健康', '阿里健康', '三只松鼠', '绝味', '周黑鸭', '蓝月亮', '立白', '纳爱斯', '珀莱雅', '薇诺娜', '花西子', '完美日记',
+  '', '', '', '', '', 'Starbucks', '', 'McDonald', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
   // E-commerce/cross-border/emerging
-  'SHEIN', '希音', 'Temu', 'TikTok', 'Shopee', 'Lazada', '速卖通', '阿里国际', '跨境', '宝尊', '微盟', '有赞', 'Ping++',
+  'SHEIN', '', 'Temu', 'TikTok', 'Shopee', 'Lazada', '', '', '', '', '', '', 'Ping++',
   // Other obviously direct-hire: education/medical/real-estate
-  '新东方', '好未来', '学而思', '中公', '华图', '爱尔', '通策', '迈瑞', '联影', '华大', '药明', '恒瑞', '百济', '信达', '君实', '万科', '碧桂园', '龙湖', '保利发展', '华润置地', '中海', '万达', '融创', '绿城', '金地', '招商蛇口', '旭辉', '新城', '世茂',
+  '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
 ];
 // Quick hit check (company name containing any whitelist word = non-recruiter, direct from layer 1)
 // Uses Set for speed; whitelist is mixed CN/EN, some company names >2 chars, every check is efficient enough
@@ -290,19 +291,19 @@ const RECTYPE_FILL = new Set(DIRECT_HIRE_BRANDS.map((s) => s.toLowerCase()));
 // ----- Layer 2: known recruiter / HR-service companies (hit → true directly) -----
 const RECRUITER_KNOWN_BRANDS = [
   // Global top 5 recruiters
-  '海德思哲', 'Heidrick', '光辉国际', 'Korn Ferry', 'KornFerry', 'Korn', '亿康先达', 'Egon Zehnder', '史宾沙', 'Spencer Stuart', '罗盛', 'Russell Reynolds',
+  '', 'Heidrick', '', 'Korn Ferry', 'KornFerry', 'Korn', '', 'Egon Zehnder', '', 'Spencer Stuart', '', 'Russell Reynolds',
   // Other international recruiters/HR
-  '米高蒲志', 'Michael Page', 'MichaelPage', '任仕达', 'Randstad', '德科', 'Adecco', '万宝盛华', 'ManpowerGroup', 'Manpower', 'Recruit', '瑞可利', 'Persol', 'Hays', '瀚纳仕', 'Robert Walters', 'RobertHalf', '瀚德', 'Hudson',
+  '', 'Michael Page', 'MichaelPage', '', 'Randstad', '', 'Adecco', '', 'ManpowerGroup', 'Manpower', 'Recruit', '', 'Persol', 'Hays', '', 'Robert Walters', 'RobertHalf', '', 'Hudson',
   // Domestic top recruiters/consulting
-  '科锐', '科锐国际', '锐仕方达', '对点', '对点咨询', '沃锐猎头', '沃锐', '嘉驰', '嘉驰国际', '探也', '探也猎头', '仲望咨询', '仲望', '泰来', '泰来猎头', '大瀚', '大瀚猎头', '展动力', '展动力猎头', '埃摩森', '猎上网', '猎萝卜', '猎聘外包', '猎聘BPO', '猎聘事业部',
+  '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'BPO', '',
   // HR outsourcing/labor dispatch/background check
-  '中智', '中智集团', '上海外服', '外服', 'FESCO', '北京外企', '北京外服', '易才', '易才集团', '海峡人力', '薪宝', '薪宝科技', '人瑞', '人瑞人才', '佩琪', '佩琪人才', '君润', '君润人力', '杰博', '杰博人力', '博尔捷', '博尔捷人力', '社保通', '天坤', '天坤人力', '上海外服', '天津外服', '浙江外服', '深圳外服', '广东外服',
+  '', '', '', '', 'FESCO', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
   // RPO / recruitment process outsourcing
-  '光辉国际', '光辉', 'Korn', 'Futurestep', '翰德', 'RPO', '招聘流程外包',
+  '', '', 'Korn', 'Futurestep', '', 'RPO', '',
   // Business services/management consulting (occasionally mixed with recruiter business)
-  '埃森哲', 'Accenture', '德勤', 'Deloitte', '安永', 'EY', '毕马威', 'KPMG', '普华永道', 'PwC', '麦肯锡', 'McKinsey', '波士顿咨询', 'BCG', '贝恩', 'Bain', '罗兰贝格', 'Roland Berger',
+  '', 'Accenture', '', 'Deloitte', '', 'EY', '', 'KPMG', '', 'PwC', '', 'McKinsey', '', 'BCG', '', 'Bain', '', 'Roland Berger',
   // Common classified platforms/job sites
-  '猎聘', '猎聘网', '51job', '前程无忧', '智联招聘', '智联', 'BOSS直聘', 'BOSS直聘直聘', '拉勾', '脉脉', '大街', '应届生求职网',
+  '', '', '51job', '', '', '', 'BOSS', 'BOSS', '', '', '', '',
 ];
 const REC_BRANDS_SET = new Set(RECRUITER_KNOWN_BRANDS.map((s) => s.toLowerCase()));
 
@@ -311,7 +312,7 @@ function isDirectHireBrand(comp) {
   const c = comp.toLowerCase();
   for (const brand of RECTYPE_FILL) {
     if (brand.length > 2 && c.includes(brand)) return true;
-    // Short brands (1~2 chars) skipped to avoid mis-judgment (e.g. "三一", "中金" need full match in limited cases, handled by include)
+    // Short brands (1~2 chars) skipped to avoid mis-judgment (e.g. "", "" need full match in limited cases, handled by include)
   }
   return false;
 }
@@ -326,14 +327,14 @@ function isKnownRecruiterBrand(comp) {
 }
 
 // ----- Layer 3: heuristic weighted scoring (industry + company feature + JD keyword fusion) -----
-const RECRUITER_FEATURE_IND = /人力资源服务|劳务派遣|外包|猎头|人才服务|管理咨询|商务服务|招聘服务|职业中介/;
-const NON_RECRUITER_IND = /互联网|人工智能|软件|计算机|金融|银行|保险|证券|基金|制造|汽车|医疗|医药|教育|培训|房地产|建筑|能源|化工|食品|饮料|零售|电商/;
-const RECRUITER_COMP_FEATURE = /劳务派遣|人力资源|猎头|人才服务|劳务外包|中介|招聘|人力资本|雇员外包/i;
-const RECRUITER_JD_FEATURE = /猎头|代招|劳务派遣|外包岗位|RPO|派遣|劳务外包|人事外包/i;
+const RECRUITER_FEATURE_IND = /||||||||/;
+const NON_RECRUITER_IND = /||||||||||||||||||||||/;
+const RECRUITER_COMP_FEATURE = /||||||||/i;
+const RECRUITER_JD_FEATURE = /||||RPO|||/i;
 // Company-name explicit exclusion words: when company name contains one of these, likely a recruiter
-const RECRUITER_COMP_EXCLUDE = /咨询|人才|猎头|猎聘|人力|劳务|派遣|外包|中介/i;
+const RECRUITER_COMP_EXCLUDE = /||||||||/i;
 // Direct-hire company-name signals: when company name contains these and no recruiter signal, strengthen non-recruiter judgment
-const DIRECT_SIGNAL = /集团|股份|有限公|有限公司|科技|技术|网络|电子|实业|投资|股份有限|制造|实业有限/i;
+const DIRECT_SIGNAL = /||||||||||||/i;
 
 function headhunterScore(job) {
   // Returns a 0~100 recruiter-probability score: ≤20 direct-hire, ≥80 recruiter, middle needs manual check
@@ -681,7 +682,7 @@ function saveQuota(q) { fs.writeFileSync(QUOTA_PATH, JSON.stringify(q, null, 2),
 function isRateLimit(resp) {
   let txt = '';
   try { txt = resp.error ? JSON.stringify(resp.error) : resp.result.content[0].text; } catch (e) {}
-  return /频繁|429|过于频繁|受限|rate.?limit/i.test(txt);
+  return /|429|||rate.?limit/i.test(txt);
 }
 
 // ---------------- Four-state result judgment (never fake success) ----------------
@@ -694,10 +695,10 @@ function evalResult(resp) {
   const errCode = parsed.errCode !== undefined ? parsed.errCode : (parsed.code !== undefined ? parsed.code : null);
   const msg = parsed.message || parsed.msg || parsed.errMsg || (parsed.data ? JSON.stringify(parsed.data) : text.slice(0, 160));
   const lc = msg.toLowerCase();
-  if (/已投递过|已经投递|重复投递|您已投递/i.test(msg)) return { status: 'already', message: msg };
-  if (/401|unauthorized|未授权/i.test(msg) || (errCode !== null && errCode !== 0 && errCode !== '0')) return { status: 'fail', message: msg };
-  if (/失败|failed|达上限|过于频繁|频繁|受限|拒绝|denied|invalid|error/i.test(msg)) return { status: 'fail', message: msg };
-  if (/应聘成功|投递成功|成功|投递完成|ok|true|success/i.test(msg)) return { status: 'success', message: msg };
+  if (/|||/i.test(msg)) return { status: 'already', message: msg };
+  if (/401|unauthorized|/i.test(msg) || (errCode !== null && errCode !== 0 && errCode !== '0')) return { status: 'fail', message: msg };
+  if (/|failed||||||denied|invalid|error/i.test(msg)) return { status: 'fail', message: msg };
+  if (/||||ok|true|success/i.test(msg)) return { status: 'success', message: msg };
   return { status: 'unknown', message: msg };
 }
 
@@ -907,7 +908,7 @@ async function main() {
       process.exit(3);
     }
     const e0 = evalResult(r0);
-    if (e0.status === 'fail' && /401|unauthorized|未授权/i.test(e0.message)) {
+    if (e0.status === 'fail' && /401|unauthorized|/i.test(e0.message)) {
       log('Pre-check 401: Token invalid or no permission, please re-run `liepin-cli setup` to refresh credentials');
       const out = writeReport(toApply, results, counts, quota, false, 'apply permission 401');
       console.log(SUMMARY_BLOCK(out));

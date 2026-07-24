@@ -1,6 +1,6 @@
 # Liepin Fully-Automated Delivery Wizard · Error Codes and Exception Handling
 
-> This skill uses a three-layer mechanism of "E-series error code + process exit code + friendly phrasing". The scripts really implement all judgments; the agent (WorkBuddy) must proactively tell the user the reason in text by exit code.
+> This skill uses a three-layer mechanism of "E-series error code + process exit code + friendly phrasing". The scripts really implement all judgments; the agent must proactively tell the user the reason in text by exit code.
 
 ## 1. Process Exit Codes (agent must read)
 

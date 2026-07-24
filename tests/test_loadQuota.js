@@ -1,7 +1,7 @@
 // tests/test_loadQuota.js
-// 覆盖每日配额：读今日/跨日重置/文件缺失
-// 说明：apply_pipeline.js 在模块加载时固化 WORKDIR，故这里改用显式传入临时目录，
-// 不依赖 process.chdir，避免测试污染项目目录也更稳定。
+// ：//
+// ：apply_pipeline.js  WORKDIR，，
+//  process.chdir，。
 const assert = require('assert');
 const fs = require('fs');
 const os = require('os');
@@ -17,24 +17,24 @@ function runTests() {
     catch (e) { failed++; errors.push(`${label}: ${e.message}`); }
   }
 
-  test('无文件时返回今日 0 条', () => {
+  test(' 0 ', () => {
     const q = loadQuota(tmp);
     assert.strictEqual(q.date, today);
     assert.strictEqual(q.count, 0);
   });
-  test('读今日配额', () => {
+  test('', () => {
     fs.writeFileSync(path.join(tmp, 'liepin_daily_quota.json'), JSON.stringify({ date: today, count: 7 }));
     const q = loadQuota(tmp);
     assert.strictEqual(q.date, today);
     assert.strictEqual(q.count, 7);
   });
-  test('跨日自动重置为 0', () => {
+  test(' 0', () => {
     fs.writeFileSync(path.join(tmp, 'liepin_daily_quota.json'), JSON.stringify({ date: '2020-01-01', count: 99 }));
     const q = loadQuota(tmp);
     assert.strictEqual(q.date, today);
     assert.strictEqual(q.count, 0);
   });
-  test('文件损坏时返回今日 0 条', () => {
+  test(' 0 ', () => {
     fs.writeFileSync(path.join(tmp, 'liepin_daily_quota.json'), 'not-json');
     const q = loadQuota(tmp);
     assert.strictEqual(q.date, today);

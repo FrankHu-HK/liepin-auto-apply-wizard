@@ -1,7 +1,7 @@
 // tests/test_loadDelivered.js
-// 覆盖跨会话去重：合并历史报告，仅成功/已投过计入已投集合
-// 说明：apply_pipeline.js 在模块加载时固化 WORKDIR，故这里改用显式传入临时目录，
-// 不依赖 process.chdir，避免测试污染项目目录也更稳定。
+// ：，/
+// ：apply_pipeline.js  WORKDIR，，
+//  process.chdir，。
 const assert = require('assert');
 const fs = require('fs');
 const os = require('os');
@@ -25,17 +25,17 @@ function runTests() {
     ]
   }));
 
-  test('成功和已投过加入去重集合', () => {
+  test('', () => {
     const set = loadDelivered(tmp);
     assert.strictEqual(set.has(1001), true);
     assert.strictEqual(set.has(1002), true);
   });
-  test('失败和未知不加入去重集合', () => {
+  test('', () => {
     const set = loadDelivered(tmp);
     assert.strictEqual(set.has(1003), false);
     assert.strictEqual(set.has(1004), false);
   });
-  test('支持旧格式 items', () => {
+  test(' items', () => {
     fs.writeFileSync(path.join(tmp, 'liepin_apply_report.json'), JSON.stringify({
       items: [{ jobId: 2001, status: 'success' }, { jobId: 2002, status: 'already' }]
     }));
@@ -43,7 +43,7 @@ function runTests() {
     assert.strictEqual(set.has(2001), true);
     assert.strictEqual(set.has(2002), true);
   });
-  test('文件损坏不抛异常，返回已读数据', () => {
+  test('，', () => {
     fs.writeFileSync(path.join(tmp, 'liepin_apply_report_deep.json'), 'not json');
     const set = loadDelivered(tmp);
     assert.strictEqual(set.has(1001), true);

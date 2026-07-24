@@ -5,7 +5,7 @@
 ## 1. Preparation and Token
 
 **Q1: What environment do the scripts need?**
-A: Node.js 18+. The WorkBuddy managed runtime includes it, no extra install; on a normal PC with Node you can also directly run `node scripts/apply_pipeline.js`.
+A: Node.js 18+. Most managed runtimes include it, no extra install; on a normal PC with Node you can also directly run `node scripts/apply_pipeline.js`.
 
 **Q2: What is x-user-token and where does it come from?**
 A: After logging in to https://www.liepin.com/mcp/server and clicking "Generate credentials", you get a JWT string (starts with `eyJ`). It is the auth token for Liepin OpenAPI, passed inline in a single command via env `LIEPIN_TOKEN`.
@@ -25,7 +25,7 @@ A: No. This skill only connects to your own Liepin account; it cannot register o
 ## 2. Config and Wizard
 
 **Q7: What if the web wizard page won't open?**
-A: Auto-degrades to AskUserQuestion step-by-step collection (still includes "recruitment type"); functionality unaffected.
+A: Auto-degrades to a dialog popup for mode selection step-by-step collection (still includes "recruitment type"); functionality unaffected.
 
 **Q8: Do I have to fill all config items?**
 A: All have defaults. Leave defaults if unsure: keyword defaults to HR direction, industry/location "All", salary floor 25K, daily cap 50.

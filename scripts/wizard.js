@@ -24,8 +24,8 @@ function checkResumeExists() {
   const home = os.homedir();
   const cands = [
     process.env.LIEPIN_CLI_BIN,
-    path.join(home, '.workbuddy', 'binaries', 'python', 'envs', 'liepin-cli', 'Scripts', 'liepin-cli.exe'),
-    path.join(home, '.workbuddy', 'binaries', 'python', 'envs', 'liepin-cli', 'bin', 'liepin-cli'),
+    path.join(home, '.local', 'bin', 'liepin-cli'),
+    path.join(home, '.npm-global', 'bin', 'liepin-cli'),
     'liepin-cli',
   ].filter(Boolean);
   for (const bin of cands) {
