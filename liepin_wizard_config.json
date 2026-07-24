@@ -1,23 +1,23 @@
-{
-  "keywords": [
-    "",
-    "HRVP",
-    "",
-    "HRBP",
-    ""
-  ],
-  "industry": [
-    "__ALL__"
-  ],
-  "location": "__ALL__",
-  "salaryFloor": 30,
-  "salaryCeil": 500,
-  "levels": [
-    "__ALL__"
-  ],
-  "recruitmentType": "all",
-  "dailyCap": 50,
-  "maxPages": 6,
-  "runMode": "foreground",
-  "unattended": false
+{
+  "keywords": [
+    "",
+    "HRVP",
+    "",
+    "HRBP",
+    ""
+  ],
+  "industry": [
+    "__ALL__"
+  ],
+  "location": "__ALL__",
+  "salaryFloor": 30,
+  "salaryCeil": 500,
+  "levels": [
+    "__ALL__"
+  ],
+  "recruitmentType": "all",
+  "dailyCap": 50,
+  "maxPages": 6,
+  "runMode": "foreground",
+  "unattended": false
 }

@@ -42,7 +42,7 @@ function installLiepinCli() {
     console.log('[install] liepin-cli already at ' + CLI_EXE + ', skip install');
     return true;
   }
-  console.log('[install] liepin-cli not installed, start auto-install into managed Python venv…');
+  console.log('[install] liepin-cli not installed, start auto-install into managed Python venv...');
   // 1. Ensure a usable Python exists (override with PYTHON env if needed)
   const python = process.env.PYTHON || 'python';
   const probe = spawnSync(python, ['--version'], { windowsHide: true, timeout: 5000 });
@@ -53,7 +53,7 @@ function installLiepinCli() {
 
   // 2. Create/reuse venv
   if (!fs.existsSync(path.join(VENV_DIR, 'pyvenv.cfg'))) {
-    console.log('[install] creating venv at ' + VENV_DIR + '…');
+    console.log('[install] creating venv at ' + VENV_DIR + '...');
     const r = spawnSync(python, ['-m', 'venv', VENV_DIR], { windowsHide: true, timeout: 30000 });
     if (r.status !== 0) {
       console.error('[install] venv creation failed: ' + (r.stderr + '').slice(0, 200));
@@ -63,13 +63,13 @@ function installLiepinCli() {
 
   // 3. pip install liepin-cli
   const pip = path.join(BIN_DIR, 'pip');
-  console.log('[install] pip install liepin-cli… (may take 1~2 min)');
+  console.log('[install] pip install liepin-cli... (may take 1~2 min)');
   const r = spawnSync(pip, ['install', 'liepin-cli'], { windowsHide: true, timeout: 120000 });
   if (r.status !== 0) {
     const err = (r.stderr + '').slice(0, 300);
     console.error('[install] pip install liepin-cli failed: ' + err);
     // Try install from source
-    console.log('[install] trying install from source…');
+    console.log('[install] trying install from source...');
     const r2 = spawnSync(pip, ['install', 'git+https://github.com/liepin-tech-2026/liepin-cli.git'], { windowsHide: true, timeout: 120000 });
     if (r2.status !== 0) {
       console.error('[install] source install also failed: ' + (r2.stderr + '').slice(0, 300));

@@ -1,12 +1,12 @@
-{
-  "keywords": ["", "", ""],
-  "industry": ["__ALL__"],
-  "location": "__ALL__",
-  "salaryFloor": 25,
-  "salaryCeil": 500,
-  "recruitmentType": "nonRecruiter",
-  "dailyCap": 50,
-  "maxPages": 6,
-  "unattended": false,
-  "schedule": "0 9 * * *"
-}
+{
+  "keywords": ["", "", ""],
+  "industry": ["__ALL__"],
+  "location": "__ALL__",
+  "salaryFloor": 25,
+  "salaryCeil": 500,
+  "recruitmentType": "nonRecruiter",
+  "dailyCap": 50,
+  "maxPages": 6,
+  "unattended": false,
+  "schedule": "0 9 * * *"
+}

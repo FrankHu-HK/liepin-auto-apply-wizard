@@ -5,7 +5,7 @@ Generated at: 2026/7/19 19:50:03
 ## Overview
 - Total to apply this run: 41
 - Actually processed: 41
-- ✅ Success: 10　⚠️ Already applied: 31　❌ Fail: 0　❓ Unknown: 0
+- ✅ Success: 10 ⚠️ Already applied: 31 ❌ Fail: 0 ❓ Unknown: 0
 - Applied today: 19
 
 ## ✅ Success (10)

@@ -1,314 +1,628 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8" />
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
 <title>Liepin Auto-Apply Wizard · Criteria Settings</title>
+
 <style>
+
   :root{
+
     --bg:#f6f9fc; --card:#ffffff; --ink:#1a1f36; --sub:#697386;
+
     --line:#e6e9ef; --brand:#635bff; --brand-d:#4f46e5; --ok:#0a8a4a; --warn:#b54708;
+
   }
+
   *{box-sizing:border-box}
+
   body{margin:0;background:var(--bg);color:var(--ink);
+
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;}
+
   .wrap{max-width:680px;margin:0 auto;padding:28px 18px 60px;}
+
   .head{display:flex;align-items:center;gap:12px;margin-bottom:6px;}
+
   .logo{width:40px;height:40px;border-radius:11px;background:linear-gradient(135deg,#635bff,#8b7bff);
+
     display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:18px;box-shadow:0 6px 16px rgba(99,91,255,.35);}
+
   h1{font-size:20px;margin:0}
+
   .tag{font-size:12px;color:var(--sub);margin:2px 0 18px}
+
   .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 18px 8px;margin-bottom:14px;box-shadow:0 1px 2px rgba(16,24,40,.04);}
+
   .card h2{font-size:14px;margin:0 0 12px;color:var(--brand-d);letter-spacing:.3px;display:flex;align-items:center;gap:8px}
+
   .card h2 .n{width:20px;height:20px;border-radius:50%;background:var(--brand);color:#fff;font-size:12px;display:inline-flex;align-items:center;justify-content:center}
+
   label.fld{display:block;font-size:13px;color:var(--sub);margin:12px 0 6px}
+
   input[type=text],input[type=number],select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;color:var(--ink);background:#fff;outline:none;transition:.15s}
+
   input:focus,select:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(99,91,255,.15)}
+
   .row2{display:flex;gap:12px}
+
   .row2>div{flex:1}
+
   .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+
   .chip{position:relative}
+
   .chip input{position:absolute;opacity:0;pointer-events:none}
+
   .chip span{padding:8px 13px;border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--sub);cursor:pointer;user-select:none;transition:.15s;background:#fff}
+
   .chip input:checked+span{border-color:var(--brand);color:var(--brand-d);background:rgba(99,91,255,.08);font-weight:600}
+
   .radios{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+
   .radio{border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer;transition:.15s;display:flex;gap:10px;align-items:flex-start}
+
   .radio input{margin-top:3px}
+
   .radio.sel{border-color:var(--brand);background:rgba(99,91,255,.06)}
+
   .radio b{font-size:14px}
+
   .radio small{display:block;color:var(--sub);font-size:12px;margin-top:2px}
+
   .hint{font-size:12px;color:var(--sub);margin-top:4px}
+
   .submit{width:100%;margin-top:22px;padding:14px;border:0;border-radius:12px;background:var(--brand);color:#fff;font-size:15px;font-weight:600;cursor:pointer;box-shadow:0 8px 20px rgba(99,91,255,.35);transition:.15s}
+
   .submit:hover{background:var(--brand-d)}
+
   .submit:disabled{opacity:.6;cursor:not-allowed}
+
   .ok{display:none;background:#eafaf0;border:1px solid #b7ebc7;color:var(--ok);border-radius:14px;padding:18px;margin-top:10px}
+
   .ok h3{margin:0 0 8px;font-size:15px}
+
   .ok pre{background:#0c1f14;color:#b9f6ca;padding:12px;border-radius:10px;overflow:auto;font-size:12px;max-height:200px}
+
   .err{color:#c0392b;font-size:13px;margin-top:8px;min-height:18px}
+
   .foot{font-size:12px;color:var(--sub);text-align:center;margin-top:18px;line-height:1.6}
+
 </style>
+
 </head>
+
 <body>
+
 <div class="wrap">
+
   <div class="head"><div class="logo">L</div><h1>Liepin Auto-Apply Wizard</h1></div>
+
   <div class="tag">Fill in the criteria below once, then click "Submit and start auto-apply". No further action needed. All fields have defaults; if unsure, just leave the defaults.</div>
 
+
+
   <form id="f">
+
     <div class="card">
+
       <h2><span class="n">1</span>What roles do you want to apply for? (job title = role + level)</h2>
+
       <label class="fld">Job title (fill role and level together, separate multiple with comma / ideographic comma / space)</label>
+
       <input type="text" id="keywords" placeholder="e.g. HR Director, Finance Manager, Procurement Supervisor, IT Specialist, Recruiting Manager" />
+
       <div class="hint">Please combine role + level, e.g. HR Director, Finance Manager, Procurement Supervisor, IT Specialist, Recruiting Manager. Multiple directions allowed, separated by comma or ideographic comma; submitting empty prompts required.</div>
+
     </div>
 
+
+
     <div class="card">
+
       <h2><span class="n">2</span>Industry &amp; Work Location</h2>
+
       <label class="fld">Industry (multi-select; check "All" for all industries)</label>
+
       <div class="chips" id="industry">
+
         <label class="chip"><input type="checkbox" value="__ALL__" onchange="syncAll(this)"><span>All</span></label>
+
         <label class="chip"><input type="checkbox" value=""><span>Internet</span></label>
+
         <label class="chip"><input type="checkbox" value=""><span>AI</span></label>
+
         <label class="chip"><input type="checkbox" value="/IT"><span>Software/IT</span></label>
+
         <label class="chip"><input type="checkbox" value=""><span>Finance</span></label>
+
         <label class="chip"><input type="checkbox" value=""><span>Real Estate</span></label>
+
         <label class="chip"><input type="checkbox" value="/"><span>Construction/Engineering</span></label>
+
         <label class="chip"><input type="checkbox" value="/"><span>Manufacturing/Industry</span></label>
+
         <label class="chip"><input type="checkbox" value="/"><span>Medical/Pharma</span></label>
+
         <label class="chip"><input type="checkbox" value="/"><span>Education/Training</span></label>
+
         <label class="chip"><input type="checkbox" value=""><span>Automotive</span></label>
+
         <label class="chip"><input type="checkbox" value=""><span>New Energy</span></label>
+
         <label class="chip"><input type="checkbox" value="/"><span>E-commerce/Retail</span></label>
+
         <label class="chip"><input type="checkbox" value="/"><span>Media/Entertainment</span></label>
+
         <label class="chip"><input type="checkbox" value="/"><span>Legal/Consulting</span></label>
+
         <label class="chip"><input type="checkbox" value=""><span>HR Services</span></label>
+
         <label class="chip"><input type="checkbox" value="/"><span>Logistics/Supply Chain</span></label>
+
         <label class="chip"><input type="checkbox" value="/"><span>Energy/Chemical</span></label>
+
         <label class="chip"><input type="checkbox" value=""><span>Fast Moving Consumer Goods</span></label>
+
         <label class="chip"><input type="checkbox" value=""><span>Telecom</span></label>
+
         <label class="chip"><input type="checkbox" value="/"><span>Government/Public Institution</span></label>
+
       </div>
+
       <label class="fld">Work location (enter "All" for nationwide; or multiple cities separated by comma, e.g. "Zhuhai, Shenzhen, Guangzhou")</label>
+
       <input type="text" id="location" value="all" list="citylist" />
+
       <datalist id="citylist">
+
         <option value="all"></option><option value=""></option><option value=""></option>
+
         <option value=""></option><option value=""></option><option value=""></option><option value=""></option>
+
         <option value=""></option><option value=""></option><option value=""></option><option value=""></option>
+
       </datalist>
+
     </div>
 
+
+
     <div class="card">
+
       <h2><span class="n">3</span>Salary Range (unit K/month)</h2>
+
       <div class="row2">
+
         <div><label class="fld">Monthly floor</label><input type="number" id="salaryFloor" value="25" min="0" /></div>
+
         <div><label class="fld">Monthly ceiling</label><input type="number" id="salaryCeil" value="500" min="0" /></div>
+
       </div>
+
       <div class="hint">Floor 0 means no limit; ceiling very high (e.g. 999) means no limit.</div>
+
     </div>
 
+
+
     <div class="card">
+
       <h2><span class="n">4</span>Recruitment Type</h2>
+
       <div class="radios" id="rectype">
+
         <label class="radio" onclick="selRadio(this)"><input type="radio" name="rt" value="nonRecruiter" checked>
+
           <span><b>Non-recruiter positions only (recommended)</b><small>Only direct enterprise hiring; no recruiter / proxy-hire roles; highest response rate.</small></span></label>
+
         <label class="radio" onclick="selRadio(this)"><input type="radio" name="rt" value="recruiter">
+
           <span><b>Recruiter positions only</b><small>Only roles at recruiter / HR-service companies.</small></span></label>
+
         <label class="radio" onclick="selRadio(this)"><input type="radio" name="rt" value="all">
+
           <span><b>Both (recruiters at the end)</b><small>Keep all, but non-recruiter positions prioritized.</small></span></label>
+
       </div>
+
     </div>
+
+
 
     <div class="card" id="resumeCard" style="display:none">
+
       <h2><span class="n">5</span>Resume Info (no resume detected on Liepin, please fill)</h2>
+
       <div class="row2">
+
         <div><label class="fld">Full name</label><input type="text" id="realName" placeholder="Real name" /></div>
+
         <div><label class="fld">Gender</label>
+
           <select id="sex"><option value="">Please select</option><option value="">Male</option><option value="">Female</option></select>
+
         </div>
+
       </div>
+
       <div class="row2">
+
         <div><label class="fld">Birthday (e.g. 19950101)</label><input type="text" id="birthday" placeholder="19950101" /></div>
+
         <div><label class="fld">Work start year</label><input type="text" id="startJob" placeholder="2020" /></div>
+
       </div>
+
       <label class="fld">Highest education</label>
+
       <select id="degree">
+
         <option value="">Please select</option><option value="">High School</option><option value="">Associate</option>
+
         <option value="">Bachelor</option><option value="">Master</option><option value="">PhD</option>
+
       </select>
+
       <label class="fld">Work experience (company - title - start/end)</label>
+
       <input type="text" id="workExp" placeholder="e.g. Some Tech Co. - Backend Engineer - 202001-now" />
+
       <div class="hint">Format: company-title-start year-month-end year-month (separate multiple with semicolon)</div>
+
     </div>
 
+
+
     <div class="card">
+
       <h2><span class="n">6</span>Daily Delivery Cap</h2>
+
       <label class="fld">Max applications today (protect account from risk control)</label>
+
       <input type="number" id="dailyCap" value="50" min="1" max="999" />
+
       <div class="hint">Suggested 30~50. Reaching the cap auto-stops, rest left for tomorrow.</div>
+
     </div>
 
+
+
     <div class="card">
+
       <h2><span class="n">7</span>Run Mode</h2>
+
       <div class="radios" id="runMode">
+
         <label class="radio" onclick="selRadio(this)"><input type="radio" name="rm" value="foreground" checked>
+
           <span><b>Foreground (per-item display)</b><small>Each applied role's result shown immediately; you see progress throughout.</small></span></label>
+
         <label class="radio" onclick="selRadio(this)"><input type="radio" name="rm" value="background">
+
           <span><b>Background</b><small>After all matching roles applied, a consolidated summary report is given.</small></span></label>
+
       </div>
+
     </div>
 
+
+
     <div class="card">
+
       <h2><span class="n">8</span>Automation Run (Unattended)</h2>
+
       <div class="radios" id="ua">
+
         <label class="radio" onclick="selRadio(this);toggleSchedule()"><input type="radio" name="ua" value="on">
+
           <span><b>Enable unattended (zero touch)</b><small>Once checked, the skill can schedule auto-runs, no confirmation popup each time; still guarded by daily cap / rate-limit / circuit-break.</small></span></label>
+
         <label class="radio" onclick="selRadio(this);toggleSchedule()"><input type="radio" name="ua" value="off" checked>
+
           <span><b>Disabled (manual mode)</b><small>Default. Fill the wizard manually on next trigger then apply.</small></span></label>
+
       </div>
+
       <div id="scheduleWrap" style="display:none">
+
         <label class="fld" style="margin-top:12px">Auto-run frequency</label>
+
         <select id="schedule">
+
           <option value="0 9 * * *">Daily 09:00</option>
+
           <option value="0 12 * * *">Daily 12:00</option>
+
           <option value="0 20 * * *">Daily 20:00</option>
+
           <option value="0 */6 * * *">Every 6 hours</option>
+
           <option value="0 */12 * * *">Every 12 hours</option>
+
         </select>
+
         <div class="hint">Frequency only takes effect when "Enable unattended" is on; the skill auto-runs at that time (requires saved config + available Token).</div>
+
       </div>
+
     </div>
+
+
 
     <button type="submit" class="submit" id="btn">Submit and start auto-apply (zero further action)</button>
+
     <div class="err" id="err"></div>
+
   </form>
 
+
+
   <div class="ok" id="ok">
+
     <h3>✅ Requirements submitted</h3>
+
     <p style="font-size:13px;color:#0a8a4a;margin:0 0 8px">Saved to workspace <code>liepin_wizard_config.json</code>; the system has auto-started delivery, zero further action needed.</p>
+
     <pre id="cfg"></pre>
+
   </div>
 
+
+
   <div class="foot">Token is only used inline for this run, not persisted, not memorized, not logged.<br/>The whole delivery is visible in real time; interruptions are reported with reasons immediately.</div>
+
 </div>
 
+
+
 <script>
+
 function syncAll(box){
+
   var grp=box.closest('.chips');
+
   if(box.value==='__ALL__' && box.checked){
+
     grp.querySelectorAll('input').forEach(function(i){ if(i!==box) i.checked=false; });
+
   } else if(box.value!=='__ALL__' && box.checked){
+
     var all=grp.querySelector('input[value="__ALL__"]'); if(all) all.checked=false;
+
   }
+
 }
+
 function selRadio(el){ el.querySelector('input').checked=true;
+
   var grp=el.closest('.radios'); if(grp){ grp.querySelectorAll('.radio').forEach(function(r){r.classList.remove('sel')}); }
+
   el.classList.add('sel');
+
 }
+
 document.querySelectorAll('#rectype .radio').forEach(function(r){if(r.querySelector('input').checked)r.classList.add('sel')});
 
+
+
 // ---------------- Preference memory: pre-fill form with last saved config ----------------
+
 (function(){
+
   var p=window.__PREFILL__; if(!p) return;
+
   if(p.keywords) document.getElementById('keywords').value=Array.isArray(p.keywords)?p.keywords.join(','):p.keywords;
+
   var locEl=document.getElementById('location');
+
   if(p.location) locEl.value=(p.location==='__ALL__'||!p.location)?'all':p.location;
+
   if(p.salaryFloor!=null) document.getElementById('salaryFloor').value=p.salaryFloor;
+
   if(p.salaryCeil!=null) document.getElementById('salaryCeil').value=p.salaryCeil;
+
   if(p.dailyCap) document.getElementById('dailyCap').value=p.dailyCap;
+
   function setChips(id,vals){
+
     if(!Array.isArray(vals)) vals=[vals];
+
     document.querySelectorAll('#'+id+' input').forEach(function(b){ b.checked=vals.indexOf(b.value)>=0; });
+
   }
+
   setChips('industry', p.industry||['__ALL__']);
+
   if(p.recruitmentType){
+
     var rt=document.querySelector('input[name=rt][value="'+p.recruitmentType+'"]');
+
     if(rt){ rt.checked=true; rt.closest('.radio').classList.add('sel'); }
+
   }
+
   if(p.unattended){
+
     var ua=document.querySelector('input[name=ua][value="on"]');
+
     if(ua){ ua.checked=true; ua.closest('.radio').classList.add('sel'); }
+
   }
+
   if(p.schedule){ var sel=document.getElementById('schedule'); if(sel) sel.value=p.schedule; }
+
   if(p.runMode){
+
     var rmEl=document.querySelector('input[name=rm][value="'+p.runMode+'"]');
+
     if(rmEl){ rmEl.checked=true; rmEl.closest('.radio').classList.add('sel'); }
+
   }
+
   var tag=document.querySelector('.tag');
+
   if(tag){ tag.innerHTML='Your last delivery preference has been filled in ('+ (Array.isArray(p.keywords)?p.keywords.join(','):p.keywords) +'). You can modify then submit, or clear keywords to reset.'; }
+
 })();
+
+
 
 // ---------------- Automation frequency toggle (only shown when enabled) ----------------
+
 function toggleSchedule(){
+
   var on=document.querySelector('input[name=ua]:checked');
+
   var wrap=document.getElementById('scheduleWrap');
+
   if(wrap) wrap.style.display=(on && on.value==='on')?'block':'none';
+
 }
+
 // Initialize frequency toggle
+
 (function(){ toggleSchedule(); })();
 
+
+
 // ---------------- Resume detection: show resume card when no resume ----------------
+
 (function(){
+
   var card=document.getElementById('resumeCard');
+
   if(typeof window.__HAS_RESUME__!=='undefined' && !window.__HAS_RESUME__){
+
     card.style.display='block';
+
   } else {
+
     card.style.display='none';
+
   }
+
 })();
 
+
+
 function collectChips(id){
+
   var vals=Array.from(document.querySelectorAll('#'+id+' input:checked')).map(function(i){return i.value;});
+
   if(vals.indexOf('__ALL__')>=0) return ['__ALL__'];
+
   return vals.length?vals:['__ALL__'];
+
 }
-// Split keywords by Chinese/English comma, ideographic comma, semicolon, whitespace — avoid "whole string as one keyword"
+
+// Split keywords by Chinese/English comma, ideographic comma, semicolon, whitespace - avoid "whole string as one keyword"
+
 function splitKeywords(raw){
-  return String(raw||'').split(/[,，、;；\s]+/).map(function(s){return s.trim();}).filter(Boolean);
+
+  return String(raw||'').split(/[,,,;;\s]+/).map(function(s){return s.trim();}).filter(Boolean);
+
 }
+
 document.getElementById('f').addEventListener('submit',function(e){
+
   e.preventDefault();
+
   var err=document.getElementById('err'); err.textContent='';
+
   var keywords=splitKeywords(document.getElementById('keywords').value);
+
   if(!keywords.length){ err.textContent='Please enter at least one job keyword (separate multiple with comma or ideographic comma)'; return; }
+
   var sf=parseFloat(document.getElementById('salaryFloor').value)||0;
+
   var sc=parseFloat(document.getElementById('salaryCeil').value)||999;
+
   if(sc<sf && sc!==0){ err.textContent='Salary ceiling cannot be below floor (ceiling 0 means no limit)'; return; }
+
   var dc=parseInt(document.getElementById('dailyCap').value,10);
+
   if(!dc||dc<1){ err.textContent='Daily cap must be ≥ 1'; return; }
+
   // Location: empty or "all" normalized to __ALL__ (nationwide), avoid being treated as a real place name
+
   var locRaw=document.getElementById('location').value.trim();
+
   var location=(locRaw===''||locRaw==='all')?'__ALL__':locRaw;
+
   var cfg={
+
     keywords:keywords,
+
     industry:collectChips('industry'),
+
     location:location,
+
     salaryFloor:sf, salaryCeil:sc===0?999:sc,
+
     levels:['__ALL__'],
+
     recruitmentType:document.querySelector('input[name=rt]:checked').value,
+
     dailyCap:dc, maxPages:6,
+
     unattended:document.querySelector('input[name=ua]:checked').value==='on',
+
     schedule:document.getElementById('schedule').value,
+
     runMode:document.querySelector('input[name=rm]:checked')?document.querySelector('input[name=rm]:checked').value:'foreground'
+
   };
+
   // Collect resume fields when no resume
+
   if(typeof window.__HAS_RESUME__!=='undefined' && !window.__HAS_RESUME__){
+
     cfg.realName=document.getElementById('realName').value.trim();
+
     cfg.sex=document.getElementById('sex').value;
+
     cfg.birthday=document.getElementById('birthday').value.trim();
+
     cfg.startJob=document.getElementById('startJob').value.trim();
+
     cfg.degree=document.getElementById('degree').value;
+
     var we=document.getElementById('workExp').value.trim();
+
     if(we) cfg.workExp=we;
+
   }
+
   fetch('/submit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(cfg)})
+
     .then(function(r){return r.json();}).then(function(d){
+
       if(d.ok){
+
         document.getElementById('f').style.display='none';
+
         document.getElementById('ok').style.display='block';
+
         document.getElementById('cfg').textContent=JSON.stringify(cfg,null,2);
+
         try{ navigator.clipboard.writeText(JSON.stringify(cfg,null,2)); }catch(e){}
+
       } else { err.textContent='Save failed: '+(d.message||'unknown error'); }
+
     }).catch(function(e){ err.textContent='Submit failed: '+e.message; });
+
 });
+
 </script>
+
 </body>
+
 </html>
+

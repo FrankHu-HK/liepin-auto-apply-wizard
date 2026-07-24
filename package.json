@@ -1,19 +1,38 @@
 {
+
   "name": "liepin-auto-apply-wizard",
+
   "version": "3.0.0",
-  "description": "（Web  + / +  +  +  +  + /）。， Node 。",
+
+  "description": "(Web  + / +  +  +  +  + /)., Node .",
+
   "private": true,
+
   "license": "MIT",
+
   "engines": {
+
     "node": ">=18"
+
   },
+
   "main": "scripts/apply_pipeline.js",
+
   "scripts": {
+
     "wizard": "node scripts/wizard.js",
+
     "apply": "node scripts/apply_pipeline.js",
+
     "selfcheck": "node scripts/selfcheck.js",
+
     "test": "node tests/test_all.js"
+
   },
+
   "dependencies": {},
+
   "optionalDependencies": {}
+
 }
+

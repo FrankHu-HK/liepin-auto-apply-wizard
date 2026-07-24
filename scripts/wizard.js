@@ -49,7 +49,7 @@ function checkResumeExists() {
 const html = fs.readFileSync(HTML_PATH, 'utf8');
 
 // ---------------- Input normalization (same rules as apply_pipeline.js) ----------------
-const KEYWORD_SEP = /[,，、;；\s]+/;
+const KEYWORD_SEP = /[,,,;;\s]+/;
 function splitKeywords(v) {
   if (Array.isArray(v)) return v.map((s) => String(s).trim()).filter(Boolean);
   if (typeof v === 'string') return v.split(KEYWORD_SEP).map((s) => s.trim()).filter(Boolean);

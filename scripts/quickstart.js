@@ -58,7 +58,7 @@ function step2() {
   }
 
   // Not installed → auto-install
-  info('liepin-cli not installed, AI is auto-installing… (~1~2 min)');
+  info('liepin-cli not installed, AI is auto-installing... (~1~2 min)');
   const selfcheckPath = path.join(__dirname, 'selfcheck.js');
   const r2 = spawnSync(process.execPath, [selfcheckPath, '--auto-install'], {
     cwd: process.cwd(),
@@ -129,7 +129,7 @@ function step4() {
     } catch (e) {}
   }
 
-  info('No wizard config detected, opening the web wizard page for you…');
+  info('No wizard config detected, opening the web wizard page for you...');
   info('Please fill your job criteria on the web page and click "Submit".');
   log('');
   log('   Tip: just say "help me apply on Liepin" to auto-open the wizard.');

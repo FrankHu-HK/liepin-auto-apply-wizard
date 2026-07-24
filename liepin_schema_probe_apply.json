@@ -1,4 +1,7 @@
 {
-  "_note": "； []， apply_pipeline.js （extractJobList / normalizeJob）",
-  "raw": "{\r\n  \"data\": {\r\n    \"result\": \": ！\"\r\n  },\r\n  \"errCode\": 0\r\n}"
+
+  "_note": "; [], apply_pipeline.js (extractJobList / normalizeJob)",
+
+  "raw": "{\r\n  \"data\": {\r\n    \"result\": \": !\"\r\n  },\r\n  \"errCode\": 0\r\n}"
+
 }

@@ -114,7 +114,7 @@ Generated at: 2026/7/17 23:10:00
 ## Overview
 - Total to apply this run: 27
 - Actually processed: 27
-- ✅ Success: 18　⚠️ Already applied: 6　❌ Fail: 2　❓ Unknown: 1
+- ✅ Success: 18 ⚠️ Already applied: 6 ❌ Fail: 2 ❓ Unknown: 1
 - Applied today: 18
 
 ## ✅ Success (18)
@@ -137,10 +137,10 @@ Generated at: 2026/7/17 23:10:00
 ## 6. Pre-delivery Auto-Notify Example (non-blocking log broadcast)
 ```
 [Daily quota] Daily cap = 50, applied 0 today, max applicable this run 50
-[Filter settings] Keywords=HR Director,Finance Manager　Industry=All　Location=Nationwide　Salary=25K~500K　Recruitment type=Non-recruiter only
-[Filter result] By your settings, 11 valid matching roles found, starting delivery now…
-[Apply 1/11] HR Director @ Some Tech Group (Shenzhen)｜Success: applied
-[Apply 2/11] Finance Manager @ Some Finance (Shanghai)｜Already applied: skipped
+[Filter settings] Keywords=HR Director,Finance Manager Industry=All Location=Nationwide Salary=25K~500K Recruitment type=Non-recruiter only
+[Filter result] By your settings, 11 valid matching roles found, starting delivery now...
+[Apply 1/11] HR Director @ Some Tech Group (Shenzhen)|Success: applied
+[Apply 2/11] Finance Manager @ Some Finance (Shanghai)|Already applied: skipped
 ... (per-item real-time display)
 ```
 

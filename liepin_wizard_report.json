@@ -1,470 +1,939 @@
 {
+
   "generatedAt": "2026-07-19T11:50:03.921Z",
+
   "summary": {
+
     "success": 10,
+
     "already": 31,
+
     "fail": 0,
+
     "unknown": 0,
+
     "total": 41,
+
     "applied": 41
+
   },
+
   "dailyQuota": {
+
     "date": "2026-07-19",
+
     "count": 19
+
   },
+
   "quotaReached": false,
+
   "note": null,
+
   "results": [
+
     {
+
       "jobId": 84233251,
-      "jobName": "【】HRD",
+
+      "jobName": "[]HRD",
+
       "company": "",
+
       "industry": "//",
+
       "salary": "60-80k",
+
       "location": "-",
+
       "recruiter": false,
+
       "status": "already",
-      "message": "{\"result\":\": ！\"}"
+
+      "message": "{\"result\":\": !\"}"
+
     },
+
     {
+
       "jobId": 84232923,
+
       "jobName": "",
+
       "company": "",
+
       "industry": "//",
+
       "salary": "40-60k",
+
       "location": "-",
+
       "recruiter": false,
+
       "status": "already",
-      "message": "{\"result\":\": ！\"}"
+
+      "message": "{\"result\":\": !\"}"
+
     },
+
     {
+
       "jobId": 84232911,
+
       "jobName": "",
+
       "company": "",
+
       "industry": "//",
+
       "salary": "40-60k",
+
       "location": "",
+
       "recruiter": false,
+
       "status": "already",
-      "message": "{\"result\":\": ！\"}"
+
+      "message": "{\"result\":\": !\"}"
+
     },
+
     {
+
       "jobId": 84230445,
+
       "jobName": "",
+
       "company": "",
+
       "industry": "//",
+
       "salary": "30-50k·14",
+
       "location": "-",
+
       "recruiter": false,
+
       "status": "already",
-      "message": "{\"result\":\": ！\"}"
+
+      "message": "{\"result\":\": !\"}"
+
     },
+
     {
+
       "jobId": 84226409,
-      "jobName": "（+）",
+
+      "jobName": "(+)",
+
       "company": "",
+
       "industry": ",/",
+
       "salary": "45-55k·14",
+
       "location": "-",
+
       "recruiter": false,
+
       "status": "already",
-      "message": "{\"result\":\": ！\"}"
+
+      "message": "{\"result\":\": !\"}"
+
     },
+
     {
+
       "jobId": 84017901,
+
       "jobName": "SSC",
+
       "company": "",
+
       "industry": "",
+
       "salary": "35-55k·16",
+
       "location": "-",
+
       "recruiter": false,
+
       "status": "already",
-      "message": "{\"result\":\": ！\"}"
+
+      "message": "{\"result\":\": !\"}"
+
     },
+
     {
+
       "jobId": 84012453,
+
       "jobName": "People & Culture Director, Greater China",
+
       "company": "",
+
       "industry": "",
+
       "salary": "",
+
       "location": "-",
+
       "recruiter": false,
+
       "status": "already",
-      "message": "{\"result\":\": ！\"}"
+
+      "message": "{\"result\":\": !\"}"
+
     },
+
     {
+
       "jobId": 83962749,
-      "jobName": "/（：//）",
+
+      "jobName": "/(://)",
+
       "company": "",
+
       "industry": ",/",
+
       "salary": "60-70k·13",
+
       "location": "",
+
       "recruiter": false,
+
       "status": "already",
-      "message": "{\"result\":\": ！\"}"
+
+      "message": "{\"result\":\": !\"}"
+
     },
+
     {
+
       "jobId": 83869851,
+
       "jobName": "HR",
+
       "company": "",
+
       "industry": "",
+
       "salary": "",
+
       "location": "",
+
       "recruiter": false,
+
       "status": "already",
-      "message": "{\"result\":\": ！\"}"
+
+      "message": "{\"result\":\": !\"}"
+
     },
+
     {
+
       "jobId": 82912233,
+
       "jobName": "",
+
       "company": "",
+
       "industry": "",
+
       "salary": "40-60k",
+
       "location": "-",
+
       "recruiter": false,
+
       "status": "already",
-      "message": "{\"result\":\": ！\"}"
+
+      "message": "{\"result\":\": !\"}"
+
     },
+
     {
+
       "jobId": 82664899,
-      "jobName": "（）",
+
+      "jobName": "()",
+
       "company": "",
+
       "industry": "///,",
+
       "salary": "40-50k·13",
+
       "location": "-",
+
       "recruiter": false,
+
       "status": "already",
-      "message": "{\"result\":\": ！\"}"
+
+      "message": "{\"result\":\": !\"}"
+
     },
+
     {
+
       "jobId": 82593953,
+
       "jobName": "",
+
       "company": "",
+
       "industry": "/,,",
+
       "salary": "30-45k",
+
       "location": "",
+
       "recruiter": false,
+
       "status": "already",
-      "message": "{\"result\":\": ！\"}"
+
+      "message": "{\"result\":\": !\"}"
+
     },
+
     {
+
       "jobId": 79863211,
+
       "jobName": "",
+
       "company": "",
+
       "industry": "///,",
+
       "salary": "50-60k·13",
+
       "location": "-",
+
       "recruiter": false,
+
       "status": "already",
-      "message": "{\"result\":\": ！\"}"
+
+      "message": "{\"result\":\": !\"}"
+
     },
+
     {
+
       "jobId": 78950209,
+
       "jobName": "",
+
       "company": "",
+
       "industry": "",
+
       "salary": "40-65k",
+
       "location": "-",
+
       "recruiter": false,
+
       "status": "already",
-      "message": "{\"result\":\": ！\"}"
+
+      "message": "{\"result\":\": !\"}"
+
     },
+
     {
+
       "jobId": 83675885,
+
       "jobName": "HRVP/CHO",
+
       "company": "",
+
       "industry": "",
+
       "salary": "150-300k",
+
       "location": "-",
+
       "recruiter": false,
+
       "status": "already",
-      "message": "{\"result\":\": ！\"}"
+
+      "message": "{\"result\":\": !\"}"
+
     },
+
     {
+
       "jobId": 74432979,
+
       "jobName": "",
+
       "company": "",
+
       "industry": "",
+
       "salary": "30-45k",
+
       "location": "-",
+
       "recruiter": false,
+
       "status": "already",
-      "message": "{\"result\":\": ！\"}"
+
+      "message": "{\"result\":\": !\"}"
+
     },
+
     {
+
       "jobId": 78026505,
-      "jobName": "HRG（）",
+
+      "jobName": "HRG()",
+
       "company": "",
+
       "industry": ",",
+
       "salary": "35-45k·13",
+
       "location": "",
+
       "recruiter": false,
+
       "status": "already",
-      "message": "{\"result\":\": ！\"}"
+
+      "message": "{\"result\":\": !\"}"
+
     },
+
     {
+
       "jobId": 78026371,
+
       "jobName": "",
+
       "company": "",
+
       "industry": "",
+
       "salary": "100-130k·15",
+
       "location": "",
+
       "recruiter": false,
+
       "status": "already",
-      "message": "{\"result\":\": ！\"}"
+
+      "message": "{\"result\":\": !\"}"
+
     },
+
     {
+
       "jobId": 78026353,
-      "jobName": "HRVP/HRD（，）",
+
+      "jobName": "HRVP/HRD(,)",
+
       "company": "",
+
       "industry": ",/,//",
+
       "salary": "40-60k·15",
+
       "location": "",
+
       "recruiter": false,
+
       "status": "already",
-      "message": "{\"result\":\": ！\"}"
+
+      "message": "{\"result\":\": !\"}"
+
     },
+
     {
+
       "jobId": 77919303,
+
       "jobName": "CHO",
+
       "company": "",
+
       "industry": "",
+
       "salary": "150-180k",
+
       "location": "",
+
       "recruiter": false,
+
       "status": "already",
-      "message": "{\"result\":\": ！\"}"
+
+      "message": "{\"result\":\": !\"}"
+
     },
+
     {
+
       "jobId": 77901283,
-      "jobName": "VP｜",
+
+      "jobName": "VP|",
+
       "company": "",
+
       "industry": ",",
+
       "salary": "40-65k·16",
+
       "location": "",
+
       "recruiter": false,
+
       "status": "already",
-      "message": "{\"result\":\": ！\"}"
+
+      "message": "{\"result\":\": !\"}"
+
     },
+
     {
+
       "jobId": 77889585,
+
       "jobName": "",
+
       "company": "",
+
       "industry": ",IT",
+
       "salary": "100-130k",
+
       "location": "",
+
       "recruiter": false,
+
       "status": "success",
+
       "message": "{\"result\":\"\"}"
+
     },
+
     {
+
       "jobId": 77864493,
+
       "jobName": "HRVP/CHO",
+
       "company": "",
+
       "industry": "//",
+
       "salary": "120-180k·16",
+
       "location": "",
+
       "recruiter": false,
+
       "status": "success",
+
       "message": "{\"result\":\"\"}"
+
     },
+
     {
+
       "jobId": 77826345,
+
       "jobName": "VP",
+
       "company": "",
+
       "industry": "",
+
       "salary": "80-85k",
+
       "location": "",
+
       "recruiter": false,
+
       "status": "success",
+
       "message": "{\"result\":\"\"}"
+
     },
+
     {
+
       "jobId": 77825011,
+
       "jobName": "CHO",
+
       "company": "/",
+
       "industry": "/,//",
+
       "salary": "120-220k·13",
+
       "location": "",
+
       "recruiter": false,
+
       "status": "success",
+
       "message": "{\"result\":\"\"}"
+
     },
+
     {
+
       "jobId": 77756111,
+
       "jobName": "",
+
       "company": "//",
+
       "industry": "//,/",
+
       "salary": "100-120k",
+
       "location": "",
+
       "recruiter": false,
+
       "status": "success",
+
       "message": "{\"result\":\"\"}"
+
     },
+
     {
+
       "jobId": 78003725,
+
       "jobName": "",
+
       "company": "/",
+
       "industry": "/",
+
       "salary": "30-35k",
+
       "location": "",
+
       "recruiter": false,
+
       "status": "already",
-      "message": "{\"result\":\": ！\"}"
+
+      "message": "{\"result\":\": !\"}"
+
     },
+
     {
+
       "jobId": 77953837,
-      "jobName": "（OD）",
+
+      "jobName": "(OD)",
+
       "company": "//",
+
       "industry": "//",
+
       "salary": "30-50k·15",
+
       "location": "",
+
       "recruiter": false,
+
       "status": "already",
-      "message": "{\"result\":\": ！\"}"
+
+      "message": "{\"result\":\": !\"}"
+
     },
+
     {
+
       "jobId": 77793949,
+
       "jobName": "OD()",
+
       "company": "",
+
       "industry": ",",
+
       "salary": "60-90k",
+
       "location": "",
+
       "recruiter": false,
+
       "status": "already",
-      "message": "{\"result\":\": ！\"}"
+
+      "message": "{\"result\":\": !\"}"
+
     },
+
     {
+
       "jobId": 77755731,
-      "jobName": "（OD ）",
+
+      "jobName": "(OD )",
+
       "company": "",
+
       "industry": "",
+
       "salary": "35-45k",
+
       "location": "",
+
       "recruiter": false,
+
       "status": "success",
+
       "message": "{\"result\":\"\"}"
+
     },
+
     {
+
       "jobId": 77345479,
-      "jobName": "（、）",
+
+      "jobName": "(,)",
+
       "company": "",
+
       "industry": ",//,IT",
+
       "salary": "90-110k",
+
       "location": "",
+
       "recruiter": false,
+
       "status": "already",
-      "message": "{\"result\":\": ！\"}"
+
+      "message": "{\"result\":\": !\"}"
+
     },
+
     {
+
       "jobId": 76209433,
+
       "jobName": "OD",
+
       "company": "/",
+
       "industry": "/,,/",
+
       "salary": "80-100k·16",
+
       "location": "",
+
       "recruiter": false,
+
       "status": "already",
-      "message": "{\"result\":\": ！\"}"
+
+      "message": "{\"result\":\": !\"}"
+
     },
+
     {
+
       "jobId": 76035449,
-      "jobName": "OD（）",
+
+      "jobName": "OD()",
+
       "company": "",
+
       "industry": "",
+
       "salary": "40-60k",
+
       "location": "",
+
       "recruiter": false,
+
       "status": "success",
+
       "message": "{\"result\":\"\"}"
+
     },
+
     {
+
       "jobId": 75253929,
+
       "jobName": "/SSC/",
+
       "company": "/",
+
       "industry": "/",
+
       "salary": "60-90k·17",
+
       "location": "",
+
       "recruiter": false,
+
       "status": "already",
-      "message": "{\"result\":\": ！\"}"
+
+      "message": "{\"result\":\": !\"}"
+
     },
+
     {
+
       "jobId": 77311109,
+
       "jobName": "",
+
       "company": "",
+
       "industry": "",
+
       "salary": "30-35k",
+
       "location": "",
+
       "recruiter": false,
+
       "status": "already",
-      "message": "{\"result\":\": ！\"}"
+
+      "message": "{\"result\":\": !\"}"
+
     },
+
     {
+
       "jobId": 76946313,
-      "jobName": "（HRD）",
+
+      "jobName": "(HRD)",
+
       "company": "",
+
       "industry": ",,/",
+
       "salary": "80-100k",
+
       "location": "",
+
       "recruiter": false,
+
       "status": "success",
+
       "message": "{\"result\":\"\"}"
+
     },
+
     {
+
       "jobId": 84221749,
+
       "jobName": "",
+
       "company": "",
+
       "industry": "/",
+
       "salary": "30-40k·13",
+
       "location": "",
+
       "recruiter": false,
+
       "status": "already",
-      "message": "{\"result\":\": ！\"}"
+
+      "message": "{\"result\":\": !\"}"
+
     },
+
     {
+
       "jobId": 84221747,
+
       "jobName": "",
+
       "company": "",
+
       "industry": "/",
+
       "salary": "30-40k·13",
+
       "location": "",
+
       "recruiter": false,
+
       "status": "success",
+
       "message": "{\"result\":\"\"}"
+
     },
+
     {
+
       "jobId": 83847265,
+
       "jobName": "COE-OD",
+
       "company": "",
+
       "industry": "",
+
       "salary": "30-35k·15",
+
       "location": "",
+
       "recruiter": false,
+
       "status": "already",
-      "message": "{\"result\":\": ！\"}"
+
+      "message": "{\"result\":\": !\"}"
+
     },
+
     {
+
       "jobId": 83573461,
+
       "jobName": "/",
+
       "company": "",
+
       "industry": "",
+
       "salary": "30-55k",
+
       "location": "-",
+
       "recruiter": false,
+
       "status": "success",
+
       "message": "{\"result\":\"\"}"
+
     },
+
     {
+
       "jobId": 83325867,
+
       "jobName": "",
+
       "company": "",
+
       "industry": "/",
+
       "salary": "50-60k·14",
+
       "location": "-",
+
       "recruiter": false,
+
       "status": "already",
-      "message": "{\"result\":\": ！\"}"
+
+      "message": "{\"result\":\": !\"}"
+
     }
+
   ]
+
 }
