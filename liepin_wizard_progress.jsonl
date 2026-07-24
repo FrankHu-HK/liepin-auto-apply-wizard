@@ -1,0 +1,41 @@
+{"seq":1,"ts":1784460867624,"jobId":84233251,"jobName":"【集团】海外国家HRD","company":"极兔速递","location":"上海-重固","status":"already","message":"{\"result\":\"应聘失败: 您已投递过该职位！\"}"}
+{"seq":2,"ts":1784460889481,"jobId":84232923,"jobName":"人力资源负责人","company":"圆通","location":"天津-佟楼","status":"already","message":"{\"result\":\"应聘失败: 您已投递过该职位！\"}"}
+{"seq":3,"ts":1784460912862,"jobId":84232911,"jobName":"人力资源负责人","company":"圆通","location":"沙依巴克区","status":"already","message":"{\"result\":\"应聘失败: 您已投递过该职位！\"}"}
+{"seq":4,"ts":1784460936197,"jobId":84230445,"jobName":"人事总监","company":"上海左麟阀门有限公司","location":"上海-川沙","status":"already","message":"{\"result\":\"应聘失败: 您已投递过该职位！\"}"}
+{"seq":5,"ts":1784460959477,"jobId":84226409,"jobName":"集团人力资源副总监（分管集团薪酬绩效+海外事业部）","company":"万丰集团","location":"绍兴-七星","status":"already","message":"{\"result\":\"应聘失败: 您已投递过该职位！\"}"}
+{"seq":6,"ts":1784460982875,"jobId":84017901,"jobName":"SSC总经理","company":"能良电商","location":"梅州-客天下","status":"already","message":"{\"result\":\"应聘失败: 您已投递过该职位！\"}"}
+{"seq":7,"ts":1784461006185,"jobId":84012453,"jobName":"People & Culture Director, Greater China","company":"康乐保","location":"北京-望京","status":"already","message":"{\"result\":\"应聘失败: 您已投递过该职位！\"}"}
+{"seq":8,"ts":1784461029577,"jobId":83962749,"jobName":"海外人力总监/经理（工作地点：加拿大/德国/奥地利）","company":"万丰集团","location":"宾顿","status":"already","message":"{\"result\":\"应聘失败: 您已投递过该职位！\"}"}
+{"seq":9,"ts":1784461052884,"jobId":83869851,"jobName":"人力资源HR负责人","company":"艺妙生物","location":"大兴区","status":"already","message":"{\"result\":\"应聘失败: 您已投递过该职位！\"}"}
+{"seq":10,"ts":1784461076278,"jobId":82912233,"jobName":"人力资源副总监","company":"金粒门","location":"深圳-大冲","status":"already","message":"{\"result\":\"应聘失败: 您已投递过该职位！\"}"}
+{"seq":11,"ts":1784461099696,"jobId":82664899,"jobName":"人力资源总监（热电产业集团）","company":"江西百通能源股份有限公司","location":"北京-白纸坊","status":"already","message":"{\"result\":\"应聘失败: 您已投递过该职位！\"}"}
+{"seq":12,"ts":1784461123080,"jobId":82593953,"jobName":"人力资源经理","company":"浙江中胜实业集团有限公司","location":"安哥拉","status":"already","message":"{\"result\":\"应聘失败: 您已投递过该职位！\"}"}
+{"seq":13,"ts":1784461146494,"jobId":79863211,"jobName":"人力资源总监","company":"江西百通能源股份有限公司","location":"北京-白纸坊","status":"already","message":"{\"result\":\"应聘失败: 您已投递过该职位！\"}"}
+{"seq":14,"ts":1784461169845,"jobId":78950209,"jobName":"人事行政总监","company":"长甲集团","location":"上海-金桥","status":"already","message":"{\"result\":\"应聘失败: 您已投递过该职位！\"}"}
+{"seq":15,"ts":1784461193261,"jobId":83675885,"jobName":"HRVP/CHO","company":"硕明才略","location":"深圳-西丽","status":"already","message":"{\"result\":\"应聘失败: 您已投递过该职位！\"}"}
+{"seq":16,"ts":1784461216702,"jobId":74432979,"jobName":"人事总监","company":"长甲集团","location":"上海-金桥","status":"already","message":"{\"result\":\"应聘失败: 您已投递过该职位！\"}"}
+{"seq":17,"ts":1784461239979,"jobId":78026505,"jobName":"HRG（电商行业）","company":"某西安大型医疗器械公司","location":"杭州","status":"already","message":"{\"result\":\"应聘失败: 您已投递过该职位！\"}"}
+{"seq":18,"ts":1784461263326,"jobId":78026371,"jobName":"人力资源总经理","company":"某知名公司","location":"深圳","status":"already","message":"{\"result\":\"应聘失败: 您已投递过该职位！\"}"}
+{"seq":19,"ts":1784461286863,"jobId":78026353,"jobName":"HRVP/HRD（研产销，硬件产品公司）","company":"某深圳计算机硬件公司","location":"深圳","status":"already","message":"{\"result\":\"应聘失败: 您已投递过该职位！\"}"}
+{"seq":20,"ts":1784461310212,"jobId":77919303,"jobName":"CHO","company":"某深圳互联网公司","location":"深圳","status":"already","message":"{\"result\":\"应聘失败: 您已投递过该职位！\"}"}
+{"seq":21,"ts":1784461333495,"jobId":77901283,"jobName":"人力资源VP副总裁｜总经理","company":"某知名公司","location":"北京","status":"already","message":"{\"result\":\"应聘失败: 您已投递过该职位！\"}"}
+{"seq":22,"ts":1784461357013,"jobId":77889585,"jobName":"海外人力资源总监","company":"某武汉通信设备上市公司","location":"深圳","status":"success","message":"{\"result\":\"应聘成功\"}"}
+{"seq":23,"ts":1784461380346,"jobId":77864493,"jobName":"HRVP/CHO","company":"广州上市美妆公司","location":"广州","status":"success","message":"{\"result\":\"应聘成功\"}"}
+{"seq":24,"ts":1784461403661,"jobId":77826345,"jobName":"人力VP","company":"某北京大型化工公司","location":"北京","status":"success","message":"{\"result\":\"应聘成功\"}"}
+{"seq":25,"ts":1784461427153,"jobId":77825011,"jobName":"CHO人力一把手","company":"某深圳智能硬件/消费电子上市公司","location":"深圳","status":"success","message":"{\"result\":\"应聘成功\"}"}
+{"seq":26,"ts":1784461450490,"jobId":77756111,"jobName":"人力副总裁","company":"某国内电子/半导体/集成电路公司","location":"南昌","status":"success","message":"{\"result\":\"应聘成功\"}"}
+{"seq":27,"ts":1784461473875,"jobId":78003725,"jobName":"人才管理与组织发展总监","company":"某国内机械/设备上市公司","location":"柳州","status":"already","message":"{\"result\":\"应聘失败: 您已投递过该职位！\"}"}
+{"seq":28,"ts":1784461497173,"jobId":77953837,"jobName":"人力资源副总监（偏OD）","company":"某广州大型服装/纺织/皮革公司","location":"广州","status":"already","message":"{\"result\":\"应聘失败: 您已投递过该职位！\"}"}
+{"seq":29,"ts":1784461520558,"jobId":77793949,"jobName":"组织发展总监OD(国企上市)","company":"某国内知名上市公司","location":"西城区","status":"already","message":"{\"result\":\"应聘失败: 您已投递过该职位！\"}"}
+{"seq":30,"ts":1784461544041,"jobId":77755731,"jobName":"组织发展总监（OD 总监）","company":"某国内新能源公司","location":"南昌","status":"success","message":"{\"result\":\"应聘成功\"}"}
+{"seq":31,"ts":1784461567435,"jobId":77345479,"jobName":"人力资源总监（组织发展、培训）","company":"某广州大型互联网公司","location":"天河区","status":"already","message":"{\"result\":\"应聘失败: 您已投递过该职位！\"}"}
+{"seq":32,"ts":1784461590834,"jobId":76209433,"jobName":"OD总监","company":"某深圳电气机械/器材上市公司","location":"深圳","status":"already","message":"{\"result\":\"应聘失败: 您已投递过该职位！\"}"}
+{"seq":33,"ts":1784461614298,"jobId":76035449,"jobName":"OD总监（组织发展总监）","company":"某光伏知名头部企业","location":"上海","status":"success","message":"{\"result\":\"应聘成功\"}"}
+{"seq":34,"ts":1784461637825,"jobId":75253929,"jobName":"组织发展总监/SSC总监/人力资源总监","company":"某国内大型机械/设备公司","location":"深圳","status":"already","message":"{\"result\":\"应聘失败: 您已投递过该职位！\"}"}
+{"seq":35,"ts":1784461661277,"jobId":77311109,"jobName":"组织发展副总监","company":"某东莞大型新能源公司","location":"深圳","status":"already","message":"{\"result\":\"应聘失败: 您已投递过该职位！\"}"}
+{"seq":36,"ts":1784461684892,"jobId":76946313,"jobName":"组织发展总监（HRD）","company":"某电子商务上市公司","location":"广州","status":"success","message":"{\"result\":\"应聘成功\"}"}
+{"seq":37,"ts":1784461708409,"jobId":84221749,"jobName":"集团组织发展总监","company":"尚美数智酒店集团","location":"黄岛区","status":"already","message":"{\"result\":\"应聘失败: 您已投递过该职位！\"}"}
+{"seq":38,"ts":1784461731890,"jobId":84221747,"jobName":"集团组织发展总监","company":"尚美数智酒店集团","location":"黄浦区","status":"success","message":"{\"result\":\"应聘成功\"}"}
+{"seq":39,"ts":1784461755382,"jobId":83847265,"jobName":"COE总监-薪酬激励OD","company":"复星医药集团","location":"宝山区","status":"already","message":"{\"result\":\"应聘失败: 您已投递过该职位！\"}"}
+{"seq":40,"ts":1784461778914,"jobId":83573461,"jobName":"组织与人才发展经理/总监","company":"广州恩飞投资有限公司","location":"广州-华乐","status":"success","message":"{\"result\":\"应聘成功\"}"}
+{"seq":41,"ts":1784461802408,"jobId":83325867,"jobName":"组织与人才发展总监","company":"卓越物业","location":"深圳-市中心区","status":"already","message":"{\"result\":\"应聘失败: 您已投递过该职位！\"}"}

@@ -1,0 +1,4 @@
+{
+  "_note": "首次真实调用原始响应探针；字段名 [需核实]，请据此校准 apply_pipeline.js 的解析（extractJobList / normalizeJob）",
+  "raw": "{\r\n  \"data\": {\r\n    \"result\": \"应聘失败: 您已投递过该职位！\"\r\n  },\r\n  \"errCode\": 0\r\n}"
+}
