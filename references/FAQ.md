@@ -1,176 +1,176 @@
-# 猎聘全自动投递向导 · 常见问题 FAQ（51 条）
+# Liepin Fully-Automated Delivery Wizard · FAQ (51 items)
 
-> 覆盖高频疑问与边界场景。遇到拿不准的情况，先查本表；仍不确定，按 errors.md 的对应错误码处理或回阶段 0 重新获取 Token。
+> Covers high-frequency questions and boundary scenarios. When unsure, check this table first; if still unsure, handle by the corresponding error code in errors.md or go back to Stage 0 to re-fetch Token.
 
-## 一、准备与 Token
+## 1. Preparation and Token
 
-**Q1：脚本运行需要什么环境？**
-A：Node.js 18+。WorkBuddy 受管运行时自带，无需额外安装；普通电脑装了 Node 也能直接跑 `node scripts/apply_pipeline.js`。
+**Q1: What environment do the scripts need?**
+A: Node.js 18+. The WorkBuddy managed runtime includes it, no extra install; on a normal PC with Node you can also directly run `node scripts/apply_pipeline.js`.
 
-**Q2：x-user-token 是什么、从哪来？**
-A：登录 https://www.liepin.com/mcp/server 后点「生成凭证」得到的 JWT 串（以 `eyJ` 开头）。它就是猎聘 OpenAPI 的鉴权令牌，通过环境变量 `LIEPIN_TOKEN` 在单次命令内联传入。
+**Q2: What is x-user-token and where does it come from?**
+A: After logging in to https://www.liepin.com/mcp/server and clicking "Generate credentials", you get a JWT string (starts with `eyJ`). It is the auth token for Liepin OpenAPI, passed inline in a single command via env `LIEPIN_TOKEN`.
 
-**Q3：Token 有效期多久？**
-A：标称 90 天，但高频批量请求可能触发服务端提前吊销。若投递报 401，回阶段 0 重新生成一个即可。
+**Q3: How long is the Token valid?**
+A: Nominal 90 days, but high-frequency bulk requests may trigger early server revocation. If delivery returns 401, go back to Stage 0 and regenerate one.
 
-**Q4：为什么 search 通但 apply 报 401？**
-A：猎聘对 search-job 与 apply-job 授权可能分离。生成凭证时确认已勾选 apply 权限；预检首条失败即中止并提示重新生成。
+**Q4: Why does search work but apply returns 401?**
+A: Liepin may separate authorization for search-job and apply-job. When generating credentials confirm apply permission is checked; first-item pre-check failure aborts and prompts regeneration.
 
-**Q5：Token 会被保存吗？**
-A：不会。仅本次命令内联（`$env:LIEPIN_TOKEN=...`），不落盘、不记记忆、不打日志。
+**Q5: Will the Token be saved?**
+A: No. Only inline for this command (`$env:LIEPIN_TOKEN=...`), not persisted, not memorized, not logged.
 
-**Q6：没有猎聘账号能用吗？**
-A：不能。本技能只对接你本人的猎聘账号，无法代替注册或绕过鉴权。
+**Q6: Can I use it without a Liepin account?**
+A: No. This skill only connects to your own Liepin account; it cannot register on your behalf or bypass auth.
 
-## 二、配置与向导
+## 2. Config and Wizard
 
-**Q7：Web 向导页面打不开怎么办？**
-A：自动退化为 AskUserQuestion 分步收集（仍含「招聘类型」），功能不受影响。
+**Q7: What if the web wizard page won't open?**
+A: Auto-degrades to AskUserQuestion step-by-step collection (still includes "recruitment type"); functionality unaffected.
 
-**Q8：所有配置项都要填吗？**
-A：都有默认值。不懂就留默认：关键词默认 HR 方向、行业/地点「不限」、薪资下限 25K、每日上限 50。
+**Q8: Do I have to fill all config items?**
+A: All have defaults. Leave defaults if unsure: keyword defaults to HR direction, industry/location "All", salary floor 25K, daily cap 50.
 
-**Q9：recruitmentType 三个值怎么选？**
-A：`nonRecruiter` 只要企业直招（推荐，回复率最高）；`recruiter` 只要猎头/人力服务公司岗；`all` 全要但非猎头优先。
+**Q9: How to choose among the three recruitmentType values?**
+A: `nonRecruiter` keeps only enterprise direct hiring (recommended, highest response rate); `recruiter` keeps only recruiter / HR-service-firm roles; `all` keeps both but prioritizes non-recruiters.
 
-**Q10：salaryFloor/ceil 单位是什么？**
-A：K/月。下限 0 表示不限；上限填 999 表示不限。脚本会 ×1000 转成元传给接口并做二次校验。
+**Q10: What unit are salaryFloor/ceil?**
+A: K/month. Floor 0 means no limit; ceiling 999 means no limit. The script multiplies by 1000 to convert to yuan for the API and re-validates.
 
-**Q11：可以同时投多个关键词吗？**
-A：可以。向导里关键词用逗号分隔多个方向，脚本会逐个关键词跨页搜索后合并去重。
+**Q11: Can I apply to multiple keywords at once?**
+A: Yes. In the wizard separate multiple directions by comma; the script searches each keyword across pages then merges and de-dups.
 
-**Q12：location 填「不限」会投全国吗？**
-A：会。向导里地点填「不限」或留空，提交时脚本自动归一为 `__ALL__`（全国）；`apply_pipeline.js` 端也有防御性归一（"不限"/空一律当 `__ALL__`），**不会被当成真实地名去过滤**。填具体城市（如「深圳」）则只留该城市岗位。
+**Q12: If location is "All", does it apply nationwide?**
+A: Yes. In the wizard set location to "All" or leave blank; on submit the script auto-normalizes to `__ALL__` (nationwide); `apply_pipeline.js` also defensively normalizes ("All"/blank all treated as `__ALL__`), **never treated as a real place name for filtering**. Fill a specific city (e.g. "Shenzhen") to keep only that city's roles.
 
-**Q51：我填了「人力资源，行政，HRBP，组织发展」好几个岗位，会怎么搜？**
-A：向导会把逗号/顿号/空格分隔的多方向**拆成独立关键词**逐个搜索再合并去重，不会拿整串当一个词去匹配（v1.4.0 前确有此 bug，已修复）。建议多个方向就用逗号或顿号隔开。
+**Q51: I filled several roles like "HR, Admin, HRBP, Org Development" — how will it search?**
+A: The wizard splits comma/ideographic-comma/space separated directions into **independent keywords** and searches each then merges de-dup; it won't treat the whole string as one phrase (this was a bug before v1.4.0, now fixed). Suggest separating multiple directions with comma or ideographic comma.
 
-## 三、过滤与去重
+## 3. Filtering and De-duplication
 
-**Q13：猎头识别准吗？**
-A：启发式——行业含「人力资源服务/劳务派遣/外包/猎头/咨询」、公司命中猎头品牌库（科锐/万宝盛华/锐仕方达等）、JD 含「猎头/代招」任一项即标记。非 100% 精确，故提供「都要」选项兜底。
+**Q13: Is recruiter detection accurate?**
+A: Heuristic — industry contains "HR service / labor dispatch / outsourcing / recruiter / consulting", company hits the recruiter brand library (Career International / ManpowerGroup / RyanTech etc.), or JD contains "recruiter / proxy-hire" any one → flagged. Not 100% precise, hence the "both" option as fallback.
 
-**Q14：跨会话去重怎么实现的？**
-A：读取工作区全部历史报告（`liepin_wizard_report.json` 等）合并已投 jobId 集合，本次自动跳过，永不重复骚扰同一 HR。
+**Q14: How does cross-session de-dup work?**
+A: Reads all historical reports in the workspace (`liepin_wizard_report.json` etc.) and merges the applied jobId set; this run auto-skips, never re-pestering the same HR.
 
-**Q15：全新环境第一次用会重投吗？**
-A：不会。无历史报告即从空集合开始，但本次内已投的会被记录，重跑不重复。
+**Q15: First run in a fresh env, will it re-apply?**
+A: No. With no history it starts from an empty set, but this run's applied jobs are recorded, rerun won't repeat.
 
-**Q16：为什么有的岗位搜出来薪资很低？**
-A：猎聘服务端不硬过滤薪资，脚本做客户端二次校验（下限/上限），不达标的直接剔除。
+**Q16: Why do some searched roles show very low salary?**
+A: Liepin server doesn't hard-filter salary; the script does client-side re-validation (floor/ceiling), dropping those that don't qualify.
 
-**Q17：职能串味（如搜出财务COE）怎么办？**
-A：用更精准的关键词（如「薪酬」「绩效」「HR」），或靠层级筛选收窄。
+**Q17: Function drift (e.g. searched out Finance COE)?**
+A: Use more precise keywords (e.g. "compensation" "performance" "HR"), or narrow by level filter.
 
-## 四、频控与配额
+## 4. Rate-limit and Quota
 
-**Q18：什么是 429 频控？**
-A：请求过频繁被服务端限流（HTTP 仍 200，但返回「频繁」字样）。脚本内置 `isRateLimit()` 检测并指数退避重试（15→240s）。
+**Q18: What is 429 rate-limit?**
+A: Overly frequent requests throttled by server (HTTP still 200, but response says "too frequent"). The built-in `isRateLimit()` detects and retries with exponential backoff (15→240s).
 
-**Q19：频控会一直卡住吗？**
-A：累计退避超 30 分钟判定为「持续频控」，自动暂停（退出码 3），去重保证稍后可安全续投。
+**Q19: Will rate-limit get stuck forever?**
+A: Cumulative backoff over 30 minutes is judged "persistent rate-limit", auto-pauses (exit code 3); de-dup guarantees safe resume later.
 
-**Q20：每日上限有什么用？**
-A：保护账号不被风控。达 `dailyCap` 即停，剩余留待明日；日历日 0 点重置计数。
+**Q20: What is the daily cap for?**
+A: Protects the account from risk control. Stops at `dailyCap`, rest left for tomorrow; calendar-day 0:00 resets the counter.
 
-**Q21：今天投了 30 份，上限 50，还能再投吗？**
-A：能。日志中会显示「今日已投 30 / 上限 50，本次最多可投 20 份」。
+**Q21: Applied 30 today, cap 50, can I apply more?**
+A: Yes. The log shows "Applied 30 today / cap 50, max applicable this run 20".
 
-**Q22：能不能把上限调到很高快速投完？**
-A：不建议。过高易触发风控甚至封号，默认 30~50 是安全区间。
+**Q22: Can I set the cap very high to finish fast?**
+A: Not recommended. Too high easily trips risk control or even ban; default 30~50 is the safe range.
 
-## 五、结果与失败
+## 5. Results and Failures
 
-**Q23：四态结果是什么意思？**
-A：`success` 成功 / `already` 已投过（跳过）/ `fail` 失败（附原因）/ `unknown` 未知（需人工核对）。绝不把 fail/unknown 当 success。
+**Q23: What do the four-state results mean?**
+A: `success` applied / `already` already applied (skipped) / `fail` failed (with reason) / `unknown` unknown (needs manual check). Never treat fail/unknown as success.
 
-**Q24：失败原因一般有哪些？**
-A：已达投递上限、该岗位已关闭、账号频控、Token 失效（401）、接口异常等，每条失败都会列出具体原因。
+**Q24: What are common failure reasons?**
+A: Daily cap reached, position closed, account rate-limited, token invalid (401), API anomaly, etc.; each failure lists the specific reason.
 
-**Q25：为什么显示「未知」？**
-A：接口返回无法判定成功/失败（如空返回、非标准文案），需你到猎聘 App 人工核对，不谎报。
+**Q25: Why does it show "Unknown"?**
+A: The API returned undeterminable success/failure (e.g. empty return, non-standard text); you need to verify manually in the Liepin App, never faked.
 
-**Q26：成果在哪看？**
-A：生成 `liepin_wizard_summary.md`（人类可读，含成功/失败+原因清单）和 `liepin_wizard_report.json`（机器可读）。
+**Q26: Where do I see the results?**
+A: Generates `liepin_wizard_summary.md` (human-readable, with success/fail+reason list) and `liepin_wizard_report.json` (machine-readable).
 
-## 六、中断与续投
+## 6. Interruption and Resume
 
-**Q27：投到一半我按了 Ctrl+C 会怎样？**
-A：捕获 SIGINT/SIGTERM，写部分报告并退出 130，进度不丢；重跑自动跳过已投、续投剩余。
+**Q27: I pressed Ctrl+C halfway, what happens?**
+A: Catches SIGINT/SIGTERM, writes partial report and exits 130, progress not lost; rerun auto-skips applied and resumes rest.
 
-**Q28：断了之后重跑会重复投吗？**
-A：不会。已投 jobId 已记录，去重保证不重复。
+**Q28: After a break, will rerun re-apply?**
+A: No. Applied jobIds are recorded; de-dup guarantees no repeat.
 
-**Q29：运行超 45 分钟会自动停吗？**
-A：会（全局运行时长护栏）。安全停机存盘，退出码 0，重跑即续投。
+**Q29: Will it auto-stop if running over 45 minutes?**
+A: Yes (global runtime guardrail). Safe stop and persist, exit code 0, rerun resumes.
 
-**Q30：连续失败会熔断吗？**
-A：会。连续 3 次非频控硬失败（如 Token 失效）即熔断停机（退出码 3），避免空耗与账号风险。
+**Q30: Will consecutive failures trigger circuit break?**
+A: Yes. 3 consecutive non-rate-limit hard failures (e.g. token invalid) circuit-break stop (exit code 3), avoiding wasted effort and account risk.
 
-## 七、隐私与安全
+## 7. Privacy and Security
 
-**Q31：技能会收集我的个人信息吗？**
-A：不会。技能包与报告仅含岗位数据（公司/岗位/薪资/地点），不含姓名/手机/邮箱/账号。
+**Q31: Does the skill collect my personal info?**
+A: No. The skill package and reports only contain role data (company / role / salary / location), no name / phone / email / account.
 
-**Q32：和暴力刷量工具有什么区别？**
-A：本技能遵守猎聘频限、内置每日上限与频控守护，明确「不做绕过频控的暴力刷量」，保护账号健康。
+**Q32: How is it different from brute-force mass-apply tools?**
+A: This skill obeys Liepin rate limits, has built-in daily cap and rate-limit guard, explicitly "no brute-force mass-apply bypassing rate limits", protecting account health.
 
-## 八、反模式与常见误用（必读，不要这样用）
+## 8. Anti-patterns and Common Misuse (must-read, don't use this way)
 
-**Q33：能全自动不弹窗确认就投吗？**
-A：分两种情形，**两者均无需手动确认**。**手动模式（默认）**：提交后自动投递，系统会在日志中播报当日上限与今日已投，无需等待用户确认。**无人值守模式**：若你在向导第 6 步**显式开启**「无人值守」并授权周期自动化，则到点自动投递、全程无需干预（见 Q41）。二者均无需手动确认，且仍受 dailyCap/频控/熔断护栏保护，绝非无上限刷量。
+**Q33: Can it apply fully automatically without a confirmation popup?**
+A: Two cases, **both need no manual confirmation**. **Manual mode (default)**: after submit auto-applies, the system broadcasts the daily cap and applied-today in the log, no waiting for user confirmation. **Unattended mode**: if you explicitly enable "Unattended" at wizard step 6 and authorize periodic automation, it delivers on schedule, zero touch (see Q41). Both need no manual confirmation and are still guarded by dailyCap / rate-limit / circuit-break, never unbounded mass-apply.
 
-**Q34：能绕过频控快速投完吗？**
-A：不能。频控守护是保护账号不被封的核心机制，绕过等于自杀式刷量，本技能明确不做。
+**Q34: Can I bypass rate-limit to finish fast?**
+A: No. The rate-limit guard is the core mechanism protecting the account from ban; bypassing is suicidal mass-apply, explicitly not done by this skill.
 
-**Q35：能把每日上限设成 500 吗？**
-A：可设但不建议。超过安全区间（30~50）极易触发风控甚至封号，默认 30~50 是经验安全值。
+**Q35: Can I set the daily cap to 500?**
+A: Can set but not recommended. Beyond the safe range (30~50) easily trips risk control or even ban; default 30~50 is the empirical safe value.
 
-**Q36：能投 BOSS/智联/前程无忧吗？**
-A：不能。本技能仅对接猎聘 OpenAPI；其他平台由对应技能负责，不要混用。
+**Q36: Can it apply to BOSS / Zhaopin / 51job?**
+A: No. This skill only connects to Liepin OpenAPI; other platforms are handled by their own skills, don't mix.
 
-**Q37：能帮我改简历 / 伪造经历吗？**
-A：不能。不伪造、不篡改简历内容或投递信息。
+**Q37: Can it rewrite my resume / fake experience?**
+A: No. No fabrication or tampering with resume content or delivery info.
 
-**Q38：能多账号同时投吗？**
-A：不能。仅支持本人单 token 单账号，不支持矩阵号 / 小号批量。
+**Q38: Can it apply with multiple accounts at once?**
+A: No. Only your own single token single account; no matrix / side-account bulk.
 
-**Q39：能投海外岗位吗？**
-A：不能。仅国内猎聘 OpenAPI，海外/港澳台不在范围内。
+**Q39: Can it apply to overseas roles?**
+A: No. Only domestic Liepin OpenAPI; overseas / HK-Macau-Taiwan out of scope.
 
-**Q40：投失败了会假装成功吗？**
-A：绝不。四态结果如实呈现，unknown 也标 unknown，绝不把 fail/unknown 当 success。
+**Q40: Will it fake success if delivery fails?**
+A: Never. Four-state results shown truthfully; unknown is labeled unknown, never treat fail/unknown as success.
 
-**Q41：能无人值守定时每天自动投吗？**
-A：能。向导第 6 步选「开启无人值守」并选频率 → 代理运行 `node scripts/setup_automation.js` 生成规格 → 用 `automation_update` 注册周期自动化。此后到点自动投递，**全程无需干预、跳过每日确认**，但仍受 dailyCap/频控/熔断护栏保护；Token 缺失仅文字报告，不擅自操作。
+**Q41: Can it run unattended on a schedule daily?**
+A: Yes. At wizard step 6 choose "Enable unattended" and pick a frequency → agent runs `node scripts/setup_automation.js` to generate spec → register periodic automation via `automation_update`. Then delivers on schedule, **zero touch, skips daily confirmation**, but still guarded by dailyCap / rate-limit / circuit-break; missing token only text-reports, no unauthorized action.
 
-**Q42：搜不到岗位是 bug 吗？**
-A：多半是关键词/行业过窄或猎头过滤太严，放宽条件即可；非脚本故障。先用「都要/不限」试搜。
+**Q42: Is it a bug when no roles are found?**
+A: Mostly keywords / industry too narrow or recruiter filter too strict; relax criteria; not a script fault. Try "both / all" first.
 
-**Q43：能只投"急招/高薪"吗？**
-A：可用「薪资下限 + 关键词」组合近似，猎聘无专门"急招"标签，靠薪资+关键词收敛。
+**Q43: Can it apply only to "urgent / high-paying"?**
+A: Approximate with "salary floor + keyword" combination; Liepin has no dedicated "urgent" tag, narrow by salary + keyword.
 
-**Q44：手机能跑吗？**
-A：需 Node 18+ 运行环境，手机端一般不行；在桌面/服务器运行。
+**Q44: Can it run on mobile?**
+A: Needs Node 18+ runtime; mobile generally can't; run on desktop / server.
 
-**Q45：能代我谈薪 / 和猎头沟通吗？**
-A：不能。本技能只做"投递动作"，后续沟通由你本人完成。
+**Q45: Can it negotiate salary / communicate with recruiters for me?**
+A: No. This skill only does the "apply" action; follow-up communication is done by you.
 
-## 九、歧义消解（判定优先级与启发式边界）
+## 9. Ambiguity Resolution (judgment priority and heuristic boundaries)
 
-> 本技能多处判定为**启发式 + 优先级规则**，非 100% 精确。以下说明"拿不准时怎么判"，避免误用。
+> Many judgments here are **heuristic + priority rules**, not 100% precise. Below explains "how to judge when unsure" to avoid misuse.
 
-**Q46：接口返回文案不标准、判不清成功失败，算什么？**
-A：一律判为 `unknown`（未知），**绝不谎报 success**。典型触发：空返回、非 JSON、无法匹配任何关键词。unknown 岗位会在成果汇总里单独列出并提示"需人工到猎聘 App 核对"。四态判定优先级见 Q50。
+**Q46: API returned non-standard text, can't tell success/failure — what is it?**
+A: Always judged as `unknown` (unknown), **never fake success**. Typical triggers: empty return, non-JSON, can't match any keyword. Unknown roles listed separately in the result summary with "needs manual verification in Liepin App". Four-state priority see Q50.
 
-**Q47：猎头识别误判（把直招标成猎头 / 漏标真猎头）怎么办？**
-A：猎头识别是**启发式**（行业关键词 + 公司品牌库 + JD 关键词），非 100% 精确。两种兜底：① 选 `recruitmentType=all`（都要，非猎头优先），不依赖识别结果；② 若只想避猎头又怕漏，用 `nonRecruiter` + 人工抽查 summary 里被标 nonRecruiter 的岗。识别规则见 Q13。
+**Q47: Recruiter detection mis-judged (flagged direct as recruiter / missed a real recruiter)?**
+A: Recruiter detection is **heuristic** (industry keyword + company brand library + JD keyword), not 100% precise. Two fallbacks: ① choose `recruitmentType=all` (both, non-recruiter priority), not relying on detection; ② if you want to avoid recruiters but fear misses, use `nonRecruiter` + manually spot-check roles flagged nonRecruiter in the summary. Detection rules see Q13.
 
-**Q48：岗位薪资写法千奇百怪（"20-35K·14薪""面议""2-3万"），怎么解析？**
-A：`parseSalary()` 规则：① 含"面议/议薪/negotiab"→ 视为不限（floor/ceil=null）；② 含"万"→ 数值 ×10 折算成 K（如"2万"=20K）；③ 多个数字取首为下限、末为上限（如"20-35K"→ floor=20,ceil=35）；④ 客户端再用 `salaryFloor/salaryCeil`（单位 K）二次校验，不达标剔除。薪资单位统一为"K/月"。
+**Q48: Salary written in all sorts of ways ("20-35K·14 months" "negotiable" "20-30k") — how is it parsed?**
+A: `parseSalary()` rules: ① contains "negotiable / negotiable / negotiab" → treated as no limit (floor/ceil=null); ② contains "wan" (ten-thousand) → value ×10 converted to K (e.g. "2 wan"=20K); ③ multiple numbers take first as floor, last as ceiling (e.g. "20-35K" → floor=20,ceil=35); ④ client then re-validates with `salaryFloor/salaryCeil` (unit K), dropping those that don't qualify. Salary unit unified as "K/month".
 
-**Q49："已投过"的判定依据是什么？为什么有时同一岗没被跳过？**
-A：跨会话去重以 **jobId** 为唯一键。仅当历史报告中该 jobId 的状态为 `success` 或 `already` 才计入去重集合；`fail`/`unknown` 不计入（允许重试）。若某岗未被跳过，说明它 jobId 不在历史已投集合中（可能换过岗位、或上次是 fail/unknown）。
+**Q49: What is the basis for "already applied", and why is the same role sometimes not skipped?**
+A: Cross-session de-dup uses **jobId** as the unique key. Only when a jobId's status in history is `success` or `already` is it counted into the de-dup set; `fail`/`unknown` are not (allowed to retry). If a role isn't skipped, its jobId isn't in the historical applied set (maybe the role changed, or last time was fail/unknown).
 
-**Q50：四态结果判定的优先级是怎样的？**
-A：严格按序短路（命中即返回）：① 已投过（`已投递过/您已投递`）→ `already`；② 401/unauthorized/未授权，或 errCode 非 0 → `fail`；③ 含失败词（失败/达上限/频繁/受限/denied/invalid/error 等）→ `fail`；④ 含成功词（应聘成功/投递成功/成功/ok/true/success/投递完成）→ `success`；⑤ 其余 → `unknown`。**失败词优先于成功词**，杜绝"含 success 字样却实际失败"的误判。
+**Q50: What is the priority of four-state judgment?**
+A: Strict short-circuit by order (return on hit): ① already applied ("already applied / you have applied") → `already`; ② 401/unauthorized/not authorized, or errCode non-zero → `fail`; ③ contains failure words (failed / cap reached / too frequent / restricted / denied / invalid / error etc.) → `fail`; ④ contains success words (application succeeded / delivery succeeded / success / ok / true / success / delivery complete) → `success`; ⑤ rest → `unknown`. **Failure words take priority over success words**, eliminating the mis-judgment of "contains success text but actually failed".

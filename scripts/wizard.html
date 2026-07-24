@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>猎聘全自动投递向导 · 需求设置</title>
+<title>Liepin Auto-Apply Wizard · Criteria Settings</title>
 <style>
   :root{
     --bg:#f6f9fc; --card:#ffffff; --ink:#1a1f36; --sub:#697386;
@@ -50,144 +50,144 @@
 </head>
 <body>
 <div class="wrap">
-  <div class="head"><div class="logo">猎</div><h1>猎聘全自动投递向导</h1></div>
-  <div class="tag">一次性填完下面的需求，点「提交并开始自动投递」即可，全程无需再操作。所有项都有默认值，不懂直接留默认。</div>
+  <div class="head"><div class="logo">L</div><h1>Liepin Auto-Apply Wizard</h1></div>
+  <div class="tag">Fill in the criteria below once, then click "Submit and start auto-apply". No further action needed. All fields have defaults; if unsure, just leave the defaults.</div>
 
   <form id="f">
     <div class="card">
-      <h2><span class="n">1</span>想投什么岗位？（岗位名称 = 岗位 + 职级）</h2>
-      <label class="fld">岗位名称（岗位与职级合并填写，逗号 / 顿号 / 空格分隔可填多个）</label>
-      <input type="text" id="keywords" placeholder="例如：人力资源总监，财务经理，采购主管，IT专员，招聘经理" />
-      <div class="hint">请按「岗位 + 职级」合并填写，如：人力资源总监、财务经理、采购主管、IT专员、招聘经理。可填多个方向，用逗号或顿号隔开；留空提交会提示必填。</div>
+      <h2><span class="n">1</span>What roles do you want to apply for? (job title = role + level)</h2>
+      <label class="fld">Job title (fill role and level together, separate multiple with comma / ideographic comma / space)</label>
+      <input type="text" id="keywords" placeholder="e.g. HR Director, Finance Manager, Procurement Supervisor, IT Specialist, Recruiting Manager" />
+      <div class="hint">Please combine role + level, e.g. HR Director, Finance Manager, Procurement Supervisor, IT Specialist, Recruiting Manager. Multiple directions allowed, separated by comma or ideographic comma; submitting empty prompts required.</div>
     </div>
 
     <div class="card">
-      <h2><span class="n">2</span>行业 & 工作地点</h2>
-      <label class="fld">行业（可多选；勾「不限」即全行业）</label>
+      <h2><span class="n">2</span>Industry &amp; Work Location</h2>
+      <label class="fld">Industry (multi-select; check "All" for all industries)</label>
       <div class="chips" id="industry">
-        <label class="chip"><input type="checkbox" value="__ALL__" onchange="syncAll(this)"><span>不限</span></label>
-        <label class="chip"><input type="checkbox" value="互联网"><span>互联网</span></label>
-        <label class="chip"><input type="checkbox" value="人工智能"><span>人工智能</span></label>
-        <label class="chip"><input type="checkbox" value="软件/IT"><span>软件/IT</span></label>
-        <label class="chip"><input type="checkbox" value="金融"><span>金融</span></label>
-        <label class="chip"><input type="checkbox" value="房地产"><span>房地产</span></label>
-        <label class="chip"><input type="checkbox" value="建筑/工程"><span>建筑/工程</span></label>
-        <label class="chip"><input type="checkbox" value="制造/工业"><span>制造/工业</span></label>
-        <label class="chip"><input type="checkbox" value="医疗/医药"><span>医疗/医药</span></label>
-        <label class="chip"><input type="checkbox" value="教育/培训"><span>教育/培训</span></label>
-        <label class="chip"><input type="checkbox" value="汽车"><span>汽车</span></label>
-        <label class="chip"><input type="checkbox" value="新能源"><span>新能源</span></label>
-        <label class="chip"><input type="checkbox" value="电商/零售"><span>电商/零售</span></label>
-        <label class="chip"><input type="checkbox" value="文娱/传媒"><span>文娱/传媒</span></label>
-        <label class="chip"><input type="checkbox" value="法律/咨询"><span>法律/咨询</span></label>
-        <label class="chip"><input type="checkbox" value="人力资源服务"><span>人力资源服务</span></label>
-        <label class="chip"><input type="checkbox" value="物流/供应链"><span>物流/供应链</span></label>
-        <label class="chip"><input type="checkbox" value="能源/化工"><span>能源/化工</span></label>
-        <label class="chip"><input type="checkbox" value="快消"><span>快消</span></label>
-        <label class="chip"><input type="checkbox" value="通信"><span>通信</span></label>
-        <label class="chip"><input type="checkbox" value="政府/事业单位"><span>政府/事业单位</span></label>
+        <label class="chip"><input type="checkbox" value="__ALL__" onchange="syncAll(this)"><span>All</span></label>
+        <label class="chip"><input type="checkbox" value="互联网"><span>Internet</span></label>
+        <label class="chip"><input type="checkbox" value="人工智能"><span>AI</span></label>
+        <label class="chip"><input type="checkbox" value="软件/IT"><span>Software/IT</span></label>
+        <label class="chip"><input type="checkbox" value="金融"><span>Finance</span></label>
+        <label class="chip"><input type="checkbox" value="房地产"><span>Real Estate</span></label>
+        <label class="chip"><input type="checkbox" value="建筑/工程"><span>Construction/Engineering</span></label>
+        <label class="chip"><input type="checkbox" value="制造/工业"><span>Manufacturing/Industry</span></label>
+        <label class="chip"><input type="checkbox" value="医疗/医药"><span>Medical/Pharma</span></label>
+        <label class="chip"><input type="checkbox" value="教育/培训"><span>Education/Training</span></label>
+        <label class="chip"><input type="checkbox" value="汽车"><span>Automotive</span></label>
+        <label class="chip"><input type="checkbox" value="新能源"><span>New Energy</span></label>
+        <label class="chip"><input type="checkbox" value="电商/零售"><span>E-commerce/Retail</span></label>
+        <label class="chip"><input type="checkbox" value="文娱/传媒"><span>Media/Entertainment</span></label>
+        <label class="chip"><input type="checkbox" value="法律/咨询"><span>Legal/Consulting</span></label>
+        <label class="chip"><input type="checkbox" value="人力资源服务"><span>HR Services</span></label>
+        <label class="chip"><input type="checkbox" value="物流/供应链"><span>Logistics/Supply Chain</span></label>
+        <label class="chip"><input type="checkbox" value="能源/化工"><span>Energy/Chemical</span></label>
+        <label class="chip"><input type="checkbox" value="快消"><span>Fast Moving Consumer Goods</span></label>
+        <label class="chip"><input type="checkbox" value="通信"><span>Telecom</span></label>
+        <label class="chip"><input type="checkbox" value="政府/事业单位"><span>Government/Public Institution</span></label>
       </div>
-      <label class="fld">工作地点（填「不限」即全国投递；也可填多个城市，用逗号分隔，如「珠海，深圳，广州」）</label>
-      <input type="text" id="location" value="不限" list="citylist" />
+      <label class="fld">Work location (enter "All" for nationwide; or multiple cities separated by comma, e.g. "Zhuhai, Shenzhen, Guangzhou")</label>
+      <input type="text" id="location" value="all" list="citylist" />
       <datalist id="citylist">
-        <option value="不限"></option><option value="北京"></option><option value="上海"></option>
+        <option value="all"></option><option value="北京"></option><option value="上海"></option>
         <option value="深圳"></option><option value="广州"></option><option value="杭州"></option><option value="成都"></option>
         <option value="珠海"></option><option value="武汉"></option><option value="南京"></option><option value="苏州"></option>
       </datalist>
     </div>
 
     <div class="card">
-      <h2><span class="n">3</span>薪资范围（单位 K/月）</h2>
+      <h2><span class="n">3</span>Salary Range (unit K/month)</h2>
       <div class="row2">
-        <div><label class="fld">月薪下限</label><input type="number" id="salaryFloor" value="25" min="0" /></div>
-        <div><label class="fld">月薪上限</label><input type="number" id="salaryCeil" value="500" min="0" /></div>
+        <div><label class="fld">Monthly floor</label><input type="number" id="salaryFloor" value="25" min="0" /></div>
+        <div><label class="fld">Monthly ceiling</label><input type="number" id="salaryCeil" value="500" min="0" /></div>
       </div>
-      <div class="hint">下限填 0 表示不限；上限填很大（如 999）表示不限。</div>
+      <div class="hint">Floor 0 means no limit; ceiling very high (e.g. 999) means no limit.</div>
     </div>
 
     <div class="card">
-      <h2><span class="n">4</span>招聘类型</h2>
+      <h2><span class="n">4</span>Recruitment Type</h2>
       <div class="radios" id="rectype">
         <label class="radio" onclick="selRadio(this)"><input type="radio" name="rt" value="nonRecruiter" checked>
-          <span><b>仅非猎头岗位（推荐）</b><small>只要企业直招岗，猎头/代招岗一律不要，回复率最高。</small></span></label>
+          <span><b>Non-recruiter positions only (recommended)</b><small>Only direct enterprise hiring; no recruiter / proxy-hire roles; highest response rate.</small></span></label>
         <label class="radio" onclick="selRadio(this)"><input type="radio" name="rt" value="recruiter">
-          <span><b>仅猎头岗位</b><small>只要猎头/人力资源服务公司的岗位。</small></span></label>
+          <span><b>Recruiter positions only</b><small>Only roles at recruiter / HR-service companies.</small></span></label>
         <label class="radio" onclick="selRadio(this)"><input type="radio" name="rt" value="all">
-          <span><b>都要（猎头排在后面）</b><small>全收，但非猎头岗优先排列。</small></span></label>
+          <span><b>Both (recruiters at the end)</b><small>Keep all, but non-recruiter positions prioritized.</small></span></label>
       </div>
     </div>
 
     <div class="card" id="resumeCard" style="display:none">
-      <h2><span class="n">5</span>简历信息（猎聘未检测到简历，请填写）</h2>
+      <h2><span class="n">5</span>Resume Info (no resume detected on Liepin, please fill)</h2>
       <div class="row2">
-        <div><label class="fld">姓名</label><input type="text" id="realName" placeholder="真实姓名" /></div>
-        <div><label class="fld">性别</label>
-          <select id="sex"><option value="">请选择</option><option value="男">男</option><option value="女">女</option></select>
+        <div><label class="fld">Full name</label><input type="text" id="realName" placeholder="Real name" /></div>
+        <div><label class="fld">Gender</label>
+          <select id="sex"><option value="">Please select</option><option value="男">Male</option><option value="女">Female</option></select>
         </div>
       </div>
       <div class="row2">
-        <div><label class="fld">生日（如 19950101）</label><input type="text" id="birthday" placeholder="19950101" /></div>
-        <div><label class="fld">参加工作年份</label><input type="text" id="startJob" placeholder="2020" /></div>
+        <div><label class="fld">Birthday (e.g. 19950101)</label><input type="text" id="birthday" placeholder="19950101" /></div>
+        <div><label class="fld">Work start year</label><input type="text" id="startJob" placeholder="2020" /></div>
       </div>
-      <label class="fld">最高学历</label>
+      <label class="fld">Highest education</label>
       <select id="degree">
-        <option value="">请选择</option><option value="高中">高中</option><option value="大专">大专</option>
-        <option value="本科">本科</option><option value="硕士">硕士</option><option value="博士">博士</option>
+        <option value="">Please select</option><option value="高中">High School</option><option value="大专">Associate</option>
+        <option value="本科">Bachelor</option><option value="硕士">Master</option><option value="博士">PhD</option>
       </select>
-      <label class="fld">工作经历（公司名 - 职位 - 起止时间）</label>
-      <input type="text" id="workExp" placeholder="例如：某科技公司-后端工程师-202001-至今" />
-      <div class="hint">格式：公司名-职位-开始年月-结束年月（多个用分号隔开）</div>
+      <label class="fld">Work experience (company - title - start/end)</label>
+      <input type="text" id="workExp" placeholder="e.g. Some Tech Co. - Backend Engineer - 202001-now" />
+      <div class="hint">Format: company-title-start year-month-end year-month (separate multiple with semicolon)</div>
     </div>
 
     <div class="card">
-      <h2><span class="n">6</span>每日投递上限</h2>
-      <label class="fld">今天最多投多少份（保护账号不被风控）</label>
+      <h2><span class="n">6</span>Daily Delivery Cap</h2>
+      <label class="fld">Max applications today (protect account from risk control)</label>
       <input type="number" id="dailyCap" value="50" min="1" max="999" />
-      <div class="hint">建议 30~50。达到上限会自动停止，剩余留到明天。</div>
+      <div class="hint">Suggested 30~50. Reaching the cap auto-stops, rest left for tomorrow.</div>
     </div>
 
     <div class="card">
-      <h2><span class="n">7</span>运行模式</h2>
+      <h2><span class="n">7</span>Run Mode</h2>
       <div class="radios" id="runMode">
         <label class="radio" onclick="selRadio(this)"><input type="radio" name="rm" value="foreground" checked>
-          <span><b>前台运行（逐条展示）</b><small>每投递成功一个岗位立即告诉你结果，你全程可见投递进展。</small></span></label>
+          <span><b>Foreground (per-item display)</b><small>Each applied role's result shown immediately; you see progress throughout.</small></span></label>
         <label class="radio" onclick="selRadio(this)"><input type="radio" name="rm" value="background">
-          <span><b>后台运行</b><small>投完所有符合条件的岗位后，统一给你一份汇总报告。</small></span></label>
+          <span><b>Background</b><small>After all matching roles applied, a consolidated summary report is given.</small></span></label>
       </div>
     </div>
 
     <div class="card">
-      <h2><span class="n">8</span>自动化运行（无人值守）</h2>
+      <h2><span class="n">8</span>Automation Run (Unattended)</h2>
       <div class="radios" id="ua">
         <label class="radio" onclick="selRadio(this);toggleSchedule()"><input type="radio" name="ua" value="on">
-          <span><b>开启无人值守（全程无需干预）</b><small>勾选后，技能可设置定时自动运行，不再每次弹窗确认；仍受每日上限 / 频控 / 熔断护栏保护。</small></span></label>
+          <span><b>Enable unattended (zero touch)</b><small>Once checked, the skill can schedule auto-runs, no confirmation popup each time; still guarded by daily cap / rate-limit / circuit-break.</small></span></label>
         <label class="radio" onclick="selRadio(this);toggleSchedule()"><input type="radio" name="ua" value="off" checked>
-          <span><b>不开启（手动模式）</b><small>默认。下次触发时手动填写向导再投递。</small></span></label>
+          <span><b>Disabled (manual mode)</b><small>Default. Fill the wizard manually on next trigger then apply.</small></span></label>
       </div>
       <div id="scheduleWrap" style="display:none">
-        <label class="fld" style="margin-top:12px">自动运行频率</label>
+        <label class="fld" style="margin-top:12px">Auto-run frequency</label>
         <select id="schedule">
-          <option value="0 9 * * *">每天 09:00</option>
-          <option value="0 12 * * *">每天 12:00</option>
-          <option value="0 20 * * *">每天 20:00</option>
-          <option value="0 */6 * * *">每 6 小时</option>
-          <option value="0 */12 * * *">每 12 小时</option>
+          <option value="0 9 * * *">Daily 09:00</option>
+          <option value="0 12 * * *">Daily 12:00</option>
+          <option value="0 20 * * *">Daily 20:00</option>
+          <option value="0 */6 * * *">Every 6 hours</option>
+          <option value="0 */12 * * *">Every 12 hours</option>
         </select>
-        <div class="hint">频率仅在「开启无人值守」时生效；技能会在该时间点自动运行（需已保存配置 + Token 可用）。</div>
+        <div class="hint">Frequency only takes effect when "Enable unattended" is on; the skill auto-runs at that time (requires saved config + available Token).</div>
       </div>
     </div>
 
-    <button type="submit" class="submit" id="btn">提交并开始自动投递（全程无需再操作）</button>
+    <button type="submit" class="submit" id="btn">Submit and start auto-apply (zero further action)</button>
     <div class="err" id="err"></div>
   </form>
 
   <div class="ok" id="ok">
-    <h3>✅ 需求已提交</h3>
-    <p style="font-size:13px;color:#0a8a4a;margin:0 0 8px">已保存到工作区 <code>liepin_wizard_config.json</code>，系统已自动开始投递，全程无需再操作。</p>
+    <h3>✅ Requirements submitted</h3>
+    <p style="font-size:13px;color:#0a8a4a;margin:0 0 8px">Saved to workspace <code>liepin_wizard_config.json</code>; the system has auto-started delivery, zero further action needed.</p>
     <pre id="cfg"></pre>
   </div>
 
-  <div class="foot">Token 仅在本次运行内联使用，不落盘、不记记忆、不打日志。<br/>投递全过程实时可见，中断会第一时间告知原因。</div>
+  <div class="foot">Token is only used inline for this run, not persisted, not memorized, not logged.<br/>The whole delivery is visible in real time; interruptions are reported with reasons immediately.</div>
 </div>
 
 <script>
@@ -205,12 +205,12 @@ function selRadio(el){ el.querySelector('input').checked=true;
 }
 document.querySelectorAll('#rectype .radio').forEach(function(r){if(r.querySelector('input').checked)r.classList.add('sel')});
 
-// ---------------- 偏好记忆：用上次保存的配置预填表单 ----------------
+// ---------------- Preference memory: pre-fill form with last saved config ----------------
 (function(){
   var p=window.__PREFILL__; if(!p) return;
-  if(p.keywords) document.getElementById('keywords').value=Array.isArray(p.keywords)?p.keywords.join('，'):p.keywords;
+  if(p.keywords) document.getElementById('keywords').value=Array.isArray(p.keywords)?p.keywords.join(','):p.keywords;
   var locEl=document.getElementById('location');
-  if(p.location) locEl.value=(p.location==='__ALL__'||!p.location)?'不限':p.location;
+  if(p.location) locEl.value=(p.location==='__ALL__'||!p.location)?'all':p.location;
   if(p.salaryFloor!=null) document.getElementById('salaryFloor').value=p.salaryFloor;
   if(p.salaryCeil!=null) document.getElementById('salaryCeil').value=p.salaryCeil;
   if(p.dailyCap) document.getElementById('dailyCap').value=p.dailyCap;
@@ -233,19 +233,19 @@ document.querySelectorAll('#rectype .radio').forEach(function(r){if(r.querySelec
     if(rmEl){ rmEl.checked=true; rmEl.closest('.radio').classList.add('sel'); }
   }
   var tag=document.querySelector('.tag');
-  if(tag){ tag.innerHTML='已为您填入上次的投递偏好（'+ (Array.isArray(p.keywords)?p.keywords.join('、'):p.keywords) +'）。可直接修改后提交，或清空关键词重新设置。'; }
+  if(tag){ tag.innerHTML='Your last delivery preference has been filled in ('+ (Array.isArray(p.keywords)?p.keywords.join(','):p.keywords) +'). You can modify then submit, or clear keywords to reset.'; }
 })();
 
-// ---------------- 自动化运行频率开关（仅开启时显示） ----------------
+// ---------------- Automation frequency toggle (only shown when enabled) ----------------
 function toggleSchedule(){
   var on=document.querySelector('input[name=ua]:checked');
   var wrap=document.getElementById('scheduleWrap');
   if(wrap) wrap.style.display=(on && on.value==='on')?'block':'none';
 }
-// 初始化频率开关
+// Initialize frequency toggle
 (function(){ toggleSchedule(); })();
 
-// ---------------- 简历检测：无简历时显示简历卡片 ----------------
+// ---------------- Resume detection: show resume card when no resume ----------------
 (function(){
   var card=document.getElementById('resumeCard');
   if(typeof window.__HAS_RESUME__!=='undefined' && !window.__HAS_RESUME__){
@@ -260,7 +260,7 @@ function collectChips(id){
   if(vals.indexOf('__ALL__')>=0) return ['__ALL__'];
   return vals.length?vals:['__ALL__'];
 }
-// 关键词按 中/英文逗号、顿号、分号、空白 拆分，杜绝「一整串当单个关键词」
+// Split keywords by Chinese/English comma, ideographic comma, semicolon, whitespace — avoid "whole string as one keyword"
 function splitKeywords(raw){
   return String(raw||'').split(/[,，、;；\s]+/).map(function(s){return s.trim();}).filter(Boolean);
 }
@@ -268,15 +268,15 @@ document.getElementById('f').addEventListener('submit',function(e){
   e.preventDefault();
   var err=document.getElementById('err'); err.textContent='';
   var keywords=splitKeywords(document.getElementById('keywords').value);
-  if(!keywords.length){ err.textContent='请至少填一个岗位关键词（多个用逗号或顿号分隔）'; return; }
+  if(!keywords.length){ err.textContent='Please enter at least one job keyword (separate multiple with comma or ideographic comma)'; return; }
   var sf=parseFloat(document.getElementById('salaryFloor').value)||0;
   var sc=parseFloat(document.getElementById('salaryCeil').value)||999;
-  if(sc<sf && sc!==0){ err.textContent='薪资上限不能低于下限（上限填 0 表示不限）'; return; }
+  if(sc<sf && sc!==0){ err.textContent='Salary ceiling cannot be below floor (ceiling 0 means no limit)'; return; }
   var dc=parseInt(document.getElementById('dailyCap').value,10);
-  if(!dc||dc<1){ err.textContent='每日上限需 ≥ 1'; return; }
-  // 地点：空或「不限」一律归一为 __ALL__（全国），避免被当真实地名过滤
+  if(!dc||dc<1){ err.textContent='Daily cap must be ≥ 1'; return; }
+  // Location: empty or "all" normalized to __ALL__ (nationwide), avoid being treated as a real place name
   var locRaw=document.getElementById('location').value.trim();
-  var location=(locRaw===''||locRaw==='不限')?'__ALL__':locRaw;
+  var location=(locRaw===''||locRaw==='all')?'__ALL__':locRaw;
   var cfg={
     keywords:keywords,
     industry:collectChips('industry'),
@@ -289,7 +289,7 @@ document.getElementById('f').addEventListener('submit',function(e){
     schedule:document.getElementById('schedule').value,
     runMode:document.querySelector('input[name=rm]:checked')?document.querySelector('input[name=rm]:checked').value:'foreground'
   };
-  // 无简历时收集简历字段
+  // Collect resume fields when no resume
   if(typeof window.__HAS_RESUME__!=='undefined' && !window.__HAS_RESUME__){
     cfg.realName=document.getElementById('realName').value.trim();
     cfg.sex=document.getElementById('sex').value;
@@ -306,8 +306,8 @@ document.getElementById('f').addEventListener('submit',function(e){
         document.getElementById('ok').style.display='block';
         document.getElementById('cfg').textContent=JSON.stringify(cfg,null,2);
         try{ navigator.clipboard.writeText(JSON.stringify(cfg,null,2)); }catch(e){}
-      } else { err.textContent='保存失败：'+(d.message||'未知错误'); }
-    }).catch(function(e){ err.textContent='提交失败：'+e.message; });
+      } else { err.textContent='Save failed: '+(d.message||'unknown error'); }
+    }).catch(function(e){ err.textContent='Submit failed: '+e.message; });
 });
 </script>
 </body>

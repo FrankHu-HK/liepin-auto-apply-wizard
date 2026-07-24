@@ -1,8 +1,8 @@
-// 猎聘投递向导 · Web 版需求收集器（单弹窗，一次性填完）
-// 零外部依赖：仅 Node 标准库 http + fs + path
-// 用法：node scripts/wizard.js  →  打印 WIZARD_URL=http://127.0.0.1:PORT
-//       用户在浏览器打开该 URL 填表提交 → 写 liepin_wizard_config.json → 服务关闭并退出
-// 偏好记忆：启动时若工作区已存在 liepin_wizard_config.json，自动把上次填写的值预填进表单。
+// Liepin Delivery Wizard · Web criteria collector (single popup, fill once)
+// Zero external deps: only Node stdlib http + fs + path
+// Usage: node scripts/wizard.js  →  prints WIZARD_URL=http://127.0.0.1:PORT
+//        User opens that URL in browser, fills form, submits → writes liepin_wizard_config.json → server closes and exits
+// Preference memory: on startup, if liepin_wizard_config.json already exists in the workspace, auto-pre-fills the form with last values.
 
 'use strict';
 const http = require('http');
@@ -15,12 +15,12 @@ const WORKDIR = process.cwd();
 const HTML_PATH = path.join(__dirname, 'wizard.html');
 const CONFIG_PATH = path.join(WORKDIR, 'liepin_wizard_config.json');
 
-let hasResume = false; // 默认认为无简历
+let hasResume = false; // assume no resume by default
 
-// ---------------- 检查猎聘用户是否有简历 ----------------
-// 调 `liepin-cli resume get`：成功 = 有简历；失败 = 无简历/token失效
+// ---------------- Check whether the Liepin user has a resume ----------------
+// Call `liepin-cli resume get`: success = has resume; failure = no resume / token invalid
 function checkResumeExists() {
-  // 找 CLI 二进制（与 apply_pipeline.js 同一套逻辑）
+  // Find CLI binary (same logic as apply_pipeline.js)
   const home = os.homedir();
   const cands = [
     process.env.LIEPIN_CLI_BIN,
@@ -35,20 +35,20 @@ function checkResumeExists() {
         try {
           const data = JSON.parse(r.stdout);
           if (data && (data.resumeId || data.baseInfo || data.name || JSON.stringify(data).length > 50)) {
-            return true; // 有简历
+            return true; // has resume
           }
         } catch (e) {}
-        return false; // 空响应 = 无简历
+        return false; // empty response = no resume
       }
-      if (r.stderr && r.stderr.includes('token')) return false; // token问题默认无简历
+      if (r.stderr && r.stderr.includes('token')) return false; // token problem, assume no resume
     } catch (e) { continue; }
   }
-  return false; // 拿不到CLI也当无简历
+  return false; // can't get CLI, also assume no resume
 }
 
 const html = fs.readFileSync(HTML_PATH, 'utf8');
 
-// ---------------- 输入归一化（与 apply_pipeline.js 保持同一套规则） ----------------
+// ---------------- Input normalization (same rules as apply_pipeline.js) ----------------
 const KEYWORD_SEP = /[,，、;；\s]+/;
 function splitKeywords(v) {
   if (Array.isArray(v)) return v.map((s) => String(s).trim()).filter(Boolean);
@@ -58,32 +58,32 @@ function splitKeywords(v) {
 function normalizeLocation(v) {
   if (v === undefined || v === null) return '__ALL__';
   const s = String(v).trim();
-  if (s === '' || s === '__ALL__' || s === '不限') return '__ALL__';
+  if (s === '' || s === '__ALL__' || s === 'all') return '__ALL__';
   return s;
 }
 function normalizeMulti(v) {
   if (Array.isArray(v)) {
     const a = v.map((s) => String(s).trim()).filter(Boolean);
-    if (!a.length || a.includes('__ALL__') || a.includes('不限')) return ['__ALL__'];
+    if (!a.length || a.includes('__ALL__') || a.includes('all')) return ['__ALL__'];
     return a;
   }
   if (typeof v === 'string') {
     const a = v.split(KEYWORD_SEP).map((s) => s.trim()).filter(Boolean);
-    if (!a.length || a.includes('__ALL__') || a.includes('不限')) return ['__ALL__'];
+    if (!a.length || a.includes('__ALL__') || a.includes('all')) return ['__ALL__'];
     return a;
   }
   return ['__ALL__'];
 }
 
-// ---------------- 读取已有配置，构造预填数据（偏好记忆） ----------------
+// ---------------- Read existing config, build pre-fill data (preference memory) ----------------
 function buildPrefill() {
   try {
     const c = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
-    const kw = splitKeywords(c.keywords).join('，');
+    const kw = splitKeywords(c.keywords).join(',');
     return {
       keywords: kw,
       industry: Array.isArray(c.industry) ? c.industry : ['__ALL__'],
-      location: (c.location && c.location !== '__ALL__') ? c.location : '不限',
+      location: (c.location && c.location !== '__ALL__') ? c.location : 'all',
       salaryFloor: (c.salaryFloor != null) ? c.salaryFloor : 25,
       salaryCeil: (c.salaryCeil != null) ? c.salaryCeil : 500,
       recruitmentType: ['nonRecruiter', 'recruiter', 'all'].includes(c.recruitmentType) ? c.recruitmentType : 'nonRecruiter',
@@ -92,22 +92,22 @@ function buildPrefill() {
       schedule: c.schedule || '0 9 * * *',
     };
   } catch (e) {
-    return null; // 无历史配置：空白表单
+    return null; // no history config: blank form
   }
 }
 
-// 检查猎聘是否有简历 + 预填数据
+// Check resume + pre-fill data
 const prefill = buildPrefill();
 hasResume = checkResumeExists();
 
-// 注入 resume 状态 + 预填数据到 HTML
+// Inject resume status + pre-fill data into HTML
 let injectScript = '<script>window.__HAS_RESUME__=' + hasResume + ';';
 if (prefill) injectScript += 'window.__PREFILL__=' + JSON.stringify(prefill).replace(/</g, '\\u003c') + ';';
 injectScript += '</script>';
 const servedHtml = html.replace('</head>', injectScript + '</head>');
 
-if (hasResume) console.log('HAS_RESUME=true（已检测到简历，不显示简历字段）');
-else console.log('HAS_RESUME=false（未检测到简历，向导中将显示简历字段）');
+if (hasResume) console.log('HAS_RESUME=true (resume detected, resume fields hidden)');
+else console.log('HAS_RESUME=false (no resume detected, resume fields shown in wizard)');
 
 const server = http.createServer((req, res) => {
   if (req.method === 'GET' && (req.url === '/' || req.url === '/index.html')) {
@@ -122,14 +122,14 @@ const server = http.createServer((req, res) => {
       let cfg;
       try { cfg = JSON.parse(buf); } catch (e) {
         res.writeHead(400, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ ok: false, message: '配置不是合法 JSON' }));
+        res.end(JSON.stringify({ ok: false, message: 'Config is not valid JSON' }));
         return;
       }
-      // 关键词：必须能拆出至少一个（防御字符串/数组混用）
+      // Keywords: must split at least one (defensive against string/array mix)
       const kws = splitKeywords(cfg.keywords);
       if (!kws.length) {
         res.writeHead(400, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ ok: false, message: '缺少岗位关键词' }));
+        res.end(JSON.stringify({ ok: false, message: 'Missing job keyword' }));
         return;
       }
       const safe = {
@@ -138,14 +138,14 @@ const server = http.createServer((req, res) => {
         location: normalizeLocation(cfg.location),
         salaryFloor: Number(cfg.salaryFloor) || 0,
         salaryCeil: Number(cfg.salaryCeil) || 999,
-        // 岗位名称已合并「岗位+职级」，层级不再单独过滤，恒为全量
+        // Job title already merges "role+level", level no longer filtered separately, always full
         levels: ['__ALL__'],
         recruitmentType: ['nonRecruiter', 'recruiter', 'all'].includes(cfg.recruitmentType) ? cfg.recruitmentType : 'nonRecruiter',
         dailyCap: Math.max(1, parseInt(cfg.dailyCap, 10) || 50),
         maxPages: parseInt(cfg.maxPages, 10) || 6,
         runMode: ['foreground', 'background'].includes(cfg.runMode) ? cfg.runMode : 'foreground',
       };
-      // 自动化运行字段（如有）
+      // Automation-run fields (if any)
       if (cfg.unattended === true) {
         safe.unattended = true;
         safe.schedule = cfg.schedule || '0 9 * * *';
@@ -156,26 +156,26 @@ const server = http.createServer((req, res) => {
         fs.writeFileSync(CONFIG_PATH, JSON.stringify(safe, null, 2), 'utf8');
       } catch (e) {
         res.writeHead(500, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ ok: false, message: '写配置失败: ' + e.message }));
+        res.end(JSON.stringify({ ok: false, message: 'Config write failed: ' + e.message }));
         return;
       }
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ ok: true, path: CONFIG_PATH, autoRun: true }));
       console.log('CONFIG_WRITTEN=' + CONFIG_PATH);
-      console.log('AUTO_RUN_START=需求已提交，立即自动运行 apply_pipeline.js（全程无需用户操作）');
-      // 响应已发给前端；保持服务进程存活，前台启动投递管道并把输出实时透传，结束即退出
+      console.log('AUTO_RUN_START=requirements submitted, immediately auto-run apply_pipeline.js (zero user action needed)');
+      // Response already sent to frontend; keep server alive, start delivery pipeline in foreground and stream output, exit when done
       const child = spawn(process.execPath, [path.join(__dirname, 'apply_pipeline.js')], {
         cwd: WORKDIR,
         stdio: 'inherit',
         env: process.env,
       });
       child.on('error', (e) => {
-        console.error('投递进程启动失败：' + e.message);
+        console.error('Delivery process failed to start: ' + e.message);
         server.close();
         process.exit(1);
       });
       child.on('exit', (code) => {
-        console.log('PIPELINE_DONE=apply_pipeline.js 退出码 ' + (code || 0));
+        console.log('PIPELINE_DONE=apply_pipeline.js exited with code ' + (code || 0));
         server.close();
         process.exit(code || 0);
       });
@@ -190,5 +190,5 @@ server.listen(0, '127.0.0.1', () => {
   const port = server.address().port;
   const url = 'http://127.0.0.1:' + port;
   console.log('WIZARD_URL=' + url);
-  if (prefill) console.log('PREFILL=上次偏好已载入（' + prefill.keywords + '）');
+  if (prefill) console.log('PREFILL=last preference loaded (' + prefill.keywords + ')');
 });

@@ -1,88 +1,88 @@
-# 猎聘全自动投递向导 · 错误码与异常处理
+# Liepin Fully-Automated Delivery Wizard · Error Codes and Exception Handling
 
-> 本技能采用「E 系列错误码 + 进程退出码 + 友好话术」三层机制。脚本真实实现全部判定，代理（WorkBuddy）须按退出码第一时间用文字主动告知用户原因。
+> This skill uses a three-layer mechanism of "E-series error code + process exit code + friendly phrasing". The scripts really implement all judgments; the agent (WorkBuddy) must proactively tell the user the reason in text by exit code.
 
-## 一、进程退出码（代理必读）
+## 1. Process Exit Codes (agent must read)
 
-| 退出码 | 含义 | 代理应主动告知用户 |
+| Exit code | Meaning | Agent should proactively tell the user |
 |---|---|---|
-| 0 | 完成 / 达每日上限 / 运行时长护栏停机 | 完成则进入成果展示；达上限说明「今日已投 N 份达上限，其余留待明日」；超时说明「已安全停机，重跑即续投」 |
-| 2 | 预检 401（Token 对 apply-job 无权限） | 「Token 对投递无权限，请回阶段 0 重新生成凭证后重跑」 |
-| 3 | 频控持续超 30min / 连续失败熔断 / 运行时长外其他中断 | 「投递频率太快被限流（或 Token 疑似失效），已自动暂停；去重保证可稍后安全续投」 |
-| 130 | 用户中断（Ctrl+C / SIGTERM） | 「投递已被您中断，已投 X 份进度已保存，重跑即可续投」 |
-| 1 | 致命错误 | 原样报告错误堆栈关键信息 |
+| 0 | Done / daily cap reached / runtime-guardrail stop | On done go to result display; on cap say "applied N today, reached cap, rest left for tomorrow"; on timeout say "safely stopped, rerun resumes" |
+| 2 | Pre-check 401 (token has no apply-job permission) | "Token has no delivery permission, go back to Stage 0 to regenerate credentials then rerun" |
+| 3 | Persistent rate-limit >30min / consecutive-failure circuit break / other interruption beyond runtime | "Delivery too frequent and rate-limited (or token likely invalid), auto-paused; de-dup guarantees safe resume later" |
+| 130 | User interruption (Ctrl+C / SIGTERM) | "Delivery interrupted by you, X applied, progress saved, rerun resumes" |
+| 1 | Fatal error | Report the key parts of the error stack as-is |
 
-## 二、E 系列错误码
+## 2. E-series Error Codes
 
-每个错误码含：**触发条件 / 脚本行为 / 友好话术**。脚本在对应分支严格按此执行。
+Each error code includes: **trigger / script behavior / friendly phrasing**. The script strictly follows this in the corresponding branch.
 
-### E001 缺少 LIEPIN_TOKEN
-- **触发**：环境变量 `LIEPIN_TOKEN` 为空。
-- **脚本行为**：打印提示并 `process.exit(3)`。
-- **友好话术**：「缺少猎聘 Token（x-user-token）。请回阶段 0 获取后，在本次命令内联传入：$env:LIEPIN_TOKEN='你的token'」。
+### E001 Missing LIEPIN_TOKEN
+- **Trigger**: env `LIEPIN_TOKEN` is empty.
+- **Script behavior**: print hint and `process.exit(3)`.
+- **Friendly phrasing**: "Missing Liepin Token (x-user-token). Go back to Stage 0 to obtain it, then pass it inline in this command: `$env:LIEPIN_TOKEN='your token'`".
 
-### E002 缺少配置文件
-- **触发**：工作区无 `liepin_wizard_config.json`。
-- **脚本行为**：`process.exit(3)`。
-- **友好话术**：「请先通过 Web 向导页面填写并提交配置，再运行投递管道。」
+### E002 Missing config file
+- **Trigger**: no `liepin_wizard_config.json` in the workspace.
+- **Script behavior**: `process.exit(3)`.
+- **Friendly phrasing**: "Please fill and submit the config via the web wizard page first, then run the delivery pipeline."
 
-### E003 配置字段非法
-- **触发**：薪资上限 < 下限（且上限非 0）、每日上限 < 1、recruitmentType 非法。
-- **脚本行为**：向导侧 `wizard.js` 返回 400 并提示；管道侧以默认安全值兜底（recruitmentType 默认 nonRecruiter）。
-- **友好话术**：「配置有问题：薪资上限不能低于下限；已按安全默认值处理 / 请在向导中修正后重新生成。」
+### E003 Invalid config field
+- **Trigger**: salary ceiling < floor (and ceiling not 0), daily cap < 1, recruitmentType invalid.
+- **Script behavior**: wizard side `wizard.js` returns 400 with hint; pipeline side falls back to safe default (recruitmentType defaults to nonRecruiter).
+- **Friendly phrasing**: "Config problem: salary ceiling cannot be below floor; handled with safe default / please fix in wizard and regenerate."
 
-### E004 网络 / 请求超时
-- **触发**：单次 MCP 请求超 30s 或连接错误。
-- **脚本行为**：计入退避重试；连续异常转频控守护流程。
-- **友好话术**：「网络抖动，正在重试；若长时间无响应可能是网络不通，请检查后再跑。」
+### E004 Network / request timeout
+- **Trigger**: a single MCP request exceeds 30s or connection error.
+- **Script behavior**: count into backoff retry; continuous anomaly goes to rate-limit guard flow.
+- **Friendly phrasing**: "Network jitter, retrying; if no response for a long time the network may be down, please check then rerun."
 
-### E005 频控持续超 30 分钟
-- **触发**：429 退避累计等待 > 1800s 仍限流。
-- **脚本行为**：写报告、`process.exit(3)`。
-- **友好话术**：「投递频率太快被限流且持续超 30 分钟，已自动暂停。去重保证可稍后安全续投，建议间隔 1~2 小时后再跑。」
+### E005 Persistent rate-limit >30 minutes
+- **Trigger**: 429 backoff cumulative wait >1800s still limited.
+- **Script behavior**: write report, `process.exit(3)`.
+- **Friendly phrasing**: "Delivery too frequent and rate-limited for over 30 minutes, auto-paused. De-dup guarantees safe resume later; suggest waiting 1~2 hours before rerun."
 
-### E006 预检 401（Token 无 apply 权限）
-- **触发**：首条预检 apply 返回 401 / unauthorized。
-- **脚本行为**：写报告、`process.exit(2)`，不再批量投。
-- **友好话术**：「Token 对『投递』无权限（search 可能仍通）。请回阶段 0 重新生成凭证并确认勾选 apply 权限后重跑。」
+### E006 Pre-check 401 (token no apply permission)
+- **Trigger**: first-item pre-check apply returns 401 / unauthorized.
+- **Script behavior**: write report, `process.exit(2)`, no bulk apply.
+- **Friendly phrasing**: "Token has no 'delivery' permission (search may still work). Go back to Stage 0 to regenerate credentials and confirm apply permission is checked, then rerun."
 
-### E007 连续失败熔断（Token 失效）
-- **触发**：连续 3 次非频控硬失败（如反复 401 / 接口异常）。
-- **脚本行为**：写报告、`process.exit(3)`。
-- **友好话术**：「连续 3 次投递失败，疑似 Token 失效或接口异常，已熔断停机。请重新生成 Token 后重跑，已投部分不会重复。」
+### E007 Consecutive-failure circuit break (token invalid)
+- **Trigger**: 3 consecutive non-rate-limit hard failures (e.g. repeated 401 / API anomaly).
+- **Script behavior**: write report, `process.exit(3)`.
+- **Friendly phrasing**: "3 consecutive delivery failures, likely token invalid or API anomaly, circuit-broken and stopped. Please regenerate token then rerun; applied part will not repeat."
 
-### E008 已达每日上限
-- **触发**：`liepin_daily_quota.json` 当日 count ≥ dailyCap。
-- **脚本行为**：写报告、`process.exit(0)`，标明 quotaReached。
-- **友好话术**：「今日已投 N 份达上限，剩余岗位留待明日自动续投。账号保护已生效。」
+### E008 Daily cap reached
+- **Trigger**: `liepin_daily_quota.json` today's count ≥ dailyCap.
+- **Script behavior**: write report, `process.exit(0)`, mark quotaReached.
+- **Friendly phrasing**: "Applied N today, reached cap; remaining roles left for tomorrow auto-resume. Account protection active."
 
-### E009 全局运行时长超额
-- **触发**：运行超 45 分钟（MAX_RUNTIME_MS）。
-- **脚本行为**：安全停机、存盘、`process.exit(0)`。
-- **友好话术**：「已达最大运行时长 45 分钟，已安全停机并保存进度，重跑即续投剩余岗位。」
+### E009 Global runtime exceeded
+- **Trigger**: run exceeds 45 minutes (MAX_RUNTIME_MS).
+- **Script behavior**: safe stop, persist, `process.exit(0)`.
+- **Friendly phrasing**: "Reached max runtime 45 minutes, safely stopped and progress saved; rerun resumes remaining roles."
 
-### E010 用户中断
-- **触发**：收到 SIGINT / SIGTERM。
-- **脚本行为**：写部分报告、`process.exit(130)`。
-- **友好话术**：「投递已被您中断，已投 X 份进度已保存，重跑即可续投，绝不重复。」
+### E010 User interruption
+- **Trigger**: received SIGINT / SIGTERM.
+- **Script behavior**: write partial report, `process.exit(130)`.
+- **Friendly phrasing**: "Delivery interrupted by you, X applied, progress saved, rerun resumes, never repeats."
 
-### E011 搜索无结果
-- **触发**：某关键词跨页搜索均返回空。
-- **脚本行为**：跳过该关键词，继续下一个；全部为空则报告 0 待投。
-- **友好话术**：「按当前条件没有搜到合适岗位，可放宽薪资/行业/地点后再试。」
+### E011 Search returned nothing
+- **Trigger**: a keyword returns empty across all pages.
+- **Script behavior**: skip that keyword, continue to next; if all empty report 0 to apply.
+- **Friendly phrasing**: "No matching roles under current criteria, try relaxing salary / industry / location."
 
-### E012 配置写入失败（向导侧）
-- **触发**：`wizard.js` 写 `liepin_wizard_config.json` 抛异常。
-- **脚本行为**：HTTP 500 返回错误原因。
-- **友好话术**：「需求配置写入失败（磁盘/权限问题），请检查工作区可写后重试向导。」
+### E012 Config write failed (wizard side)
+- **Trigger**: `wizard.js` writing `liepin_wizard_config.json` throws.
+- **Script behavior**: HTTP 500 returns the error reason.
+- **Friendly phrasing**: "Requirement config write failed (disk / permission issue), please check workspace writability then retry wizard."
 
-### E013 未知结果需人工核对
-- **触发**：apply 返回无法判定成功/失败（空返回、非标准文案）。
-- **脚本行为**：记为 `unknown`，写入报告。
-- **友好话术**：「有 W 个岗位返回不明确，已标记为未知，请到猎聘 App 人工核对，不谎报成功。」
+### E013 Unknown result needs manual check
+- **Trigger**: apply returned undeterminable success/failure (empty return, non-standard text).
+- **Script behavior**: mark as `unknown`, write to report.
+- **Friendly phrasing**: "W roles returned unclear results, marked unknown, please verify manually in the Liepin App; never fake success."
 
-## 三、异常处理设计原则
-- **绝不谎报**：fail / unknown 永远不当 success。
-- **进度不丢**：任何中断（频控/熔断/用户/超时）都先写报告再退出。
-- **可续投**：去重集合跨运行持久化，重跑只投未投过的。
-- **主动告知**：凡非 0 退出或达上限，代理必须第一时间用文字说清原因 + 进度已保存。
+## 3. Exception Handling Design Principles
+- **Never fake success**: fail / unknown are never treated as success.
+- **Progress not lost**: any interruption (rate-limit / circuit break / user / timeout) writes report before exit.
+- **Resumable**: de-dup set persisted across runs, rerun only applies un-applied.
+- **Proactively told**: any non-0 exit or cap reached, the agent must explain the reason in text immediately + progress saved.

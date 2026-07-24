@@ -1,54 +1,54 @@
-# 猎聘投递成果汇总
+# Liepin Delivery Result Summary
 
-生成时间：2026/7/19 19:50:03
+Generated at: 2026/7/19 19:50:03
 
-## 概览
-- 本次待投总数：41
-- 实际处理：41
-- ✅ 成功：10　⚠️ 已投过：31　❌ 失败：0　❓ 未知：0
-- 今日已投：19 份
+## Overview
+- Total to apply this run: 41
+- Actually processed: 41
+- ✅ Success: 10　⚠️ Already applied: 31　❌ Fail: 0　❓ Unknown: 0
+- Applied today: 19
 
-## ✅ 成功（10）
-- 海外人力资源总监 @ 某武汉通信设备上市公司（深圳）
-- HRVP/CHO @ 广州上市美妆公司（广州）
-- 人力VP @ 某北京大型化工公司（北京）
-- CHO人力一把手 @ 某深圳智能硬件/消费电子上市公司（深圳）
-- 人力副总裁 @ 某国内电子/半导体/集成电路公司（南昌）
-- 组织发展总监（OD 总监） @ 某国内新能源公司（南昌）
-- OD总监（组织发展总监） @ 某光伏知名头部企业（上海）
-- 组织发展总监（HRD） @ 某电子商务上市公司（广州）
-- 集团组织发展总监 @ 尚美数智酒店集团（黄浦区）
-- 组织与人才发展经理/总监 @ 广州恩飞投资有限公司（广州-华乐）
+## ✅ Success (10)
+- Overseas HR Director @ Some Wuhan communications equipment listed company (Shenzhen)
+- HRVP/CHO @ Some Guangzhou beauty listed company (Guangzhou)
+- HR VP @ Some Beijing large chemical company (Beijing)
+- CHO top HR @ Some Shenzhen smart-hardware / consumer-electronics listed company (Shenzhen)
+- HR Vice President @ Some domestic electronics / semiconductor / IC company (Nanchang)
+- Organization Development Director (OD Director) @ Some domestic new-energy company (Nanchang)
+- OD Director (Organization Development Director) @ Some leading photovoltaic company (Shanghai)
+- Organization Development Director (HRD) @ Some e-commerce listed company (Guangzhou)
+- Group Organization Development Director @ Shangmei Digital Intelligence Hotel Group (Huangpu)
+- Organization & Talent Development Manager/Director @ Guangzhou Enfei Investment Co., Ltd. (Guangzhou-Huale)
 
-## ⚠️ 已投过（跳过，31）
-- 【集团】海外国家HRD @ 极兔速递
-- 人力资源负责人 @ 圆通
-- 人力资源负责人 @ 圆通
-- 人事总监 @ 上海左麟阀门有限公司
-- 集团人力资源副总监（分管集团薪酬绩效+海外事业部） @ 万丰集团
-- SSC总经理 @ 能良电商
-- People & Culture Director, Greater China @ 康乐保
-- 海外人力总监/经理（工作地点：加拿大/德国/奥地利） @ 万丰集团
-- 人力资源HR负责人 @ 艺妙生物
-- 人力资源副总监 @ 金粒门
-- 人力资源总监（热电产业集团） @ 江西百通能源股份有限公司
-- 人力资源经理 @ 浙江中胜实业集团有限公司
-- 人力资源总监 @ 江西百通能源股份有限公司
-- 人事行政总监 @ 长甲集团
-- HRVP/CHO @ 硕明才略
-- 人事总监 @ 长甲集团
-- HRG（电商行业） @ 某西安大型医疗器械公司
-- 人力资源总经理 @ 某知名公司
-- HRVP/HRD（研产销，硬件产品公司） @ 某深圳计算机硬件公司
-- CHO @ 某深圳互联网公司
-- 人力资源VP副总裁｜总经理 @ 某知名公司
-- 人才管理与组织发展总监 @ 某国内机械/设备上市公司
-- 人力资源副总监（偏OD） @ 某广州大型服装/纺织/皮革公司
-- 组织发展总监OD(国企上市) @ 某国内知名上市公司
-- 人力资源总监（组织发展、培训） @ 某广州大型互联网公司
-- OD总监 @ 某深圳电气机械/器材上市公司
-- 组织发展总监/SSC总监/人力资源总监 @ 某国内大型机械/设备公司
-- 组织发展副总监 @ 某东莞大型新能源公司
-- 集团组织发展总监 @ 尚美数智酒店集团
-- COE总监-薪酬激励OD @ 复星医药集团
-- 组织与人才发展总监 @ 卓越物业
+## ⚠️ Already applied (skipped, 31)
+- [Group] Overseas Country HRD @ J&T Express
+- HR Head @ YTO
+- HR Head @ YTO
+- HR Director @ Shanghai Zuolin Valve Co., Ltd.
+- Group HR Deputy Director (group compensation & performance + overseas division) @ Wanfeng Group
+- SSC General Manager @ Nengliang E-commerce
+- People & Culture Director, Greater China @ Coloplast
+- Overseas HR Director/Manager (location: Canada/Germany/Austria) @ Wanfeng Group
+- HR Head @ Yimo Biotech
+- HR Deputy Director @ Jinlimen
+- HR Director @ Jiangxi Baitong Energy Co., Ltd.
+- HR Manager @ Zhejiang Zhongsheng Industrial Group Co., Ltd.
+- HR Director @ Jiangxi Baitong Energy Co., Ltd.
+- HR & Admin Director @ Changjia Group
+- HRVP/CHO @ Shuoming Cailue
+- HR Director @ Changjia Group
+- HRG (e-commerce) @ Some large Xi'an medical-device company
+- HR General Manager @ Some well-known company
+- HRVP/HRD (R&D-production-sales, hardware product company) @ Some Shenzhen computer-hardware company
+- CHO @ Some Shenzhen internet company
+- HR VP Vice President | General Manager @ Some well-known company
+- Talent Management & Organization Development Director @ Some domestic machinery / equipment listed company
+- HR Deputy Director (OD-leaning) @ Some large Guangzhou apparel / textile / leather company
+- Organization Development Director OD (state-owned listed) @ Some well-known domestic listed company
+- HR Director (Organization Development, Training) @ Some large Guangzhou internet company
+- OD Director @ Some Shenzhen electrical-machinery / equipment listed company
+- Organization Development Director/SSC Director/HR Director @ Some large domestic machinery / equipment company
+- Organization Development Deputy Director @ Some large Dongguan new-energy company
+- Group Organization Development Director @ Shangmei Digital Intelligence Hotel Group
+- COE Director - Compensation Incentive OD @ Fosun Pharma Group
+- Organization & Talent Development Director @ Zhuoyue Property

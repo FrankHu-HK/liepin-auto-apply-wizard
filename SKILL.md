@@ -1,284 +1,285 @@
 ---
 name: liepin-auto-apply-wizard
 slug: liepin-auto-apply-wizard
-displayName: 猎聘全自动简历投递/可设自动化运行/全程无需干预/防限流【23年世界500强HRVP亲自手搓/10万+用户体验】
-display_name: 猎聘全自动简历投递/可设自动化运行/全程无需干预/防限流【23年世界500强HRVP亲自手搓/10万+用户体验】
+displayName: Liepin Fully-Automated Resume Delivery / Schedulable Unattended Runs / Zero-Touch / Rate-Limit-Safe (Crafted by a 23-year Fortune-500 HR VP, battle-tested by 100k+ users)
+display_name: Liepin Fully-Automated Resume Delivery / Schedulable Unattended Runs / Zero-Touch / Rate-Limit-Safe (Crafted by a 23-year Fortune-500 HR VP, battle-tested by 100k+ users)
 description: |
-  猎聘简历全自动投递技能（Web 向导式，支持设置自动化运行/无人值守）。通过 Web 向导一次性收集求职需求（岗位名称（岗位+职级合并）、行业、地点、薪资、招聘类型、每日上限、是否无人值守），触发后**自动弹出预览面板打开向导网页**，用户填完提交即**自动开始前台投递、全程无需干预**；每投一条实时显示结果，并可随时"查进度"。全自动执行岗位搜索、智能过滤、跨会话去重、频控守护与简历投递。
-  核心亮点：① Web 向导（代理自动弹出预览面板，非对话框弹窗）② 提交即自动投递、全程无干预（除限流/中断）③ 岗位名称=岗位+职级合并填写 ④ 招聘类型筛选 ⑤ 跨会话永久去重 ⑥ 频控守护+自动恢复 ⑦ 每日配额上限 ⑧ 真实四态结果+逐条实时展示 ⑨ 中断主动告知+稳定性护栏 ⑩ 可设定时自动化运行（无人值守）。
+  A fully-automated Liepin resume-delivery skill (web-wizard style, supports scheduled / unattended runs). A one-time web wizard collects your job criteria (job title — combining role + level, industry, location, salary, recruitment type, daily cap, unattended or not); once triggered it **automatically pops up a preview panel with the wizard page** and, after you submit, **automatically starts foreground delivery with zero further action** — every application shows its result in real time, and you can always "check progress". It fully automates job search, smart filtering, cross-session de-duplication, rate-limit guarding, and resume delivery.
+  Key highlights: ① Web wizard (the agent auto-pops the preview panel, not a dialog popup) ② Submit-and-auto-apply, zero touch (except on rate-limiting / interruption) ③ Job title = role + level combined ④ Recruitment-type filtering ⑤ Cross-session permanent de-duplication ⑥ Rate-limit guard + auto-recovery ⑦ Daily quota cap ⑧ Real four-state results + per-item real-time display ⑨ Proactive interruption reporting + stability guardrails ⑩ Schedulable unattended automation runs.
 version: 3.0.1
 agent_created: true
 requires:
   bins: [liepin-cli, node]
-category: 求职招聘
+category: Job Search & Recruitment
 platforms: [WorkBuddy]
-tags: [猎聘, 求职, 简历投递, 全自动, 向导, 批量投递, 去重, 频控, 猎头识别, 招聘类型]
+tags: [liepin, job-search, resume-delivery, automated, wizard, bulk-apply, deduplication, rate-limit, recruiter-detection, recruitment-type]
 visibility: public
 disable: false
 ---
 
-# 猎聘全自动简历投递/可设自动化运行/全程无需干预/防限流【23年世界500强HRVP亲自手搓/10万+用户体验】
+# Liepin Fully-Automated Resume Delivery / Schedulable Unattended Runs / Zero-Touch / Rate-Limit-Safe (Crafted by a 23-year Fortune-500 HR VP, battle-tested by 100k+ users)
 
-## 一句话定位
-把"投简历"做成 **Web 单页向导填需求 → 全自动筛选投递 → 成果展示（含失败原因）** 的闭环，并且 **绝不谎报成功、绝不重复投、绝不触发风控、中断第一时间说清楚**。
+## One-line positioning
 
----
-
-## ⏱️ 5分钟极速上手（读完即可投递）
-
-```
-1️⃣ 告诉我「帮我在猎聘投简历」→ AI 自动弹出 Web 向导
-2️⃣ 填岗位名称（如：人力资源总监）/ 行业 / 地点 / 薪资 → 点「提交并开始自动投递」
-3️⃣ 给我 Token（打开 https://www.liepin.com/mcp/auth 复制 x-user-token）
-4️⃣ 把 Token 发给我 → AI 自动设置 → 自动开始投递
-```
-
-> 说人话：发我 3 样东西 —— **指令**（投什么岗）+ **Token** + **一句话需求**，剩下的 AI 全包办。
-> - Token 获取链接：https://www.liepin.com/mcp/auth（点进去复制 x-user-token）
-> - 岗位/行业/地点/薪资（或用默认值）
-> - 然后等着看结果就行
-
-**全程不需要你碰命令行、不需要装 Python、不需要配环境。** AI 会自动检查、自动安装 liepin-cli、自动投递。
-
-> 📚 以下为完整参考文档，首次用只看上面就够了，遇到问题再往下翻。
+Turn "applying for jobs" into a closed loop of **web single-page wizard (enter criteria) → automated filtering & delivery → results display (with failure reasons)**, and **never fake success, never re-apply, never trip platform risk controls, and always explain clearly if interrupted**.
 
 ---
 
-## 📚 术语表（读正文前先统一口径）
+## ⏱️ 5-Minute Quick Start (read this and you can apply)
 
-为避免歧义，以下术语在全文中含义固定，请先对照：
+```
+1️⃣ Tell me "help me apply on Liepin" → the AI auto-pops the web wizard
+2️⃣ Fill in job title (e.g. HR Director) / industry / location / salary → click "Submit and start auto-apply"
+3️⃣ Give me your Token (open https://www.liepin.com/mcp/auth and copy x-user-token)
+4️⃣ Send the Token to me → the AI auto-configures it → auto-starts delivery
+```
 
-| 术语 | 含义 | 易混淆点 |
+> In plain words: send me 3 things — **the instruction** (what role to apply for) + **Token** + **a one-line requirement**, and the AI handles the rest.
+> - Token link: https://www.liepin.com/mcp/auth (open it and copy x-user-token)
+> - Job title / industry / location / salary (or use defaults)
+> - Then just wait for the results
+
+**You never need to touch the command line, install Python, or configure an environment.** The AI auto-checks, auto-installs liepin-cli, and auto-delivers.
+
+> 📚 The full reference docs are below. For first use, only the section above is enough; scroll down if you hit a problem.
+
+---
+
+## 📚 Glossary (fixed terminology, read before the body)
+
+To avoid ambiguity, the following terms have fixed meanings throughout this document:
+
+| Term | Meaning | Common confusion |
 |---|---|---|
-| **四态结果** | 投递后逐条判定的 4 种终态：`success`(成功) / `already`(已投过跳过) / `fail`(失败，附原因) / `unknown`(无法判定，需人工核对)。**绝不把 fail/unknown 伪装成 success**。 | 与"三态"区分：本技能刻意多设 `unknown` 一态，专接接口返回不标准、无法断定的情况，宁标未知不谎报。 |
-| **频控（429）** | 猎聘服务端对请求过频的限流（HTTP 仍 200，但返回"频繁/受限"字样）。 | 不是 HTTP 429，是业务层限流，故需 `isRateLimit()` 文本检测，而非看状态码。 |
-| **退避续投** | 命中频控后按 15→240s 指数等待重试；累计超 1800s 判定为"持续频控"自动暂停。 | 与"暴力重试"相反：有上限、会主动停。 |
-| **跨会话去重** | 读取工作区全部历史报告合并已投 jobId，本次自动跳过，永不重复骚扰同一 HR。 | "跨会话"指不同次运行之间也生效，依赖历史报告文件持久化。 |
-| **每日配额（dailyCap）** | `liepin_daily_quota.json` 记 `{date,count}`，达上限即停，日历日 0 点重置。 | 与"本次运行上限"不同：配额是跨运行累计的当日总量。 |
-| **非猎头 / 猎头** | `recruitmentType=nonRecruiter` 仅企业直招；`recruiter` 仅猎头/人力服务公司；`all` 都要但非猎头优先。 | "猎头识别"是**启发式**（非 100% 精确），故保留 `all` 兜底。 |
-| **无人值守（unattended）** | 用户在向导第 6 步明确开启的自动化运行模式：到点自动投递、**全程无需干预**、无需每日确认。 | 仅在**用户显式授权**后开启；仍受 dailyCap/频控/熔断护栏保护，绝不无上限刷量。 |
-| **熔断** | 连续 3 次非频控硬失败（如 Token 失效）即停机（退出码 3），防空耗与账号风险。 | 区别于"频控暂停"：熔断针对硬失败，频控暂停针对限流。 |
-| **去重集合** | 内存中的 `Set<jobId>`，由历史报告 + 本次已投合并而成。 | 仅含 `success`/`already` 状态 jobId，`fail`/`unknown` 不计入（允许重试）。 |
-| **偏好记忆** | 用户每次通过向导提交的需求会写入工作区 `liepin_wizard_config.json`，下次触发时作为"上次偏好"被读取、预填表单并主动询问是否沿用。 | 与"跨会话去重"不同：偏好记忆记的是"你想投什么"，去重记的是"已投过哪些"。偏好文件不含 Token、不含个人信息。 |
+| **Four-state result** | The 4 terminal states judged per application: `success` (applied) / `already` (skipped, already applied) / `fail` (failed, with reason) / `unknown` (cannot be determined, needs manual check). **Never disguise `fail`/`unknown` as `success`.** | Differs from "three-state": this skill deliberately adds the `unknown` state to catch non-standard / undeterminable API responses — prefer labeling unknown over faking success. |
+| **Rate-limit (429)** | Liepin's server-side throttling on overly frequent requests (HTTP still 200, but the response says "too frequent / restricted"). | Not an HTTP 429 — it is a business-layer throttle, so `isRateLimit()` uses text detection, not the status code. |
+| **Backoff-and-retry** | On hitting rate-limit, wait with exponential backoff 15→240s; if cumulative wait exceeds 1800s it is judged "persistent rate-limiting" and auto-pauses. | Opposite of "brute-force retry": it has an upper bound and proactively stops. |
+| **Cross-session de-duplication** | Reads all historical reports in the workspace, merges already-applied jobIds, and skips them this run — never re-applies to the same HR. | "Cross-session" means it also works across different runs, relying on persisted historical report files. |
+| **Daily quota (dailyCap)** | `liepin_daily_quota.json` records `{date,count}`; stops when reached, resets at calendar-day 0:00. | Differs from "this-run cap": the quota is a cross-run cumulative daily total. |
+| **Non-recruiter / recruiter** | `recruitmentType=nonRecruiter` keeps only direct enterprise hiring; `recruiter` keeps only recruiter / HR-service firms; `all` keeps both but prioritizes non-recruiters. | "Recruiter detection" is **heuristic** (not 100% precise), so `all` is kept as a fallback. |
+| **Unattended** | The automation mode explicitly enabled by the user at wizard step 6: runs automatically on schedule, **zero touch**, no daily confirmation needed. | Only enabled **after explicit user authorization**; still protected by dailyCap / rate-limit / circuit-breaker guardrails — never unbounded mass-apply. |
+| **Circuit breaker** | 3 consecutive non-rate-limit hard failures (e.g. token invalid) stops the process (exit code 3) to avoid wasted effort and account risk. | Distinct from "rate-limit pause": the breaker targets hard failures; the pause targets throttling. |
+| **De-dup set** | The in-memory `Set<jobId>` merged from historical reports + this run's applied jobs. | Contains only `success`/`already` jobIds; `fail`/`unknown` are not counted (allowed to retry). |
+| **Preference memory** | Each wizard submission writes the user's criteria to the workspace `liepin_wizard_config.json`, read back next time as "last preference", pre-filled and offered for reuse. | Differs from "cross-session de-dup": preference memory records "what you want to apply for"; de-dup records "what was already applied". The preference file contains no token and no personal info. |
 
 ---
 
-## 〇、TL;DR（30 秒快速定位）
+## 〇、TL;DR (30-second orientation)
 
-- 想**自动投猎聘简历** → 直接说"帮我把简历投到猎聘上的总监/总经理岗位"，技能**自动拉起向导并弹出表单**（无需你手动要求调出）；若工作区已有上次偏好，会**主动问你要不要沿用**。
-- 要**只要直招不要猎头** → 向导里选「仅非猎头岗位」。
-- 担心**重复投/被限流** → 内置跨会话去重 + 频控守护 + 每日上限，全自动保护。
-- 想知道**投得怎样** → 读 `liepin_wizard_summary.md`，四态结果一目了然。
-- 想**挂着自动跑（无需干预）** → 向导第 6 步开「无人值守」，生成自动化规格后由代理注册周期任务，全程无需干预。
-- 脚本**真实可运行**：`scripts/wizard.js`（向导）+ `scripts/apply_pipeline.js`（投递），零外部依赖，Node 18+ 直接跑。
+- Want to **auto-apply on Liepin** → just say "help me apply my resume to director / general-manager roles on Liepin"; the skill **auto-launches the wizard and pops the form** (no need to ask for it); if a last preference exists in the workspace, it will **proactively ask whether to reuse it**.
+- Want **direct hiring only, no recruiters** → choose "Non-recruiter positions only" in the wizard.
+- Worried about **re-applying / getting rate-limited** → built-in cross-session de-dup + rate-limit guard + daily cap protect you automatically.
+- Want to know **how it went** → read `liepin_wizard_summary.md` for a clear four-state breakdown.
+- Want it to **run unattended (no action needed)** → enable "Unattended" at wizard step 6; after generating the automation spec the agent registers a periodic task, fully hands-off.
+- Scripts are **really runnable**: `scripts/wizard.js` (wizard) + `scripts/apply_pipeline.js` (delivery), zero external dependencies, runs directly on Node 18+.
 
 ---
 
-## 一、能力边界（能做 / 不做）
+## 一、Capability Boundaries (what it does / doesn't do)
 
-### 能做（11 项核心能力）
-1. 一键拉起 Web 向导（一次填完岗位名称/行业/地点/薪资/招聘类型/每日上限），触发即自动弹出预览面板（非对话框弹窗）。
-2. 按关键词跨页搜索猎聘岗位（含薪资下限透传）。
-3. 客户端多维硬过滤（行业 OR / 多城市 OR / 薪资区间；岗位名称已含职级，不再单独按层级过滤）。
-4. 招聘类型筛选（仅非猎头 / 仅猎头 / 都要非猎头优先）。
-5. 猎头识别与后置排序（启发式）。
-6. 跨会话永久去重（读全部历史报告合并已投 jobId）。
-7. 频控守护 + 指数退避自动续投。
-8. 每日配额上限保护账号。
-9. 真实四态结果判定（success / already / fail / unknown）。
-10. 失败原因逐条说明 + 成果汇总（MD + JSON）。
-11. 中断优雅恢复（SIGINT/SIGTERM 存盘续投 + 全局运行时长护栏 + 连续失败熔断）。
+### What it does (11 core capabilities)
+1. One-click launch of the web wizard (fills job title / industry / location / salary / recruitment type / daily cap in one go); on trigger it auto-pops the preview panel (not a dialog popup).
+2. Cross-page keyword search on Liepin (with salary-floor passthrough).
+3. Client-side multi-dimensional hard filtering (industry OR / multi-city OR / salary range; job title already includes level, so level is no longer filtered separately).
+4. Recruitment-type filtering (non-recruiter only / recruiter only / both with non-recruiter priority).
+5. Recruiter detection and post-filter sorting (heuristic).
+6. Cross-session permanent de-duplication (reads all historical reports and merges applied jobIds).
+7. Rate-limit guard + exponential backoff auto-retry.
+8. Daily quota cap to protect the account.
+9. Real four-state result judgment (success / already / fail / unknown).
+10. Per-item failure reasons + result summary (MD + JSON).
+11. Graceful interruption recovery (SIGINT/SIGTERM persistence + global runtime guardrail + consecutive-failure circuit breaker).
 
-### 不做（绝对边界）
-1. **不代投猎聘以外的平台**（BOSS/智联/前程无忧等由对应技能负责）。
-2. **不伪造、不篡改**简历内容或投递信息。
-3. **不做绕过频控的暴力刷量**（保护账号健康是硬约束）。
-4. **不收集、不存储**用户个人信息（姓名/手机/邮箱/账号）。
-5. **不代办公积金/社保/仲裁**等政务系统。
-6. **不绕过猎聘 Token 鉴权**或逆向破解接口。
-7. **提交即自动投递、全程无干预**（除限流/中断等异常主动告知）；若用户在向导第 6 步明确开启「无人值守（unattended）」并授权自动化运行，则按既定配置定时自动运行（仍需 dailyCap 护栏，不做无上限刷量）。
+### What it does NOT do (hard boundaries)
+1. **Does not apply to platforms other than Liepin** (BOSS / Zhaopin / 51job etc. are handled by their own skills).
+2. **Does not fabricate or tamper** with resume content or delivery info.
+3. **Does not brute-force mass-apply to bypass rate limits** (account health is a hard constraint).
+4. **Does not collect or store** user personal info (name / phone / email / account).
+5. **Does not handle** housing-fund / social-security / arbitration government systems.
+6. **Does not bypass** Liepin token auth or reverse-engineer the API.
+7. **Submit-and-auto-apply, zero touch** (except proactive notice on rate-limit / interruption anomalies); if the user explicitly enables "Unattended" at wizard step 6 and authorizes automation, it runs on schedule per config (still guarded by dailyCap, no unbounded mass-apply).
 
-### 特殊场景边界
-| 场景 | 处理 |
+### Special-scenario boundaries
+| Scenario | Handling |
 |---|---|
-| 无 Token（`LIEPIN_USER_TOKEN` 或配置文件） | 提示先 `liepin-cli setup` 或设置 `LIEPIN_USER_TOKEN`，不臆测、不报错继续 |
-| Token 对 apply 无权限（401） | 首条预检即中止，退出码 2，明确告知重新生成 |
-| Token 中途过期（投递中 401） | 本轮已投保留，中止并提示重生成，可续投 |
-| 全新环境首次使用 | 从历史报告为空开始，本次内已投仍会被记录去重 |
-| 猎头识别误判 | 提供「都要」选项兜底，非 100% 精确属预期 |
-| 仅依赖官方 liepin-cli | 底层直连猎聘 OpenAPI；liepin-cli 需本机预装并加入 PATH |
-| 海外/港澳台求职 | 不支持，仅国内猎聘 OpenAPI |
-| 校招/实习/管培生海投 | 支持（岗位名称填「管培生/实习生/见习生」等即可投递）；校招专属通道另走校招系统，本技能仅投社招开放岗 |
-| 搜索结果 0 条 | 提示放宽关键词/行业/薪资，不空投 |
-| 企业要求附件简历 | 猎聘在线简历投递，附件需求转人工提示 |
-| 多关键词重叠 | 合并去重，同一 jobId 不重复投 |
-| 无网络/服务端故障 | 捕获异常写部分报告退出，进度不丢可续投 |
-| 跨城/地点变更 | 每次重填 location，去重跨会话仍生效 |
-| 同时多账号 | 不支持，仅本人单 token |
-| 岗位已关闭/下线 | 标记 fail+原因，不谎报 |
+| No Token (`LIEPIN_USER_TOKEN` or config file) | Prompt to run `liepin-cli setup` or set `LIEPIN_USER_TOKEN`; never guess or blindly continue |
+| Token has no apply permission (401) | Abort on first pre-check, exit code 2, clearly tell user to regenerate |
+| Token expires mid-run (401 during delivery) | Keep what was applied, abort and prompt to regenerate, can resume |
+| First run in a fresh env | Starts with empty history; this run's applied jobs are still recorded for de-dup |
+| Recruiter mis-detection | "Both" option provided as fallback; not 100% precise, by design |
+| Relies only on official liepin-cli | Talks to Liepin OpenAPI directly; liepin-cli must be pre-installed and on PATH |
+| Overseas / HK-Macau-Taiwan job search | Not supported; only domestic Liepin OpenAPI |
+| Campus / internship / trainee mass-apply | Supported (enter "trainee / intern / probationer" etc. as job title); campus-only channels go through the campus system, this skill only applies to open social-recruitment roles |
+| Zero search results | Prompt to relax keywords / industry / salary; never apply blindly |
+| Employer requires an attachment resume | Liepin online resume delivery; attachment requirement escalates to manual prompt |
+| Overlapping multi-keywords | Merge and de-dup; same jobId never applied twice |
+| No network / server failure | Catch exception, write partial report and exit; progress not lost, can resume |
+| Cross-city / location change | Re-fill location each time; de-dup still works cross-session |
+| Multiple accounts at once | Not supported; single token per person only |
+| Position closed / taken down | Mark fail + reason; never fake success |
 
 ---
 
-## 二、触发条件（全量触发词库 + 三级判定）
+## 二、Trigger Conditions (full trigger lexicon + three-tier judgment)
 
-> 本技能对「**猎聘** + **投/申请/投递**」组合高度敏感，支持数十种口语化、命令式、问句式表述；非猎聘平台或纯写简历/聊行情 **不触发**。
+> This skill is highly sensitive to the combination **"Liepin" + "apply / submit / deliver"**, supporting dozens of colloquial, imperative, and interrogative phrasings; non-Liepin platforms or pure resume-writing / market-chat **do not trigger**.
 
-> **自动拉起硬规则（v3.0.0 重写·自检+安装+前台全链路）**：一旦命中触发词，代理**必先执行** `node scripts/selfcheck.js --auto-install`（**前台**，不加后台/run_in_background），
-> ① 检测并自动安装 liepin-cli（调 pip install 到受管 venv）
-> ② 将安装结果（✅ CLI 就绪 / ❌ 失败原因）**立即展示给用户**
-> ③ 再执行 `node scripts/wizard.js`（**前台**，保持连接，长 timeout），从 stdout 读取 `WIZARD_URL` 后弹出预览面板。
-> **关键行为**：wizard.js 在用户提交前**一直阻塞等待**；用户点「提交并开始自动投递」后，wizard.js 内部自动 spawn `apply_pipeline.js`（`stdio:inherit`），其输出**实时逐行**透传到代理 stdout。代理必须**逐行读取并立即展示给用户**——每投一条输出一行 `[投递 seq/总数] 岗位@公司｜状态：原因`，这就是用户的实时进度。
-> **禁止**：① 跳过 selfcheck 直接跑 wizard ② 不等用户说"我要 WEB 向导"才动作 ③ 用 AskUserQuestion 弹窗代替预览面板 ④ **后台运行 wizard.js**（导致看不见输出，回到"需要问进度"的老路）⑤ **用户提交后说"等待确认/等待响应"**——提交即自动投递。
+> **Hard rule for auto-launch (v3.0.0 rewrite · self-check + install + foreground full chain)**: once a trigger word hits, the agent **must first run** `node scripts/selfcheck.js --auto-install` (**foreground**, not background / run_in_background),
+> ① Detect and auto-install liepin-cli (pip install into a managed venv)
+> ② Immediately show the install result (✅ CLI ready / ❌ failure reason) **to the user**
+> ③ Then run `node scripts/wizard.js` (**foreground**, keep connection, long timeout), read `WIZARD_URL` from stdout and pop the preview panel.
+> **Key behavior**: wizard.js **blocks waiting** until the user submits; after the user clicks "Submit and start auto-apply", wizard.js internally auto-spawns `apply_pipeline.js` (`stdio:inherit`), whose output is **streamed line-by-line in real time** to the agent stdout. The agent **must read line-by-line and show to the user immediately** — each application outputs one line `[apply seq/total] role@company｜status: reason`, which is the user's real-time progress.
+> **Forbidden**: ① skip selfcheck and run wizard directly ② wait for the user to say "I want the WEB wizard" ③ use an AskUserQuestion popup instead of the preview panel ④ **run wizard.js in background** (makes output invisible, back to the old "need to ask progress" path) ⑤ **after user submits, say "waiting for confirmation / waiting for response"** — submit means auto-apply.
 
-### 2.1 触发词库（全量，按意图分组，表述越多越易命中）
-- **投递/申请（直接意图）**：投简历、帮我投、自动投、批量投、一键投递、帮我申请、投递简历、申请岗位、投一下、广投、海投、撒简历、把简历发出去、自动申请、批量申请、连投、挂机投、每天投、代投、智能投、半自动投、自动发简历、帮我发简历。
-- **猎聘平台特指**：猎聘上投、在猎聘投、猎聘简历、猎聘岗位、猎聘求职、猎聘直聘、liepin 投、上猎聘投、猎聘帮我找、猎聘那边帮我投。
-- **筛选/过滤**：只要直招、不要猎头、非猎头岗、过滤猎头、只要企业岗、排除猎头、直招优先、别投猎头、剔除中介、只要社招。
-- **去重/防重复**：别重复投、不要重复、投过的跳过、去重、别骚扰同一个 HR、已投过的别再投。
-- **频控/保护**：别投太快、控制频率、别被封号、温柔点投、别触发风控、安全投递、限流保护。
-- **续投/中断**：接着投、续投、昨天没投完、继续投、断点续投、上次没投完、补投、把剩下的投了。
-- **状态/查询**：投得怎么样、投递进度、有回音吗、投了哪些、已投清单、成功几个、失败原因、今天投了多少、还有多少没投。
-- **配置/设置**：设置投递、配置投递、帮我设一下、定个投递计划、规划投递、按我的条件投。
-- **问句/口语化**：有没有自动投猎聘的工具、能不能帮我自动投、猎聘能自动投吗、怎么批量投猎聘、有啥办法快速投、我想躺着投简历、帮我搞定投递、投递太累了我交给它、每天自动帮我投点。
+### 2.1 Trigger lexicon (full, grouped by intent; more phrasings = easier hit)
+- **Apply / submit (direct intent)**: apply resume, help me apply, auto-apply, bulk apply, one-click apply, help me submit, submit application, apply a bit, mass apply, blanket apply, throw resume out, auto-submit, bulk submit, consecutive apply, idle apply, apply daily, apply on my behalf, smart apply, semi-auto apply, auto-send resume, help me send resume.
+- **Liepin-specific**: apply on Liepin, apply on Liepin, Liepin resume, Liepin jobs, Liepin job search, liepin apply, apply via Liepin, Liepin help me find, apply on Liepin for me.
+- **Filter / exclude**: direct hiring only, no recruiters, non-recruiter roles, filter recruiters, enterprise roles only, exclude recruiters, direct-hire priority, don't apply to recruiters, drop agencies, social recruitment only.
+- **De-dup / no repeat**: don't re-apply, no duplicates, skip applied ones, de-dup, don't pester the same HR, don't apply to already-applied.
+- **Rate-limit / protection**: don't apply too fast, control frequency, don't get banned, apply gently, don't trip risk control, safe delivery, rate-limit protection.
+- **Resume / interruption**: continue applying, resume, didn't finish yesterday, keep applying, resume from breakpoint, unfinished last time, top up, apply the rest.
+- **Status / query**: how did it go, any response, which did I apply, applied list, how many succeeded, failure reasons, how many applied today, how many left.
+- **Config / setup**: set up delivery, configure delivery, set it up for me, make a delivery plan, plan delivery, apply by my criteria.
+- **Interrogative / colloquial**: is there a tool to auto-apply on Liepin, can you auto-apply for me, can Liepin auto-apply, how to bulk-apply on Liepin, any quick way to apply, I want to apply lying down, help me get delivery done, applying is too tiring I leave it to you, auto-apply a bit for me daily.
 
-### 2.2 用户原话 → 识别 对照表（扩展示例）
-| 用户原话 | 识别为 | 动作 |
+### 2.2 User phrase → recognition mapping (expanded examples)
+| User phrase | Recognized as | Action |
 |---|---|---|
-| "帮我把简历投到猎聘上那些总监岗位" | 投递+岗位 | 拉起向导，预填关键词 |
-| "有没有一键投猎聘的工具" | 向导类 | 拉起向导 |
-| "猎聘上非猎头岗帮我自动投" | 猎头过滤 | 招聘类型默认 nonRecruiter |
-| "昨天没投完，今天接着投" | 续投类 | 读历史去重后续投 |
-| "我投的简历有回音吗" | 状态类 | 读最新 summary 汇报 |
-| "在猎聘上帮我海投一圈" | 投递类 | 拉起向导，默认全行业 |
-| "把简历撒出去，别投猎头" | 投递+过滤 | 招聘类型 nonRecruiter |
-| "liepin 上每天自动帮我投点" | 投递+续投 | 拉起向导，每日上限保护 |
-| "投过的别再投，温柔点" | 去重+频控 | 去重+退避守护 |
-| "猎聘求职太累，你帮我搞" | 口语化投递 | 拉起向导 |
-| "按我的薪资条件批量申请" | 投递+薪资 | 拉起向导预填薪资 |
-| "接着把剩下的岗位投完" | 续投类 | 读 quota 续投 |
-| "哪些投成功了、哪些失败" | 状态类 | 读 summary 分组汇报 |
-| "帮我设个投递计划，只要直招" | 配置+过滤 | 拉起向导预填招聘类型 |
-| "躺平投简历，别封号就行" | 口语化+频控 | 拉起向导+频控守护 |
+| "Help me apply my resume to those director roles on Liepin" | apply + role | launch wizard, pre-fill keyword |
+| "Is there a one-click Liepin apply tool" | wizard-like | launch wizard |
+| "Auto-apply non-recruiter roles on Liepin for me" | recruiter filter | default recruitmentType nonRecruiter |
+| "Didn't finish yesterday, continue today" | resume-like | read history de-dup then resume |
+| "Any response to my applied resumes" | status-like | read latest summary and report |
+| "Mass-apply a round on Liepin for me" | apply-like | launch wizard, default all industries |
+| "Throw the resume out, no recruiters" | apply + filter | recruitmentType nonRecruiter |
+| "Auto-apply a bit for me daily on liepin" | apply + resume | launch wizard, daily cap protection |
+| "Don't re-apply, be gentle" | de-dup + rate-limit | de-dup + backoff guard |
+| "Liepin job hunt is tiring, you do it" | colloquial apply | launch wizard |
+| "Bulk-apply by my salary criteria" | apply + salary | launch wizard, pre-fill salary |
+| "Apply the rest of the roles" | resume-like | read quota and resume |
+| "Which succeeded, which failed" | status-like | read summary, grouped report |
+| "Set a delivery plan for me, direct hiring only" | config + filter | launch wizard, pre-fill recruitment type |
+| "Apply lying down, just don't get banned" | colloquial + rate-limit | launch wizard + rate-limit guard |
 
-### 2.3 量化三级判定（短路机制）
-- **高触发**：含「猎聘」+（「投/投递/申请/自动投/一键/海投/撒简历」之一）+ 岗位/需求意图 → 直接拉起向导。
-- **中触发**：含「猎聘」+「投/申请」但需求模糊 → 拉起向导，缺项用默认值补全（岗位名称默认 HR 方向、行业/地点不限、薪资下限 25K、上限 50）。
-- **不触发**：仅聊招聘行情 / 写简历 / 其他平台（BOSS、智联、前程无忧）投递 / 纯咨询 → 不启动，提示对应技能或能力边界。
-- **歧义兜底**：若「猎聘」+"投"但明显指"帮我看投递技巧"（非真投），优先询问确认，避免误启动。
-
----
-
-## 三、快速开始（4 步）
-
-1. **装依赖（首次必做）**：安装官方开源 `liepin-cli` 并加入 PATH（见下方「依赖预检」）。本技能通过它真正调猎聘接口，没装则跑不通。
-2. **取 Token**：`liepin-cli setup`（交互生成凭证并写入 `~/.config/liepin-cli/config.json`），或从 👉 https://www.liepin.com/mcp/auth 复制 `x-user-token` 设为环境变量 `LIEPIN_USER_TOKEN`。
-3. **触发即自动弹向导**：你说"帮我在猎聘投简历"等触发词，代理**立即**前台运行 `node scripts/wizard.js`，并**主动弹出预览面板**打开 `WIZARD_URL`（表单自动预填上次偏好，无需你唤醒）。填完岗位名称/行业/地点/薪资等，点「提交并开始自动投递」。
-4. **自动前台投递**：`wizard.js` 提交后**自动启动投递**（前台逐条显示结果），全程无需再操作；遇到限流/中断才主动告知。结束读取 `liepin_wizard_summary.md` 一句话汇报。
+### 2.3 Quantified three-tier judgment (short-circuit)
+- **High trigger**: contains "Liepin" + (one of "apply / submit / deliver / auto-apply / one-click / mass-apply / throw resume") + role/need intent → launch wizard directly.
+- **Medium trigger**: contains "Liepin" + "apply / submit" but vague need → launch wizard, fill gaps with defaults (job title defaults to HR direction, industry/location unrestricted, salary floor 25K, ceiling 50).
+- **No trigger**: only chatting about hiring trends / writing resume / other platforms (BOSS, Zhaopin, 51job) / pure consultation → don't start, point to the relevant skill or boundary.
+- **Ambiguity fallback**: if "Liepin" + "apply" but clearly means "help me see apply techniques" (not a real apply), prefer to ask for confirmation to avoid mis-launch.
 
 ---
 
-## 三·五、依赖预检（最高优先级 · 首次使用必看）
+## 三、Quick Start (4 steps)
 
-本技能**不自己直连猎聘接口**，而是调用官方开源命令行工具 **`liepin-cli`** 完成搜索与投递。没装它，技能在本机跑不通。
+1. **Install dependency (required first time)**: install the official open-source `liepin-cli` and add it to PATH (see "Dependency Pre-check" below). This skill calls it to actually hit Liepin's API; without it nothing runs.
+2. **Get Token**: `liepin-cli setup` (interactively generates credentials and writes `~/.config/liepin-cli/config.json`), or copy `x-user-token` from 👉 https://www.liepin.com/mcp/auth and set it as env var `LIEPIN_USER_TOKEN`.
+3. **Trigger auto-pops the wizard**: say a trigger phrase like "help me apply on Liepin"; the agent **immediately** runs `node scripts/wizard.js` in the foreground and **proactively pops the preview panel** opening `WIZARD_URL` (form auto-pre-filled with last preference, no need to wake it). Fill job title / industry / location / salary etc., then click "Submit and start auto-apply".
+4. **Auto foreground delivery**: after wizard.js submits it **auto-starts delivery** (foreground, shows each result), no further action needed; only on rate-limit / interruption does it proactively notify. At the end read `liepin_wizard_summary.md` for a one-line report.
 
-**为什么必须装 liepin-cli？**
-- 它是猎聘官方提供的开源 CLI，封装了鉴权、请求本地校验、重试，合法且稳定；技能只负责"筛选 + 决策 + 展示"，把"真正发请求"交给它。
-- 不装的话，`apply_pipeline.js` 一启动就报"未找到 liepin-cli 命令"，无法搜索更无法投递。
-- 不装也意味着没有统一的 Token 管理：你得每次手动传 token，易过期、易在命令行历史里泄露。
+---
 
-**装一次即可（任选其一）：**
-1. **pip + 虚拟环境（推荐）**：在仓库根目录执行
+## 三·五、Dependency Pre-check (highest priority · read before first use)
+
+This skill does **not** talk to Liepin's API directly; it calls the official open-source CLI **`liepin-cli`** to do search and delivery. Without it, the skill cannot run on this machine.
+
+**Why must liepin-cli be installed?**
+- It is Liepin's official open-source CLI, encapsulating auth, local request validation, and retries — legal and stable; this skill only does "filter + decide + display", delegating "actually sending requests" to it.
+- Without it, `apply_pipeline.js` fails immediately with "liepin-cli command not found" — no search, no delivery.
+- Without it there is also no unified token management: you'd pass the token manually each time, easily expired and easily leaked in shell history.
+
+**Install once (any one):**
+1. **pip + virtualenv (recommended)**: in the repo root run
    ```bash
    python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
    pip install -e ".[dev]"
    ```
-   装完确保 `liepin-cli` 在 PATH：命令行输入 `liepin-cli --help` 能看到帮助即成功。
-2. **uv**：`git clone https://github.com/liepin-tech-2026/liepin-cli && cd liepin-cli && uv sync`，常用命令 `uv run liepin-cli --help`。
-3. 若 CLI 装在非标准路径，运行前设置环境变量 `LIEPIN_CLI_BIN` 指向其可执行文件（如 `C:\Users\你\.workbuddy\binaries\python\envs\liepin-cli\Scripts\liepin-cli.exe`）。
+   After install, ensure `liepin-cli` is on PATH: typing `liepin-cli --help` shows help = success.
+2. **uv**: `git clone https://github.com/liepin-tech-2026/liepin-cli && cd liepin-cli && uv sync`, common command `uv run liepin-cli --help`.
+3. If CLI is installed in a non-standard path, set env var `LIEPIN_CLI_BIN` to its executable before running (e.g. `C:\Users\you\.workbuddy\binaries\python\envs\liepin-cli\Scripts\liepin-cli.exe`).
 
-**装完别忘了取 Token（详见阶段 0）**：`liepin-cli setup` 一次写入配置文件，之后全自动复用。
+**After install, don't forget the Token (see Stage 0)**: `liepin-cli setup` writes the config once, then auto-reused for all runs.
 
-> **代理必做（依赖缺失主动告知）**：首次触发投递前，代理应先跑 `node scripts/selfcheck.js` 做依赖预检；若提示"liepin-cli 未安装"，**主动询问用户是否要现在安装**，并把上面手把手步骤贴给用户；不要假设已装、不要静默失败。
+> **Agent must-do (proactively tell on missing dependency)**: before the first delivery trigger, the agent should run `node scripts/selfcheck.js` for a dependency pre-check; if it says "liepin-cli not installed", **proactively ask the user whether to install now** and paste the step-by-step above; don't assume it's installed, don't fail silently.
 
 ---
 
-## 四、执行流程（严格按序）
+## 四、Execution Flow (strict order)
 
-### 阶段 0：Token 准备（手把手，基于 liepin-cli）
+### Stage 0: Token preparation (step-by-step, based on liepin-cli)
 
-> **主动告知用户**：Token 仅用于本次运行，由 liepin-cli 自动读取（环境变量 `LIEPIN_USER_TOKEN` 或配置文件 `~/.config/liepin-cli/config.json`），**不写入技能文件、不记进我的记忆、不打到日志**，请放心。
+> **Tell the user proactively**: The Token is only for this run, auto-read by liepin-cli (env `LIEPIN_USER_TOKEN` or config `~/.config/liepin-cli/config.json`), **not written to skill files, not saved to my memory, not printed to logs** — safe to use.
 
-**推荐（一次性，凭证持久化）**：运行 `liepin-cli setup` → 浏览器打开猎聘授权页（👉 https://www.liepin.com/mcp/auth）→ 粘贴 `x-user-token` → 自动写入本地配置文件，之后所有运行自动复用，无需每次传。
+**Recommended (one-time, persistent credentials)**: run `liepin-cli setup` → browser opens Liepin auth page (👉 https://www.liepin.com/mcp/auth) → paste `x-user-token` → auto-written to local config, auto-reused for all later runs, no need to pass each time.
 
-**临时（单次运行）**：`$env:LIEPIN_USER_TOKEN="你从 https://www.liepin.com/mcp/auth 获取的 x-user-token"`，仅当前 shell 有效。
+**Temporary (single run)**: `$env:LIEPIN_USER_TOKEN="the x-user-token you got from https://www.liepin.com/mcp/auth"`, valid only for current shell.
 
-- 凭证有效期约 90 天；若投递提示 401，重跑 `liepin-cli setup` 刷新即可。
-- ⚠️ 不要把 `x-user-token` 塞进 `liepin_wizard_config.json`（该文件只存求职偏好，不含任何凭证）。
+- Credentials last ~90 days; if delivery returns 401, re-run `liepin-cli setup` to refresh.
+- ⚠️ Do not put `x-user-token` into `liepin_wizard_config.json` (that file only stores job preferences, no credentials).
 
-### 阶段 1：Web 向导自动弹出 + 提交即自动投递（核心亮点）
+### Stage 1: Web wizard auto-pops + submit-and-auto-apply (core highlight)
 
-> **硬规则（防"向导不自动弹出"事故）**：代理识别到投递触发词后，**立即**运行 `node scripts/wizard.js`，读取输出的 `WIZARD_URL`，并**主动用预览面板打开该 URL**——**绝不等待用户说"我要WEB向导/打开向导/调出表单"才动作**，也**不使用 AskUserQuestion 对话框弹窗**收集需求。
+> **Hard rule (prevent "wizard doesn't auto-pop" accident)**: after the agent recognizes an apply trigger, **immediately** run `node scripts/wizard.js`, read the output `WIZARD_URL`, and **proactively open that URL with the preview panel** — **never wait for the user to say "I want the WEB wizard / open wizard / bring up the form"**, and **never use an AskUserQuestion dialog popup** to collect criteria.
 
-**全程无干预（关键）**：
-- 用户在向导网页填完需求、点「提交」后，`wizard.js` **自动启动投递管道（`apply_pipeline.js`）并前台透传进度**，直到本次配额投完或遇限流/中断才停。**代理不得再向用户提问**（除限流/中断等需用户知情或决策的异常）。
-- 代理须**前台运行** `node scripts/wizard.js`（不使用后台运行），以便实时读取并展示投递日志，用户可随时在对话框看到每一条投递结果。
+**Zero touch (key)**:
+- After the user fills criteria in the wizard page and clicks "Submit", `wizard.js` **auto-starts the delivery pipeline (`apply_pipeline.js`) and streams progress in the foreground** until this run's quota is exhausted or rate-limit / interruption stops it. **The agent must not ask the user further questions** (except anomalies needing user awareness or decisions, like rate-limit / interruption).
+- The agent must run `node scripts/wizard.js` **in the foreground** (not background) so it can read and display delivery logs in real time; the user sees each result in the chat at any time.
 
-**偏好记忆与主动复用**：
-- 触发即检查工作区是否已有 `liepin_wizard_config.json`：
-  - 若无 → 直接拉起空白向导（已自动打开预览），用户一次性填完。
-  - 若有 → 读取配置，**自动预填表单**（岗位名称 / 行业 / 地点 / 薪资 / 招聘类型 / 每日上限），用户可直接微调后提交；**不弹 AskUserQuestion 询问"是否沿用"**，以贯彻全程无干预。
+**Preference memory and proactive reuse**:
+- On trigger, check whether the workspace already has `liepin_wizard_config.json`:
+  - If not → launch a blank wizard (preview already auto-opened), user fills once.
+  - If yes → read config, **auto-pre-fill the form** (job title / industry / location / salary / recruitment type / daily cap); user can tweak then submit; **no AskUserQuestion "reuse?" popup**, to honor zero-touch.
 
-**向导表单字段（v2.1.0 合并岗位+职级）**：
-- **岗位名称（岗位 + 职级合并）**：如「人力资源总监、财务经理、采购主管、IT专员、招聘经理」。多个用逗号/顿号分隔。
-- **行业**：20+ 行业可多选；勾「不限」即全行业。
-- **工作地点**：填「不限」即全国；也可填多个城市（逗号分隔，如「珠海，深圳，广州」）。
-- **薪资范围**：下限/上限（K/月）。
-- **招聘类型**：仅非猎头 / 仅猎头 / 都要。
-- **每日投递上限**：默认 50，受频控护栏保护。
+**Wizard form fields (v2.1.0 merged role + level)**:
+- **Job title (role + level combined)**: e.g. "HR Director, Finance Manager, Procurement Supervisor, IT Specialist, Recruiting Manager". Multiple separated by comma / ideographic comma.
+- **Industry**: 20+ industries, multi-select; check "All" for all industries.
+- **Work location**: "All" = nationwide; or multiple cities (comma-separated, e.g. "Zhuhai, Shenzhen, Guangzhou").
+- **Salary range**: floor / ceiling (K/month).
+- **Recruitment type**: non-recruiter only / recruiter only / both.
+- **Daily delivery cap**: default 50, guarded by rate-limit guardrails.
 
-**推荐执行流程（自检→安装→前台全链路）**：
-1. **必做**：代理先运行 `node scripts/selfcheck.js --auto-install`（**前台**），将安装结果展示给用户。
-2. 代理运行 `node scripts/wizard.js`（**前台**，不加后台），读取 `WIZARD_URL`，**主动打开预览面板**。
-3. 用户在网页一次性填完 → 点「提交并开始自动投递」。
-4. `wizard.js` 写配置并**立即 spawn `apply_pipeline.js`**（`stdio:inherit` 前台逐条投递、**实时输出每条结果到代理 stdout**）。**代理逐行读取 stdout，每输出一条 `[投递 seq/总数]...` 立即原样展示给用户**。
-5. `wizard.js` 退出后（正常/上限/限流/中断），代理读取 `liepin_wizard_summary.md` 一句话汇报。
-6. **用户无需说"已提交""进度如何""查进度"**——进度实时逐行显示在对话框，一目了然。
+**Recommended execution flow (self-check → install → foreground full chain)**:
+1. **Required**: agent first runs `node scripts/selfcheck.js --auto-install` (**foreground**), shows install result to user.
+2. Agent runs `node scripts/wizard.js` (**foreground**, not background), reads `WIZARD_URL`, **proactively opens the preview panel**.
+3. User fills once in the page → clicks "Submit and start auto-apply".
+4. `wizard.js` writes config and **immediately spawns `apply_pipeline.js`** (`stdio:inherit`, foreground per-item delivery, **real-time output of each result to agent stdout**). **Agent reads stdout line-by-line and immediately shows each `[apply seq/total]...` line to the user as-is**.
+5. After `wizard.js` exits (normal / cap reached / rate-limited / interrupted), agent reads `liepin_wizard_summary.md` for a one-line report.
+6. **User never needs to say "submitted" / "how's progress" / "check progress"** — progress streams line-by-line in the chat, clear at a glance.
 
-**查进度（兜底）**：若因特殊原因向导在后台运行，用户说「查进度」时，代理读取 `liepin_wizard_progress.jsonl`（实时逐条追加）汇报最新进展。
+**Check progress (fallback)**: if for special reasons the wizard ran in background, when the user says "check progress" the agent reads `liepin_wizard_progress.jsonl` (appended per item in real time) and reports the latest.
 
-**兜底（Web 不可用时）**：退化为 AskUserQuestion 分步收集，但**严禁引用用户任何个人信息**（户籍/现居/姓名等），所有地点、联系方式必须由用户主动填写；仍含「岗位名称（岗位+职级）」「招聘类型」与关键词拆分提示。
+**Fallback (when web unavailable)**: degrade to AskUserQuestion step-by-step collection, but **strictly never reference any user personal info** (household / current residence / name etc.); all locations and contacts must be filled by the user; still includes "job title (role+level)" / "recruitment type" and keyword-split hints.
 
-### 阶段 2：投递前自动告知（每日上限，非阻塞）
+### Stage 2: Auto-notify before delivery (daily cap, non-blocking)
 
-> 提交即投、全程无干预：不再弹确认框。投递管道启动后，由 `apply_pipeline.js` 在日志中**自动打印**：招聘类型、每日上限=N、今日已投=M、本次最多可投 N-M、筛选设定。这属于**告知而非询问**，用户无需任何操作即自动开始。
+> Submit-and-apply, zero touch: no confirmation dialog. After the pipeline starts, `apply_pipeline.js` **auto-prints** in the log: recruitment type, daily cap=N, applied today=M, max applicable this run N-M, filter settings. This is **notification not interrogation** — no user action needed, auto-starts.
 
-筛选完成后，管道会明确播报：「【筛选结果】本次按你的设置，共筛选出符合要求的有效岗位 X 个，现在立刻开始投递…」，随后逐条投递并实时显示每条结果。
+After filtering, the pipeline clearly announces: "[Filter result] By your settings, X valid matching roles were found, starting delivery now…", then delivers per item with real-time results.
 
-### 阶段 3：全自动投递管道（前台运行 + 逐条实时展示）
+### Stage 3: Fully-automated delivery pipeline (foreground run + per-item real-time display)
 
-> 代理**前台运行** `node scripts/wizard.js`（它内部会自动 spawn `apply_pipeline.js` 并透传日志）。若单独运行管道，亦须前台：
+> Agent runs `node scripts/wizard.js` **in the foreground** (it internally spawns `apply_pipeline.js` and streams logs). If running the pipeline alone, also foreground:
 
 ```powershell
-# Token 由 liepin-cli 自动读取（环境变量 LIEPIN_USER_TOKEN 或配置文件），无需在此再传
+# Token is auto-read by liepin-cli (env LIEPIN_USER_TOKEN or config file); no need to pass here
 node scripts/apply_pipeline.js
 ```
 
-- **逐条实时展示**：管道每投递一条，立即输出 `[投递 seq/总数] 岗位 @ 公司（地点）｜状态：原因`，**每输出一行代理就立刻原样展示给用户**，让用户时刻知道投递进展。**禁止让用户说"查进度"才知道结果**。
-- **筛选先行播报**：正式投递前，管道打印【筛选设定】与【筛选结果：共 X 个符合要求的岗位，现在立刻开始投递】，用户第一时间知悉数量，随后逐条投递。
-- **进度文件**：每投一条追加一行到 `liepin_wizard_progress.jsonl`；用户说「查进度」时读取该文件汇报最新进展（**兜底方案**，正常不用查）。
-- 脚本自动：搜索 → 客户端硬过滤（多城市 OR / 行业 OR / 薪资解析失败放过）→ 招聘类型过滤 → 猎头识别排序 → 跨会话去重 → 每日配额校验 → 预检首条 → **逐条投递（间隔 1.5s，429 自动退避续投）** → 写报告。
-- **退出码与主动告知（代理必做）**：限流持续 / 中断 / 熔断（退出码 3 / 130 / 2）时，代理必须**第一时间用文字主动告知原因**并说明进度已保存、可安全续投（见第八章 / references/errors.md）。
+- **Per-item real-time display**: each application immediately outputs `[apply seq/total] role @ company (location)｜status: reason`, and **each line the agent shows to the user as-is immediately**, so the user always knows progress. **Never make the user say "check progress" to learn results**.
+- **Filter announced first**: before actual delivery, the pipeline prints [Filter settings] and [Filter result: X matching roles found, starting delivery now], so the user knows the count immediately, then per-item delivery.
+- **Progress file**: each application appends a line to `liepin_wizard_progress.jsonl`; when the user says "check progress" read this file for the latest (fallback only, normally not needed).
+- Script auto: search → client hard filter (multi-city OR / industry OR / salary-parse-fail lets pass) → recruitment-type filter → recruiter detection sort → cross-session de-dup → daily quota check → first-item pre-check → **per-item delivery (1.5s interval, 429 auto backoff retry)** → write report.
+- **Exit codes and proactive notice (agent must-do)**: on persistent rate-limit / interruption / circuit-break (exit code 3 / 130 / 2), the agent **must proactively explain the reason in text immediately** and state progress is saved and safe to resume (see Chapter 8 / references/errors.md).
 
-### 阶段 4：成果展示（含失败原因）
-读取 `liepin_wizard_summary.md` 并明确告知：本次投了哪些岗位、✅ 成功 X、❌ 失败 Y+**每个失败原因**、⚠️ 已投过 Z、❓ 未知 W、**今日已投 (M+X)/上限 N**。
+### Stage 4: Result display (with failure reasons)
+Read `liepin_wizard_summary.md` and clearly state: which roles applied this run, ✅ success X, ❌ fail Y + **each failure reason**, ⚠️ already Z, ❓ unknown W, **applied today (M+X)/cap N**.
 
 ---
 
-## 五、配置结构（liepin_wizard_config.json）
+## 五、Configuration Structure (liepin_wizard_config.json)
 
 ```json
 {
-  "keywords": ["人力资源总监", "财务经理"],
+  "keywords": ["HR Director", "Finance Manager"],
   "industry": ["__ALL__"],
   "location": "__ALL__",
   "salaryFloor": 30,
@@ -288,200 +289,200 @@ node scripts/apply_pipeline.js
   "maxPages": 6
 }
 ```
-- `keywords`：岗位名称（**岗位 + 职级合并**），如「人力资源总监、财务经理、采购主管、IT专员」；多个用逗号/顿号分隔，脚本自动拆分分别搜索。
-- `recruitmentType`：`nonRecruiter`(仅非猎头，推荐) / `recruiter`(仅猎头) / `all`(都要，非猎头优先)。
-- `levels` 字段已弃用（岗位名称已含职级），脚本恒按全量处理，不再单独按层级过滤。
-- 完整字段说明与合法值见仓库 `liepin_wizard_config.example.json`。
+- `keywords`: job title (role + level combined), e.g. "HR Director, Finance Manager, Procurement Supervisor, IT Specialist"; multiple separated by comma / ideographic comma, script auto-splits and searches each.
+- `recruitmentType`: `nonRecruiter` (direct only, recommended) / `recruiter` (recruiter only) / `all` (both, non-recruiter priority).
+- `levels` field is deprecated (job title already includes level); script always processes fully, no separate level filter.
+- Full field docs and valid values in repo `liepin_wizard_config.example.json`.
 
 ---
 
-## 六、脚本说明（scripts/，零外部依赖，真实可运行）
+## 六、Script Notes (scripts/, zero external deps, really runnable)
 
-- **wizard.js**：本地 HTTP 服务（端口随机，绑定 127.0.0.1），提供 Web 向导表单（单页），提交后写配置并退出。零依赖（仅 Node 标准库 http/fs/path）。
-- **wizard.html**：向导前端（Stripe 风格清爽表单），由 wizard.js 加载。
-- **apply_pipeline.js**：投递管道，底层调用官方开源 liepin-cli（`job search` / `job apply --output json`），解析其原始 JSON 响应。
-  - **招聘类型过滤**：`nonRecruiter` 剔除猎头；`recruiter` 仅留猎头；`all` 全留且非猎头优先。
-  - **频控守护**：内置 `isRateLimit()` 检测 429，指数退避重试（15/30/45/60/90/120/180/240s，累计 >1800s 抛错停）。
-  - **去重**：读全部历史报告合并已投 jobId，跨会话永久生效。
-  - **每日配额**：`liepin_daily_quota.json` 记 `{date,count}`，达 `dailyCap` 即停。
-  - **四态结果**：`success`/`already`/`fail`/`unknown`，绝不把 fail/unknown 当 success。
-  - **猎头识别**：行业/公司/ JD 启发式匹配猎头品牌库。
-  - **中断恢复**：捕获 SIGINT/SIGTERM 写部分报告并退出 130，进度不丢。
-  - **稳定性护栏（v1.1.0 新增）**：全局运行时长上限 45 分钟优雅停机（退出码 0）；连续 3 次非频控硬失败熔断停机（退出码 3），避免空耗与账号风险。
-  - **setup_automation.js**（v1.2.0 新增）：自动化运行设置助手。读取配置，若 `unattended=true` 则生成 `liepin_automation_spec.json`（name/rrule/prompt/cwd 四要素），供代理用 `automation_update` 注册周期自动化，实现「全程无需干预」。零依赖。
+- **wizard.js**: local HTTP server (random port, bound to 127.0.0.1), serves the web wizard form (single page); on submit writes config and exits. Zero deps (only Node stdlib http/fs/path).
+- **wizard.html**: wizard frontend (clean Stripe-style form), loaded by wizard.js.
+- **apply_pipeline.js**: delivery pipeline, calls official open-source liepin-cli (`job search` / `job apply --output json`) underneath, parses its raw JSON response.
+  - **Recruitment-type filter**: `nonRecruiter` drops recruiters; `recruiter` keeps only recruiters; `all` keeps all with non-recruiter priority.
+  - **Rate-limit guard**: built-in `isRateLimit()` detects 429, exponential backoff (15/30/45/60/90/120/180/240s, cumulative >1800s throws and stops).
+  - **De-dup**: reads all historical reports and merges applied jobIds, cross-session permanent.
+  - **Daily quota**: `liepin_daily_quota.json` records `{date,count}`, stops at `dailyCap`, resets at day change.
+  - **Four-state result**: `success`/`already`/`fail`/`unknown`, never treat fail/unknown as success.
+  - **Recruiter detection**: industry / company / JD heuristic against recruiter brand library.
+  - **Interruption recovery**: catches SIGINT/SIGTERM, writes partial report and exits 130, progress not lost.
+  - **Stability guardrail (v1.1.0)**: global runtime cap 45 min graceful stop (exit 0); 3 consecutive non-rate-limit hard failures circuit-break stop (exit 3), avoids wasted effort and account risk.
+  - **setup_automation.js** (v1.2.0): automation-run setup helper. Reads config; if `unattended=true` generates `liepin_automation_spec.json` (name/rrule/prompt/cwd four elements) for the agent to register a periodic automation via `automation_update`, achieving "zero touch". Zero deps.
 
-### 6.1 能力对照表（文档承诺 ↔ 脚本实现，逐项可验证）
-| 文档承诺 | 脚本实现位置 | 验证方式 |
+### 6.1 Capability mapping (doc promise ↔ script implementation, verifiable)
+| Doc promise | Script implementation | Verification |
 |---|---|---|
-| Web 向导需求收集 | `wizard.js` 起本地服务+`wizard.html` 表单 | `node --check` 通过；零依赖（仅 http/fs/path） |
-| 招聘类型过滤 | `apply_pipeline.js` `recruitmentType` 三分支 | `nonRecruiter`/`recruiter`/`all` 均已实现 |
-| 跨会话永久去重 | 读全部历史 `report.json` 合并 jobId | 已投自动跳过，永不重复 |
-| 频控守护 | `isRateLimit()` + 指数退避 15→240s | 累计 >1800s 抛错停 |
-| 每日配额上限 | `liepin_daily_quota.json` | 达 `dailyCap` 即停，日切重置 |
-| 真实四态结果 | `success/already/fail/unknown` | 绝不把 fail/unknown 当 success |
-| 中断优雅恢复 | 捕获 SIGINT/SIGTERM 存盘 | 退出码 130，重跑续投 |
-| 稳定性护栏 | 45min 上限 + 连续 3 次熔断 | 退出码 0 / 3 |
-| Token 不落盘 | 仅本次命令内联 | 不写文件、不记记忆、不打日志 |
+| Web wizard criteria collection | `wizard.js` local server + `wizard.html` form | `node --check` passes; zero deps (only http/fs/path) |
+| Recruitment-type filter | `apply_pipeline.js` `recruitmentType` 3 branches | `nonRecruiter`/`recruiter`/`all` all implemented |
+| Cross-session permanent de-dup | reads all historical `report.json` and merges jobId | applied auto-skipped, never repeated |
+| Rate-limit guard | `isRateLimit()` + exponential backoff 15→240s | cumulative >1800s throws and stops |
+| Daily quota cap | `liepin_daily_quota.json` | stops at `dailyCap`, day-change reset |
+| Real four-state result | `success/already/fail/unknown` | never treat fail/unknown as success |
+| Graceful interruption recovery | catches SIGINT/SIGTERM and persists | exit 130, rerun resumes |
+| Stability guardrail | 45min cap + 3 consecutive failures circuit break | exit 0 / 3 |
+| Token not persisted | inline only in this command | not written, not memorized, not logged |
 
-### 6.2 创新点与差异化（为何不同）
-- **单页向导 vs 多轮对话**：一次网页表单收集全部需求（岗位名称/行业/地点/薪资/招聘类型/每日上限），无需反复问答。
-- **招聘类型过滤（行业首创）**：`nonRecruiter/recruiter/all` 三态，行业首个把"只要直招不要猎头"做成内置能力的求职技能。
-- **跨会话永久去重**：读全部历史报告合并 jobId，多轮投递不重复骚扰同一 HR。
-- **四态结果透明**：success/already/fail/unknown 分明，失败附原因、未知标未知，绝不谎报成功。
-- **频控 + 配额双护栏**：指数退避 + 每日上限，把账号安全做成硬约束而非可选项。
-- **稳定性护栏**：45 分钟全局上限 + 连续失败熔断，防空耗、防账号风险。
-
----
-
-## 七、输出与成果展示
-
-- `liepin_wizard_report.json`：机器可读，含 summary 四态计数、dailyQuota、逐条 results。
-- `liepin_wizard_summary.md`：人类可读，按「成功 / 失败+原因 / 已投过 / 未知」分组列出岗位级清单。
-- 完整端到端示例（搜索返回、四态判定、报告样例、频控链路）见 **references/examples.md**。
+### 6.2 Innovations and differentiation (why different)
+- **Single-page wizard vs multi-turn chat**: collect all criteria (job title / industry / location / salary / recruitment type / daily cap) in one web form, no repeated Q&A.
+- **Recruitment-type filter (industry first)**: `nonRecruiter/recruiter/all` three states, the first job skill to make "direct hiring only, no recruiters" a built-in capability.
+- **Cross-session permanent de-dup**: reads all historical reports and merges jobIds, no repeated pestering of the same HR across runs.
+- **Four-state transparent result**: success/already/fail/unknown clearly separated, failure with reason, unknown labeled unknown, never fake success.
+- **Rate-limit + quota dual guardrail**: exponential backoff + daily cap, account safety as a hard constraint not an option.
+- **Stability guardrail**: 45-minute global cap + consecutive-failure circuit break, avoids wasted effort and account risk.
 
 ---
 
-## 八、异常处理（退出码 + E 系列错误码）
+## 七、Output and Result Display
 
-| 退出码 | 含义 | 代理应主动告知 |
+- `liepin_wizard_report.json`: machine-readable, with summary four-state counts, dailyQuota, per-item results.
+- `liepin_wizard_summary.md`: human-readable, lists role-level items grouped by "success / fail+reason / already / unknown".
+- Full end-to-end example (search response, four-state judgment, report sample, rate-limit chain) in **references/examples.md**.
+
+---
+
+## 八、Exception Handling (exit codes + E-series error codes)
+
+| Exit code | Meaning | Agent should proactively tell |
 |---|---|---|
-| 0 | 完成 / 达每日上限 / 超时护栏停机 | 完成进阶段4；达上限说"留待明日"；超时说"重跑即续投" |
-| 2 | 预检 401 | "Token 对投递无权限，回阶段0重新生成凭证" |
-| 3 | 频控持续 / 连续失败熔断 | "已自动暂停，去重保证可稍后安全续投" |
-| 130 | 用户中断 | "已投 X 份进度已保存，重跑即续投" |
-| 1 | 致命错误 | 原样报告 |
+| 0 | Done / daily cap reached / timeout guardrail stop | proceed to Stage 4 on done; on cap say "rest left for tomorrow"; on timeout say "rerun resumes" |
+| 2 | Pre-check 401 | "Token has no delivery permission, go back to Stage 0 to regenerate credentials" |
+| 3 | Persistent rate-limit / consecutive-failure circuit break | "Auto-paused, de-dup guarantees safe resume later" |
+| 130 | User interruption | "Interrupted, X applied, progress saved, rerun resumes" |
+| 1 | Fatal error | report as-is |
 
-完整 E001~E013 错误码（触发条件 / 脚本行为 / 友好话术）见 **references/errors.md**。原则：**绝不谎报、进度不丢、可续投、主动告知**。
+Full E001~E013 error codes (trigger / script behavior / friendly phrasing) in **references/errors.md**. Principle: **never fake success, progress not lost, resumable, proactively told**.
 
-### 8.1 稳定性与恢复护栏（账号安全，v1.1.0 强化）
-- **频控守护**：检测到 429/「频繁」即指数退避（15/30/45/60/90/120/180/240s），累计退避 >1800s 判定为持续频控，自动暂停（退出码 3），去重保证稍后可安全续投。
-- **每日配额**：`liepin_daily_quota.json` 记 `{date,count}`，达 `dailyCap` 即停，日历日 0 点重置，防止单日过量触发风控。
-- **全局时长护栏**：运行时长超 45 分钟优雅停机（退出码 0），重跑即续投，避免长时间挂机空耗。
-- **连续失败熔断**：连续 3 次非频控硬失败（如 Token 失效）熔断停机（退出码 3），避免盲目重试与账号风险。
-- **中断恢复**：SIGINT/SIGTERM 捕获后写部分报告退出 130，进度不丢；重跑自动跳过已投、续投剩余。
-  - **预检首条**：正式批量前先投 1 条验证 Token/权限，401 立即中止（退出码 2），不浪费后续请求。
-  - **子进程硬超时（v3.0.1 新增 · 修复静默崩溃）**：`runCli` 对每条 `liepin-cli` 调用加 **90s 硬超时**（`CLI_TIMEOUT_MS`），超时即 `SIGKILL` 杀掉挂死子进程并降级重试；**单条岗位投递异常不再中断整轮**——改写为「记为 `fail` + 续投剩余」，仅频控持续（`RATE_LIMIT_PERSIST`）仍熔断。另加全局 `uncaughtException` / `unhandledRejection` 兜底：先把完整堆栈落盘 `liepin_wizard_crash.log` 再延迟退出，杜绝「进程 exit 1 但无任何 [致命] 输出」的静默崩溃。
+### 8.1 Stability and recovery guardrails (account safety, v1.1.0 enhanced)
+- **Rate-limit guard**: on detecting 429/"frequent" use exponential backoff (15/30/45/60/90/120/180/240s); cumulative backoff >1800s judged persistent rate-limit, auto-pause (exit 3), de-dup guarantees safe resume later.
+- **Daily quota**: `liepin_daily_quota.json` records `{date,count}`, stops at `dailyCap`, resets at calendar-day 0:00, prevents over-apply in one day tripping risk control.
+- **Global runtime guardrail**: runtime over 45 min graceful stop (exit 0), rerun resumes, avoids long idle waste.
+- **Consecutive-failure circuit break**: 3 consecutive non-rate-limit hard failures (e.g. token invalid) circuit-break stop (exit 3), avoids blind retry and account risk.
+- **Interruption recovery**: SIGINT/SIGTERM caught writes partial report and exits 130, progress not lost; rerun auto-skips applied and resumes rest.
+  - **First-item pre-check**: before bulk, apply 1 item first to verify token/permission; 401 aborts immediately (exit 2), no wasted later requests.
+  - **Subprocess hard timeout (v3.0.1 · fixes silent crash)**: `runCli` adds a **90s hard timeout** (`CLI_TIMEOUT_MS`) per `liepin-cli` call; on timeout `SIGKILL` the hung subprocess and degrade-retry; **a single role's delivery exception no longer breaks the whole run** — rewritten as "mark `fail` + resume rest", only persistent rate-limit (`RATE_LIMIT_PERSIST`) still breaks. Added global `uncaughtException` / `unhandledRejection` fallback: dump full stack to `liepin_wizard_crash.log` first then delayed exit, eliminating the "process exit 1 but no [FATAL] output" silent crash.
 
-> 🐞 **已知故障案例（务必记牢）**：早期版本 `apply_pipeline.js` 的 `runCli` **没有子进程超时**。当某条岗位（实测为「海外人力资源总监@某武汉通信设备上市公司」）的 `liepin-cli` 子进程挂死时，`await applyJob` 永不返回 → 整轮卡死；叠加 `process.exit()` 会截断尚未刷新的 stderr 缓冲，崩溃表现为「exit code 1、日志无 [致命]」。三处加固（90s 超时 + 单条兜底 + 全局落盘）已在 v3.0.1 落地，2026-07-19 实测 41/41 跑完、0 崩溃、10 条新投成功。下次再遇「投到某条岗位整轮卡死/静默退出」直接确认这三处是否在位即可。
+> 🐞 **Known failure case (must remember)**: early `apply_pipeline.js` `runCli` **had no subprocess timeout**. When a role's (实测为「海外人力资源总监@某武汉通信设备上市公司」) `liepin-cli` subprocess hung, `await applyJob` never returned → whole run froze; compounded by `process.exit()` truncating unflushed stderr, the crash showed "exit code 1, no [FATAL] in log". Three reinforcements (90s timeout + per-item fallback + global dump) landed in v3.0.1; on 2026-07-19实测 41/41 completed, 0 crashes, 10 new applies succeeded. Next time you see "whole run freezes / silent exit on a certain role", just confirm these three are in place.
 
-> 任何异常退出（非 0 / 达上限 / 熔断 / 中断），代理**必须第一时间文字主动告知**原因 + 进度已保存 + 可安全续投（见 errors.md 与第七章）。
+> Any abnormal exit (non-0 / cap reached / circuit break / interruption), the agent **must proactively explain in text immediately** the reason + progress saved + safe to resume (see errors.md and Chapter 7).
 
 ---
 
-## 九、自动化运行（无人值守）
+## 九、Automation Run (Unattended)
 
-> 名称即承诺：本技能**可设自动化运行、全程无需干预**。开启后由 WorkBuddy 周期自动化按既定配置定时投递，不弹窗、不值守。
+> The name is the promise: this skill **can be scheduled and run unattended, zero touch**. Once enabled, WorkBuddy periodic automation delivers on schedule per config, no popup, no attendance.
 
-### 9.1 开启方式（三步）
-1. **向导开启**：向导第 6 步选「开启无人值守」，并选择自动运行频率（每天 09:00 / 12:00 / 20:00 / 每 6 小时 / 每 12 小时）。配置写入 `liepin_wizard_config.json` 的 `unattended:true` 与 `schedule`。
-2. **生成自动化规格**：代理运行 `node scripts/setup_automation.js`，脚本读取配置并写出 `liepin_automation_spec.json`（含 name / rrule / prompt / cwd 四要素）。
-3. **注册周期自动化**：代理用 `automation_update`（mode=create）按 spec 注册；此后到点自动运行。
+### 9.1 How to enable (three steps)
+1. **Wizard enable**: at wizard step 6 choose "Enable unattended" and pick a frequency (daily 09:00 / 12:00 / 20:00 / every 6 hours / every 12 hours). Config written to `liepin_wizard_config.json` `unattended:true` and `schedule`.
+2. **Generate automation spec**: agent runs `node scripts/setup_automation.js`, which reads config and writes `liepin_automation_spec.json` (name / rrule / prompt / cwd four elements).
+3. **Register periodic automation**: agent uses `automation_update` (mode=create) to register per spec; then runs automatically on schedule.
 
-### 9.2 运行规则（无人值守模式）
-- 代理读取已保存配置，若 `unattended=true` 且已配置 Token（`LIEPIN_USER_TOKEN` 或 `~/.config/liepin-cli/config.json`），**跳过阶段 2 每日确认**，直接进入阶段 3 全自动运行（全程无需干预）。
-- 仍受 **dailyCap 每日上限 / 频次退避 / 45 分钟护栏 / 连续失败熔断** 四重保护，绝不无上限刷量。
-- 若 Token 缺失或配置不存在，仅文字报告，不擅自操作。
-- 运行结束读取 `liepin_wizard_summary.md` 向用户一句话汇报结果。
+### 9.2 Run rules (unattended mode)
+- Agent reads saved config; if `unattended=true` and token configured (`LIEPIN_USER_TOKEN` or `~/.config/liepin-cli/config.json`), **skip Stage 2 daily confirmation**, go straight to Stage 3 full auto-run (zero touch).
+- Still guarded by **dailyCap / backoff / 45-min guardrail / consecutive-failure circuit break** four protections, never unbounded mass-apply.
+- If token missing or config absent, only text-report, no unauthorized action.
+- At end read `liepin_wizard_summary.md` for a one-line result report.
 
-### 9.3 spec 示例（setup_automation.js 输出）
+### 9.3 spec example (setup_automation.js output)
 ```json
 {
-  "name": "猎聘自动投递（无人值守）",
+  "name": "Liepin Auto-Apply (Unattended)",
   "scheduleType": "recurring",
   "rrule": "FREQ=DAILY;BYHOUR=9;BYMINUTE=0",
-  "cwds": "<工作区路径>",
-  "prompt": "读取工作区 liepin_wizard_config.json；若 unattended=true 且已配置 Token，直接运行 node scripts/apply_pipeline.js（无需确认）；结束读 summary 一句话汇报。"
+  "cwds": "<workspace path>",
+  "prompt": "Read workspace liepin_wizard_config.json; if unattended=true and token configured, directly run node scripts/apply_pipeline.js (no confirmation); at end read summary for a one-line report."
 }
 ```
 
-### 9.4 关闭 / 调整
-- 改回向导第 6 步「不开启」→ 重新生成配置；或 `automation_update`（mode=update, status=PAUSED）暂停周期任务。
-- 频率变更：改 `schedule` 后重跑 `setup_automation.js` 并重新注册。
+### 9.4 Disable / adjust
+- Change wizard step 6 back to "disabled" → regenerate config; or `automation_update` (mode=update, status=PAUSED) to pause the periodic task.
+- Frequency change: after changing `schedule` rerun `setup_automation.js` and re-register.
 
 ---
 
-## 十、端到端示例
+## 十、End-to-End Example
 
-见 **references/examples.md**：含对话触发、配置生成、搜索返回、四态判定、成功/失败/未知报告、频控链路 7 类完整样例。
+See **references/examples.md**: conversation trigger, config generation, search response, four-state judgment, success/fail/unknown report, rate-limit chain — 7 complete samples.
 
 ---
 
-## 十一、阅读路径（按任务速查）
+## 十一、Reading Path (quick lookup by task)
 
-### 11.1 速查表（想做 X → 看哪章）
-| 我想… | 直接看 |
+### 11.1 Quick lookup (want X → which chapter)
+| I want to… | Go to |
 |---|---|
-| 快速判断这技能适不适合我 | 一句话定位 + 〇 TL;DR + 术语表 |
-| 知道能干/不能干哪些事 | 一、能力边界（含特殊场景边界表） |
-| 用大白话触发它（我说啥话能启动） | 二、触发条件（词库 + 对照表 + 三级判定） |
-| 3 步跑起来 | 三、快速开始 |
-| 搞懂 Token 怎么拿、安不安全 | 阶段 0 + references/token_setup.md + FAQ Q2~Q5 |
-| 填需求向导怎么用 | 阶段 1 + 六（scripts 说明） |
-| 想投多个岗位方向 | 向导关键词框用逗号/顿号分隔，会自动拆成独立关键词（v1.4.0 修复） |
-| 地点想投全国 | 向导地点填「不限」或留空，自动归一 `__ALL__`（v1.4.0 修复） |
-| 只要直招不要猎头 | 五（recruitmentType）+ FAQ Q9 + Q13 |
-| 防止重复投 / 被限流 | 一、能力边界 + 8.1 稳定性护栏 + FAQ Q14/Q18 |
-| 看懂投完的结果（成功/失败/未知） | 七、输出与成果展示 + FAQ Q23~Q26 |
-| 投一半断了 / 出错怎么续 | 八、异常处理 + 8.1 + FAQ Q27~Q30 |
-| 想挂着自动跑（无需干预） | 九、自动化运行（无人值守） |
-| 看真实战果与踩坑复盘 | README.md |
-| 看完整输入输出样例 | references/examples.md |
-| 对错误码查话术 | references/errors.md |
-| 查高频疑问/反模式 | references/FAQ.md（45+ 条） |
-| 跑质量门禁 / 自检 | `npm test` + `node scripts/selfcheck.js` |
+| Quickly judge if this skill fits me | One-line positioning + 〇 TL;DR + Glossary |
+| Know what it can/can't do | 一、Capability Boundaries (incl. special-scenario table) |
+| Trigger it in plain words (what do I say to start) | 二、Trigger Conditions (lexicon + mapping + three-tier) |
+| Get it running in 3 steps | 三、Quick Start |
+| Understand how to get Token, is it safe | Stage 0 + references/token_setup.md + FAQ Q2~Q5 |
+| How to use the criteria wizard | Stage 1 + 六 (script notes) |
+| Apply to multiple role directions | Wizard keyword box comma/ideographic-comma separated, auto-split into independent keywords (v1.4.0 fix) |
+| Apply nationwide | Wizard location "All" or blank, auto-normalized to `__ALL__` (v1.4.0 fix) |
+| Direct hiring only, no recruiters | 五 (recruitmentType) + FAQ Q9 + Q13 |
+| Prevent re-apply / rate-limit | 一、Capability Boundaries + 8.1 Stability Guardrail + FAQ Q14/Q18 |
+| Understand results (success/fail/unknown) | 七、Output and Result Display + FAQ Q23~Q26 |
+| Halfway broken / error how to resume | 八、Exception Handling + 8.1 + FAQ Q27~Q30 |
+| Run unattended (no action) | 九、Automation Run (Unattended) |
+| See real battle results and pitfall review | README.md |
+| See full input/output samples | references/examples.md |
+| Look up error-code phrasing | references/errors.md |
+| High-frequency questions / anti-patterns | references/FAQ.md (45+ items) |
+| Run quality gate / self-check | `npm test` + `node scripts/selfcheck.js` |
 
-### 11.2 渐进式阅读建议
-- **30 秒**：看「〇、TL;DR」+「一句话定位」，确认是否适合。
-- **5 分钟**：读「一、能力边界」「二、触发条件」「三、快速开始」，能直接上手。
-- **深入**：按序读「四~八」执行流程与异常处理；遇到问题查 `references/FAQ.md`、看 `references/examples.md`、对错误码查 `references/errors.md`。
+### 11.2 Progressive reading suggestion
+- **30 seconds**: read "〇、TL;DR" + "One-line positioning", confirm fit.
+- **5 minutes**: read "一、Capability Boundaries" "二、Trigger Conditions" "三、Quick Start", can start directly.
+- **Deep**: read "四~八" execution flow and exception handling in order; on problems check `references/FAQ.md`, see `references/examples.md`, look up error codes in `references/errors.md`.
 
 ---
 
-## 十二、参考索引
+## 十二、Reference Index
 
-| 文件 | 作用 |
+| File | Role |
 |---|---|
-| `SKILL.md` | 本规范与执行流程（含术语表 / 速查表 / 版本变更） |
-| `README.md` | 真实实战经验复盘与踩坑总结（含 v1.1.0~v1.3.0 变更要点） |
-| `scripts/wizard.js` + `wizard.html` | Web 向导需求收集（真实可运行，零依赖） |
-| `scripts/apply_pipeline.js` | 投递管道（真实可运行，零依赖，含 6 个可单测纯函数） |
-| `scripts/setup_automation.js` | 自动化运行设置助手（生成周期自动化 spec） |
-| `scripts/selfcheck.js` | 运行前自检（Node 版本 / Token 格式 / 配置合法性 / 脚本存在 / 可写） |
-| `tests/` | 单元测试（薪资解析 / 四态判定 / 频控检测 / 猎头识别 / 去重 / 配额），`npm test` 一键运行 |
-| `liepin_wizard_config.example.json` | 配置字段示例与合法值 |
-| `package.json` | 运行时声明（Node>=18，零外部依赖，含 test/selfcheck 脚本） |
-| `references/FAQ.md` | 51+ 高频问答、反模式与边界场景（含歧义消解） |
-| `references/examples.md` | 全链路输入输出示例 |
-| `references/errors.md` | E001~E013 错误码与友好话术 |
-| `references/token_setup.md` | Token 获取手把手图文指南（降低取 token 门槛） |
+| `SKILL.md` | This spec and execution flow (incl. glossary / quick lookup / changelog) |
+| `README.md` | Real battle experience review and pitfall summary (incl. v1.1.0~v1.3.0 change highlights) |
+| `scripts/wizard.js` + `wizard.html` | Web wizard criteria collection (really runnable, zero deps) |
+| `scripts/apply_pipeline.js` | Delivery pipeline (really runnable, zero deps, 6 unit-testable pure functions) |
+| `scripts/setup_automation.js` | Automation-run setup helper (generates periodic automation spec) |
+| `scripts/selfcheck.js` | Pre-run self-check (Node version / token format / config validity / script existence / writability) |
+| `tests/` | Unit tests (salary parse / four-state judgment / rate-limit detect / recruiter detect / de-dup / quota), `npm test` one-click |
+| `liepin_wizard_config.example.json` | Config field examples and valid values |
+| `package.json` | Runtime declaration (Node>=18, zero external deps, with test/selfcheck scripts) |
+| `references/FAQ.md` | 51+ high-frequency Q&A, anti-patterns and boundary scenarios (incl. ambiguity resolution) |
+| `references/examples.md` | Full-chain input/output examples |
+| `references/errors.md` | E001~E013 error codes and friendly phrasing |
+| `references/token_setup.md` | Step-by-step illustrated Token guide (lowers the token barrier) |
 
 ---
 
-## 安全与合规 / 隐私脱敏
+## Security & Compliance / Privacy Desensitization
 
-- Token 仅本次命令内联，不落盘、不记记忆、不打印。
-- **不收集、不存储任何用户个人信息**（姓名/手机/邮箱/账号/户籍/现居等）；技能包、报告、向导表单、对话框展示**均不含**任何个人信息。
-- **运行时硬规则（防个人信息泄露）**：代理在向导提示、兜底问答、对话框任何输出中，**严禁展示或推断用户个人信息**（如"你户籍在XX、现居XX"等）；所有地点、联系方式必须由用户主动填写，不得用用户画像自动填充或替用户推断。
-- 对外投递属敏感操作，范围/口径变化先与用户确认（但提交后的常规投递流程无需再询问）。
-- 遵守猎聘频限，不做暴力刷量；每日上限默认保护账号健康。
-- 仅依赖官方开源 liepin-cli（国内直连），无需 GitHub、无海外依赖。
+- Token is inline only for this command, not persisted, not memorized, not printed.
+- **Do not collect or store any user personal info** (name / phone / email / account / household / residence etc.); the skill package, reports, wizard form, and chat display **contain no** personal info.
+- **Runtime hard rule (prevent personal-info leak)**: the agent in wizard hints, fallback Q&A, or any chat output, **must never display or infer user personal info** (e.g. "your household is XX, current residence XX"); all locations and contacts must be filled by the user, never auto-filled from user profile or inferred.
+- Outbound delivery is a sensitive action; scope/caliber changes should be confirmed with the user first (but the normal post-submit delivery flow needs no further asking).
+- Obey Liepin rate limits, no brute-force mass-apply; default daily cap protects account health.
+- Relies only on official open-source liepin-cli (domestic direct connection), no GitHub, no overseas dependency.
 
 ---
 
-> 🗃️ 以下变更日志仅技能维护者查阅，普通用户可跳过。
+> 🗃️ The changelog below is for skill maintainers only; ordinary users can skip.
 >
-> ## 十三、版本变更日志（Changelog · 维护者参考）
+> ## 十三、Changelog (maintainer reference)
 
-| 版本 | 日期 | 核心变更 |
+| Version | Date | Core change |
 |---|---|---|
-| **v3.0.1** | 2026-07-19 | **修复投递管道静默崩溃（实战必现）**：`scripts/apply_pipeline.js` 三处加固——① `runCli` 新增 90s 子进程硬超时（`CLI_TIMEOUT_MS`），超时 `SIGKILL` 挂死子进程并降级重试；② 批量投递循环单条异常兜底：单岗位失败记为 `fail` 并续投剩余，不再中断整轮（频控持续仍熔断）；③ 全局 `uncaughtException`/`unhandledRejection` 兜底：先落盘完整堆栈到 `liepin_wizard_crash.log` 再延迟退出，根治「exit 1 却无 [致命] 输出」。根因：旧版 `runCli` 无超时，某岗位（实测「海外人力资源总监@某武汉通信设备上市公司」）CLI 子进程挂死致整轮卡死，叠加 `process.exit` 截断 stderr。实测 41/41 跑完、0 崩溃、10 条新投成功。 |
-| **v2.3.0** | 2026-07-18 | **彻底修复"提交后不自启 / 前台不显示进度"两个核心体验问题**：① 重写 SKILL.md 所有「后台启动向导」→「前台运行 + 保持连接」——第126行硬规则、阶段1、推荐流程、阶段3全量修正；② 明确要求代理「逐行读取 stdout，每输出一行 `[投递]` 即原样展示给用户，禁止让用户说'查进度'」；③ 兜底「查进度」标注为兜底方案（正常要用前台输出替代）；④ wizard.js 代码未动（`spawn` + `stdio:inherit` 本就正确），本次修复重点在纠正代理执行的错误模式 |
-| **v2.2.0** | 2026-07-18 | **文档与体验全面整改（修复测评指出的问题）**：① **猎头识别 v2（三层判定）**：新增 50+ 知名直招企业白名单（首层秒判非猎头）+ 50+ 已知猎头品牌库（二层秒判）+ 三层加权评分引擎（行业/公司/JD 特征融合，精准度大幅提升）；② **liepin-cli 自动安装**：`selfcheck.js --auto-install` 一键自动安装到受管 Python venv，新增 `quickstart.js` 一键初始化脚本，用户只需提供 Token；③ **文档瘦身**：顶层新增「5 分钟极速上手」极简版，冗长文档折叠入「📚 深入参考」区，每章加 ⏱️ 提示；**④ 首用体验优化**：README 首屏 5 秒版 banner，FAQ 扩至 70+ 条；⑤ 三层判定算法 + 自动安装 + quickstart + 全文档重构；57 项单测全过。 |
-| **v2.1.0** | 2026-07-18 | 彻底解决五类实测体验问题（用户截图反馈）：①**个人信息全面脱敏**：新增运行时硬规则，向导提示/兜底问答/对话框严禁展示或推断用户个人信息（户籍/现居/姓名等），所有地点由用户主动填写；②**向导自动弹出（非弹窗）**：触发词命中后代理立即前台运行 `wizard.js` 并主动弹出预览面板打开网页，绝不等待"我要WEB向导"，也不用 AskUserQuestion 对话框弹窗；③**提交即自动运行**：`wizard.js` 提交后内部自动 spawn `apply_pipeline.js`，全程无干预（除限流/中断），不再等用户说"我已填完"；④**前台逐条展示**：每投放一条实时输出 `[投递 seq/总数] 岗位@公司（地点）｜状态：原因`，并写 `liepin_wizard_progress.jsonl` 进度文件，用户可随时"查进度"；⑤**岗位名称合并岗位+职级**：向导删除"职位层级"独立字段，改为"岗位名称（如人力资源总监、财务经理、采购主管、IT专员）"合并填写；⑥**筛选方法修正**：地点支持多城市 OR、行业多关键词 OR、薪资解析失败放过不误杀、筛选后先播报"共 X 个符合要求的岗位，现在立刻开始投递"。 |
-| **v2.0.0** | 2026-07-17 | **底层架构重写（基于官方 liepin-cli）**：① 投递管道 `apply_pipeline.js` 底层从直连 `https://open-agent.liepin.com/mcp/user` 的 JSON-RPC 改为调用官方开源 `liepin-cli`（`job search` / `job apply --output json`）；② Token 来源纠正为 `LIEPIN_USER_TOKEN` 环境变量或 `~/.config/liepin-cli/config.json`（弃用旧 `LIEPIN_TOKEN`+`x-user-token` 头错误方案）；③ 新增 `adaptCliResult()` 适配层把 CLI 原样 JSON 回显适配为旧 `result.content[0].text` 形态，保证 `npm test` 57 项单测不破；④ 响应字段做多候选容错解析（`data.list`/`list`/`jobs`/Array）+ 字段别名归一（jobId/id、jobName/title 等）；⑤ 首次真实调用落盘 `liepin_schema_probe_*.json` 探针供人工核验字段名（标注 [需核实]）；⑥ `selfcheck.js` 改为先探测 liepin-cli 可用性再报 Token/配置。 |
-| **v1.3.0** | 2026-07-17 | **质量门禁与文档规范双提升**：① 新增 `tests/`（6 文件 40 条单元测试，覆盖薪资解析/四态判定/频控检测/猎头识别/去重/配额），`npm test` 一键门禁；② `apply_pipeline.js` 抽离 6 个纯函数导出（含可选 workdir 参数）便于单测；③ 新增 `scripts/selfcheck.js` 运行前自检；④ 新增 `references/token_setup.md` 取 token 图文指南（降门槛）；⑤ 补术语表 / 速查表 / 本变更日志；⑥ 修复 `evalResult` 英文 `success` 漏判、`isRecruiterJob` 公司名含"劳务派遣/人力资源"漏判两处边界；⑦ 修订 FAQ Q33 与无人值守模式表述的一致性。 |
-| **v1.4.0** | 2026-07-18 | **修复三起实测体验事故（用户测试发现）**：① 向导不自动弹出 → 新增"触发即自动拉起向导 + 主动弹出预览面板"硬规则，并加"偏好记忆与主动复用"协议（检查历史配置→主动展示上次偏好→问是否沿用）；② 关键词被合并成一串 → 向导关键词框支持逗号/顿号/空格拆分独立关键词，提交与 `apply_pipeline.js` 两端均做防御性拆分；③ 地点"不限"被当真实地名导致 0 结果 → 向导与 `apply_pipeline.js` 均将"不限"/空归一为 `__ALL__`（行业/层级同理）。新增 `tests/test_normalize.js`（17 条归一化单测），全包单测升至 57 条全过。 |
-| v1.2.0 | 2026-07-16 | 恢复对外展示名称；新增「可设自动化运行 / 无人值守」真实能力（wizard 第 7 步 + setup_automation.js + 第九章）；配置示例补 `unattended`/`schedule`。 |
-| v1.1.2 | 2026-07-15 | 触发词库全量化（50+ 表述）；边界场景扩至 15 行；能力对照表 6.1；创新点 6.2；稳定性护栏专章 8.1；反模式 FAQ 扩至 45 条。 |
-| v1.1.1 | 2026-07-14 | 向导表单去 HR 专属化（通用层级 + 20+ 行业多选）；关键词不再预填示例。 |
-| v1.1.0 | 2026-07-13 | 修复发布包缺 slug/displayName；新增 FAQ/examples/errors 三参考；新增稳定性护栏（45min 上限 + 连续失败熔断）；新增 package.json + 配置示例。 |
+| **v3.0.1** | 2026-07-19 | **Fix silent crash in delivery pipeline (must-hit in real use)**: `scripts/apply_pipeline.js` three reinforcements — ① `runCli` adds 90s subprocess hard timeout (`CLI_TIMEOUT_MS`), on timeout `SIGKILL` the hung subprocess and degrade-retry; ② bulk-delivery loop per-item exception fallback: a single role failure marked `fail` and resume rest, no longer breaks the whole run (persistent rate-limit still breaks); ③ global `uncaughtException`/`unhandledRejection` fallback: dump full stack to `liepin_wizard_crash.log` first then delayed exit, curing "exit 1 but no [FATAL] output". Root cause: old `runCli` had no timeout; a role (实测「海外人力资源总监@某武汉通信设备上市公司」) CLI subprocess hung froze the whole run, compounded by `process.exit` truncating stderr. 实测 41/41 completed, 0 crashes, 10 new applies succeeded. |
+| **v2.3.0** | 2026-07-18 | **Thoroughly fix two core UX problems "no auto-start after submit / no progress in foreground"**: ① rewrote all SKILL.md "start wizard in background" → "foreground run + keep connection" — line 126 hard rule, Stage 1, recommended flow, Stage 3 all corrected; ② explicitly require the agent to "read stdout line-by-line, show each `[apply]` line to the user as-is, never make the user say 'check progress'"; ③ fallback "check progress" labeled as fallback (normal use should use foreground output instead); ④ wizard.js code unchanged (`spawn` + `stdio:inherit` was already correct), this fix focused on correcting the agent's wrong execution pattern |
+| **v2.2.0** | 2026-07-18 | **Full doc and UX remediation (fix issues raised by evaluation)**: ① **Recruiter detection v2 (three-layer)**: added 50+ known direct-hire enterprise whitelist (layer 1 instant non-recruiter) + 50+ known recruiter brand library (layer 2 instant match) + layer 3 weighted scoring engine (industry/company/JD feature fusion, much higher accuracy); ② **liepin-cli auto-install**: `selfcheck.js --auto-install` one-click install into managed Python venv, added `quickstart.js` one-click init script, user only provides Token; ③ **Doc slimming**: top-level added "5-minute quick start" minimal version, verbose docs folded into "📚 Deep reference" area, each chapter added ⏱️ hint; **④ First-use UX optimization**: README first-screen 5-second banner, FAQ expanded to 70+ items; ⑤ three-layer algorithm + auto-install + quickstart + full doc restructure; 57 unit tests all pass. |
+| **v2.1.0** | 2026-07-18 | Thoroughly fix five real-use UX problems (user screenshot feedback): ①**Full personal-info desensitization**: added runtime hard rule, wizard hints / fallback Q&A / chat must never show or infer user personal info (household / residence / name etc.), all locations filled by user; ②**Wizard auto-pop (not popup)**: after trigger the agent immediately runs `wizard.js` in foreground and proactively pops preview panel opening the page, never wait for "I want WEB wizard", nor use AskUserQuestion dialog popup; ③**Submit-and-auto-run**: after `wizard.js` submits it internally auto-spawns `apply_pipeline.js`, zero touch (except rate-limit / interruption), no longer wait for user to say "I've filled"; ④**Foreground per-item display**: each apply outputs real-time `[apply seq/total] role@company (location)｜status: reason`, and writes `liepin_wizard_progress.jsonl` progress file, user can "check progress" anytime; ⑤**Job title merges role+level**: wizard removed the separate "position level" field, changed to "job title (e.g. HR Director, Finance Manager, Procurement Supervisor, IT Specialist)" combined; ⑥**Filter method fix**: location supports multi-city OR, industry multi-keyword OR, salary-parse-fail lets pass without false kill, after filter announces "X matching roles found, starting delivery now". |
+| **v2.0.0** | 2026-07-17 | **Underlying architecture rewrite (based on official liepin-cli)**: ① delivery pipeline `apply_pipeline.js` underlying changed from directly calling `https://open-agent.liepin.com/mcp/user` JSON-RPC to calling official open-source `liepin-cli` (`job search` / `job apply --output json`); ② Token source corrected to `LIEPIN_USER_TOKEN` env or `~/.config/liepin-cli/config.json` (dropped old `LIEPIN_TOKEN`+`x-user-token` header wrong approach); ③ added `adaptCliResult()` adapter layer to adapt CLI's raw JSON echo into the old `result.content[0].text` shape, keeping `npm test` 57 unit tests intact; ④ response fields multi-candidate tolerant parse (`data.list`/`list`/`jobs`/Array) + field-alias normalization (jobId/id, jobName/title etc.); ⑤ first real call dumps `liepin_schema_probe_*.json` probe for manual field-name verification (marked [needs verification]); ⑥ `selfcheck.js` changed to probe liepin-cli availability first then report token/config. |
+| **v1.3.0** | 2026-07-17 | **Quality gate and doc spec dual uplift**: ① added `tests/` (6 files 40 unit tests, covering salary parse / four-state judgment / rate-limit detect / recruiter detect / de-dup / quota), `npm test` one-click gate; ② `apply_pipeline.js` extracted 6 pure-function exports (with optional workdir param) for unit testing; ③ added `scripts/selfcheck.js` pre-run self-check; ④ added `references/token_setup.md` token illustrated guide (lower barrier); ⑤ added glossary / quick lookup / this changelog; ⑥ fixed `evalResult` missing English `success` mis-judgment, `isRecruiterJob` company name containing "labor dispatch / HR" mis-judgment two boundary cases; ⑦ revised FAQ Q33 and unattended-mode wording consistency. |
+| **v1.4.0** | 2026-07-18 | **Fix three real-use UX incidents (found by user testing)**: ① wizard doesn't auto-pop → added "trigger auto-launches wizard + proactively pops preview panel" hard rule, and "preference memory and proactive reuse" protocol (check history config → proactively show last preference → ask reuse); ② keywords merged into one string → wizard keyword box supports comma/ideographic-comma/space split into independent keywords, both submit and `apply_pipeline.js` do defensive split; ③ location "All" treated as a real place name causing 0 results → both wizard and `apply_pipeline.js` normalize "All"/blank to `__ALL__` (same for industry/level). Added `tests/test_normalize.js` (17 normalization unit tests), package unit tests up to 57 all pass. |
+| v1.2.0 | 2026-07-16 | Restored public display name; added real "schedulable unattended" capability (wizard step 7 + setup_automation.js + Chapter 9); config example added `unattended`/`schedule`. |
+| v1.1.2 | 2026-07-15 | Full quantified trigger lexicon (50+ phrasings); boundary scenarios expanded to 15 rows; capability mapping 6.1; innovations 6.2; stability guardrail dedicated chapter 8.1; anti-pattern FAQ expanded to 45 items. |
+| v1.1.1 | 2026-07-14 | Wizard form de-HR-specific (generic level + 20+ industry multi-select); keywords no longer pre-filled example. |
+| v1.1.0 | 2026-07-13 | Fixed publish package missing slug/displayName; added FAQ/examples/errors three references; added stability guardrail (45min cap + consecutive-failure circuit break); added package.json + config example. |

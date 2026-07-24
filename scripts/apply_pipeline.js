@@ -1,11 +1,11 @@
-// 猎聘全自动投递管道（弹窗向导版 · v2.0.0，基于官方开源 liepin-cli）
-// 底层调用：spawn `liepin-cli job search / job apply --output json`，解析 stdout 原始 JSON
-// 上层逻辑（跨会话去重 / 每日配额 / 招聘类型过滤 / 猎头识别 / 频控守护 / 真实四态 / 成果展示 / 稳定性护栏）全部保留
-// 零外部依赖：仅 Node 标准库 child_process / fs / path / os
+// Liepin fully-automated delivery pipeline (popup wizard edition · v2.0.0, based on official open-source liepin-cli)
+// Underlying calls: spawn `liepin-cli job search / job apply --output json`, parse raw JSON from stdout
+// Upper-layer logic (cross-session de-dup / daily quota / recruitment-type filter / recruiter detection / rate-limit guard / real four-state / result display / stability guardrail) all preserved
+// Zero external deps: only Node stdlib child_process / fs / path / os
 //
-// ⚠️ 响应字段名 [需核实]：liepin-cli 直连 /mcp/search-job、/mcp/apply-job，原样回显服务端原始 JSON，
-//   官方仓库未文档化响应结构。本文件对搜索列表与岗位字段做了「多候选容错解析」，并在首次真实调用时
-//   把原始响应落盘到 liepin_schema_probe_search.json / liepin_schema_probe_apply.json，供人工核验校准。
+// ⚠️ Response field names [needs verification]: liepin-cli talks directly to /mcp/search-job, /mcp/apply-job and echoes the server's raw JSON,
+//   the official repo does not document the response structure. This file does "multi-candidate tolerant parsing" for the search list and job fields,
+//   and on first real call dumps the raw response to liepin_schema_probe_search.json / liepin_schema_probe_apply.json for manual verification and calibration.
 
 'use strict';
 const { spawn } = require('child_process');
@@ -21,11 +21,11 @@ const REPORT_PATH = path.join(WORKDIR, 'liepin_wizard_report.json');
 const SUMMARY_PATH = path.join(WORKDIR, 'liepin_wizard_summary.md');
 const PROBE_SEARCH = path.join(WORKDIR, 'liepin_schema_probe_search.json');
 const PROBE_APPLY = path.join(WORKDIR, 'liepin_schema_probe_apply.json');
-const PROGRESS_PATH = path.join(WORKDIR, 'liepin_wizard_progress.jsonl'); // 实时逐条进度，供查进度/监控
-const CRASH_PATH = path.join(WORKDIR, 'liepin_wizard_crash.log'); // 致命异常落盘（避免 process.exit 截断 stderr 导致无 [致命] 输出）
-const CLI_TIMEOUT_MS = 90000; // 单次 CLI 调用硬超时（防 subprocess 挂死导致整轮卡死）
+const PROGRESS_PATH = path.join(WORKDIR, 'liepin_wizard_progress.jsonl'); // real-time per-item progress, for "check progress" / monitoring
+const CRASH_PATH = path.join(WORKDIR, 'liepin_wizard_crash.log'); // fatal exception dump (avoid process.exit truncating stderr and losing [FATAL] output)
+const CLI_TIMEOUT_MS = 90000; // hard timeout per single CLI call (prevent subprocess hang freezing the whole run)
 
-// 致命异常安全退出：先落盘完整堆栈，再给 stderr 一个刷新窗口，避免 process.exit 截断 [致命] 输出
+// Fatal-exception safe exit: dump full stack first, then give stderr a flush window, avoid process.exit truncating [FATAL] output
 function flushExit(code, msg) {
   try { fs.appendFileSync(CRASH_PATH, (msg || '') + '\n'); } catch (e) {}
   try { console.error(msg || ''); } catch (e) {}
@@ -33,7 +33,7 @@ function flushExit(code, msg) {
   if (t && typeof t.unref === 'function') t.unref();
 }
 
-// 历史报告（用于跨会话永久去重）
+// Historical reports (for cross-session permanent de-dup)
 const HISTORY_REPORTS = [
   'liepin_apply_report.json',
   'liepin_apply_report_deep.json',
@@ -44,18 +44,18 @@ const HISTORY_REPORTS = [
 ];
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-function log(...a) { console.error('[进度]', ...a); }
-// 投递状态中文映射，供实时日志与进度文件使用
-function statusZh(s) { return ({ success: '成功', already: '已投过', fail: '失败', unknown: '未知' })[s] || s; }
-// 实时逐条进度落盘（JSONL），每投一条追加一行，供「查进度」随时读取
+function log(...a) { console.error('[progress]', ...a); }
+// Application status display mapping, for real-time logs and progress file
+function statusZh(s) { return ({ success: 'Success', already: 'Already applied', fail: 'Failed', unknown: 'Unknown' })[s] || s; }
+// Real-time per-item progress dump (JSONL), one line appended per application, readable anytime via "check progress"
 function appendProgress(seq, job, ev) {
   try {
     const line = JSON.stringify({ seq, ts: Date.now(), jobId: job.jobId, jobName: job.jobName, company: job.company, location: job.location, status: ev.status, message: ev.message }) + '\n';
     fs.appendFileSync(PROGRESS_PATH, line, 'utf8');
-  } catch (e) { /* 进度文件非关键，失败忽略 */ }
+  } catch (e) { /* progress file is non-critical, ignore on failure */ }
 }
 
-// ---------------- 稳定性护栏 ----------------
+// ---------------- Stability guardrail ----------------
 const MAX_RUNTIME_MS = 45 * 60 * 1000;
 const CIRCUIT_FAIL_LIMIT = 3;
 const RUN_START = Date.now();
@@ -63,13 +63,13 @@ function overRuntime() { return (Date.now() - RUN_START) > MAX_RUNTIME_MS; }
 
 const runState = { toApply: [], results: [], counts: { success: 0, already: 0, fail: 0, unknown: 0 }, quota: { date: '', count: 0 }, note: null };
 
-// ---------------- liepin-cli 调用层 ----------------
-// CLI 二进制解析：① 环境变量 LIEPIN_CLI_BIN 覆盖 ② PATH 中的 liepin-cli ③ 已知 venv 安装路径
+// ---------------- liepin-cli invocation layer ----------------
+// CLI binary resolution: ① env LIEPIN_CLI_BIN override ② liepin-cli in PATH ③ known venv install path
 function cliCandidates() {
   const list = [];
   if (process.env.LIEPIN_CLI_BIN) list.push(process.env.LIEPIN_CLI_BIN);
   const home = os.homedir();
-  // 自动安装路径（优先于裸命令，因可能不在 PATH 中）
+  // auto-install path (takes priority over bare command, as it may not be on PATH)
   if (process.platform === 'win32') {
     list.push(path.join(home, '.workbuddy', 'binaries', 'python', 'envs', 'liepin-cli', 'Scripts', 'liepin-cli.exe'));
   } else {
@@ -79,14 +79,14 @@ function cliCandidates() {
   return list;
 }
 
-// 透传 token：优先 LIEPIN_USER_TOKEN（liepin-cli 原生），回退 LIEPIN_TOKEN（旧约定），再回退配置文件（子进程自行读取）
+// Token passthrough: prefer LIEPIN_USER_TOKEN (liepin-cli native), fall back to LIEPIN_TOKEN (old convention), then fall back to config file (subprocess reads itself)
 function spawnEnv() {
   const env = Object.assign({}, process.env);
   if (!env.LIEPIN_USER_TOKEN && env.LIEPIN_TOKEN) env.LIEPIN_USER_TOKEN = env.LIEPIN_TOKEN;
   return env;
 }
 
-// 获取当前可用的 token（用于显式 --token 透传，v2.3.0 官方文档要求：--token > env > config）
+// Get currently available token (for explicit --token passthrough, v2.3.0 official doc requires: --token > env > config)
 function getActiveToken() {
   const fromEnv = process.env.LIEPIN_USER_TOKEN || process.env.LIEPIN_TOKEN || '';
   if (fromEnv.trim()) return fromEnv.trim();
@@ -100,7 +100,7 @@ function getActiveToken() {
   return null;
 }
 
-// 运行一次 liepin-cli 命令，返回 {code, stdout, stderr}；依次尝试候选二进制；带硬超时防止 subprocess 挂死
+// Run one liepin-cli command, return {code, stdout, stderr}; try candidate binaries in order; hard timeout prevents subprocess hang
 function runCli(args, timeoutMs) {
   const TO = typeof timeoutMs === 'number' ? timeoutMs : CLI_TIMEOUT_MS;
   return new Promise((resolve, reject) => {
@@ -119,14 +119,14 @@ function runCli(args, timeoutMs) {
       settled = true;
       if (timer) clearTimeout(timer);
       try { if (p && !p.killed) p.kill('SIGKILL'); } catch (e) {}
-      const e = new Error('CLI 调用超时（' + (TO / 1000) + 's 无响应，疑似 subprocess 挂死）');
+      const e = new Error('CLI call timed out (' + (TO / 1000) + 's no response, subprocess may be hung)');
       e.code = 'TIMEOUT';
       lastErr = e;
       reject(e);
     }
     function tryOnce(idx) {
       if (idx >= candidates.length) {
-        const e = lastErr || new Error('liepin-cli 未找到');
+        const e = lastErr || new Error('liepin-cli not found');
         e.code = lastErr && lastErr.code ? lastErr.code : 'ENOENT';
         reject(e);
         return;
@@ -165,19 +165,19 @@ function runCli(args, timeoutMs) {
   });
 }
 
-// 将 CLI 原始输出适配为旧版 evalResult / isRateLimit 约定的包装形态（保证测试与判定逻辑不变）
+// Adapt CLI raw output into the wrapper shape expected by old evalResult / isRateLimit (keep test and judgment logic unchanged)
 function adaptCliResult(r) {
   const text = (r.stdout || '').trim();
   const errText = (r.stderr || '').trim();
   if (r.code !== 0) {
-    const msg = errText || text || ('退出码 ' + r.code);
+    const msg = errText || text || ('exit code ' + r.code);
     return { error: { message: msg } };
   }
-  if (!text) return { error: { message: errText || '空响应' } };
+  if (!text) return { error: { message: errText || 'empty response' } };
   return { result: { content: [{ text }] } };
 }
 
-// 频控守护：命中限流按 15→240s 指数退避；累计超 1800s 抛 RATE_LIMIT_PERSIST
+// Rate-limit guard: on throttle, exponential backoff 15→240s; cumulative >1800s throws RATE_LIMIT_PERSIST
 const BACKOFF = [15, 30, 45, 60, 90, 120, 180, 240];
 async function runCliGuarded(args, label) {
   let totalWait = 0;
@@ -186,8 +186,8 @@ async function runCliGuarded(args, label) {
     try {
       r = await runCli(args);
     } catch (e) {
-      if (e.code === 'ENOENT') throw new Error('未找到 liepin-cli 命令：请先安装并加入 PATH，或设置 LIEPIN_CLI_BIN（详见技能「依赖预检」章节）');
-      log(`${label} 调用异常: ${e.message}，15s 后重试`);
+      if (e.code === 'ENOENT') throw new Error('liepin-cli command not found: please install and add to PATH, or set LIEPIN_CLI_BIN (see skill "Dependency Pre-check")');
+      log(`${label} call failed: ${e.message}, retrying in 15s`);
       await sleep(15000); totalWait += 15;
       if (totalWait > 1800) throw new Error('RATE_LIMIT_PERSIST');
       continue;
@@ -195,30 +195,30 @@ async function runCliGuarded(args, label) {
     const adapted = adaptCliResult(r);
     if (isRateLimit(adapted)) {
       const wait = BACKOFF[Math.min(i, BACKOFF.length - 1)];
-      log(`${label} 触发频控，退避 ${wait}s（已累计 ${totalWait}s）`);
+      log(`${label} hit rate-limit, backoff ${wait}s (cumulative ${totalWait}s)`);
       await sleep(wait * 1000); totalWait += wait;
       if (totalWait > 1800) throw new Error('RATE_LIMIT_PERSIST');
       continue;
     }
     return adapted;
   }
-  throw new Error(`${label} 重试耗尽`);
+  throw new Error(`${label} retries exhausted`);
 }
 
-// 首次真实响应落盘探针（字段名 [需核实]，供人工校准）
+// First real-response probe dump (field names [needs verification], for manual calibration)
 let probeSearchSaved = false;
 let probeApplySaved = false;
 function saveProbe(p, adapted) {
   try {
     const txt = adapted.error ? JSON.stringify(adapted.error) : (adapted.result && adapted.result.content[0] && adapted.result.content[0].text);
     fs.writeFileSync(p, JSON.stringify({
-      _note: '首次真实调用原始响应探针；字段名 [需核实]，请据此校准 apply_pipeline.js 的解析（extractJobList / normalizeJob）',
+      _note: 'First real-call raw response probe; field names [needs verification], use this to calibrate apply_pipeline.js parsing (extractJobList / normalizeJob)',
       raw: txt,
     }, null, 2), 'utf8');
-  } catch (e) { /* 探针失败不影响主流程 */ }
+  } catch (e) { /* probe failure does not affect main flow */ }
 }
 
-// ---------------- 薪资解析（K） ----------------
+// ---------------- Salary parsing (K) ----------------
 function parseSalary(str) {
   if (!str) return { floor: null, ceil: null };
   const s = String(str);
@@ -229,7 +229,7 @@ function parseSalary(str) {
   return { floor: nums[0] * unit, ceil: (nums.length > 1 ? nums[nums.length - 1] : nums[0]) * unit };
 }
 
-// ---------------- 输入归一化（防御性） ----------------
+// ---------------- Input normalization (defensive) ----------------
 const KEYWORD_SEP = /[,，、;；\s]+/;
 function splitKeywords(v) {
   if (Array.isArray(v)) return v.map((s) => String(s).trim()).filter(Boolean);
@@ -239,69 +239,69 @@ function splitKeywords(v) {
 function normalizeLocation(v) {
   if (v === undefined || v === null) return '__ALL__';
   const s = String(v).trim();
-  if (s === '' || s === '__ALL__' || s === '不限') return '__ALL__';
+  if (s === '' || s === '__ALL__' || s === 'all') return '__ALL__';
   return s;
 }
 function normalizeMulti(v) {
   if (Array.isArray(v)) {
     const a = v.map((s) => String(s).trim()).filter(Boolean);
-    if (!a.length || a.includes('__ALL__') || a.includes('不限')) return ['__ALL__'];
+    if (!a.length || a.includes('__ALL__') || a.includes('all')) return ['__ALL__'];
     return a;
   }
   if (typeof v === 'string') {
     const a = v.split(KEYWORD_SEP).map((s) => s.trim()).filter(Boolean);
-    if (!a.length || a.includes('__ALL__') || a.includes('不限')) return ['__ALL__'];
+    if (!a.length || a.includes('__ALL__') || a.includes('all')) return ['__ALL__'];
     return a;
   }
   return ['__ALL__'];
 }
 
-// ---------------- 猎头识别 v2（三层判定 · v2.2.0）----------------
+// ---------------- Recruiter detection v2 (three-layer · v2.2.0) ----------------
 //
-// 第 1 层：确非猎头公司白名单（知名直招企业，命中即直接返回 false）
-// 第 2 层：已知猎头品牌库（命中即直接返回 true）
-// 第 3 层：启发式加权（行业+公司名+JD 分数融合，阈值判定）
+// Layer 1: known direct-hire enterprise whitelist (famous direct hiring, hit → return false directly)
+// Layer 2: known recruiter brand library (hit → return true directly)
+// Layer 3: heuristic weighted scoring (industry + company name + JD score fusion, threshold judgment)
 //
-// 白名单与品牌库各 50+，覆盖主要直招企业与猎头机构，最大限度降低误判。
+// Whitelist and brand library each 50+, covering major direct-hire enterprises and recruiter agencies, minimizing mis-judgment.
 
-// ----- 第 1 层：知名直招企业白名单（命中直接 false） -----
+// ----- Layer 1: known direct-hire enterprise whitelist (hit → false directly) -----
 const DIRECT_HIRE_BRANDS = [
-  // 互联网/科技
+  // Internet/tech
   '腾讯', '阿里', '阿里巴巴', '百度', '字节跳动', '字节', '京东', '美团', '滴滴', '快手', '小米', '华为', 'OPPO', 'vivo', '联想', '中兴', '网易', '新浪', '搜狗', '360', '奇安信', '携程', '去哪儿', '贝壳', 'B站', '哔哩哔哩', '知乎', '小红书', '拼多多', '得物', '蚂蚁', '蚂蚁集团', '菜鸟', '钉钉', '飞猪', '盒马', '饿了么', '淘天', '高德', '唯品会', '58同城', '完美世界', '米哈游', '莉莉丝', '叠纸', '鹰角', '三七互娱', '网易游戏', '腾讯游戏', '游族',
-  // 金融/银行/保险/证券
+  // Finance/bank/insurance/securities
   '招商银行', '工商银行', '建设银行', '中国银行', '农业银行', '交通银行', '浦发银行', '平安银行', '中信银行', '光大银行', '民生银行', '兴业银行', '北京银行', '上海银行', '南京银行', '宁波银行', '杭州银行', '江苏银行', '国泰君安', '中信证券', '海通证券', '华泰证券', '招商证券', '广发证券', '中金', '中国平安', '中国人寿', '中国太保', '新华保险', '太平洋保险', '泰康', '人保', '太平保险', '中信信托', '五矿信托', '中航信托', '华夏基金', '易方达', '嘉实基金', '南方基金', '广发基金', '富国基金', '汇添富', '博时基金', '天弘基金',
-  // 制造业/汽车/重工
+  // Manufacturing/auto/heavy-industry
   '比亚迪', '宁德时代', '蔚来', '理想', '小鹏', '特斯拉', '宝马', '奔驰', '大众', '丰田', '本田', '福特', '通用', '沃尔沃', '吉利', '长城', '奇瑞', '长安', '广汽', '上汽', '东风', '一汽', '红旗', '北汽', '江淮', '三一', '三一重工', '徐工', '中联重科', '海尔', '美的', '格力', '海信', 'TCL', '京东方', '新华三', '中兴通讯', '烽火', '中芯国际', '华虹', '长鑫', '长江存储', '吉利集团',
-  // 央国企/事业单位/基础设施
+  // Central SOEs/public-institution/infrastructure
   '中国移动', '中国联通', '中国电信', '中国石化', '中国石油', '中海油', '国家电网', '南方电网', '国铁', '中国铁路', '中国邮政', '国家能源', '中粮', '中烟', '中航工业', '中船', '中国船舶', '兵器工业', '航天科工', '航天科技', '航空工业', '中国电科', '中国电子', '保利', '华润', '招商局', '中信集团', '光大集团', '中化', '中建', '中铁', '中交', '中冶', '中国建材', '五矿', '华侨城',
-  // 知名外企
+  // Famous foreign companies
   '微软', 'Microsoft', '谷歌', 'Google', '苹果', 'Apple', 'Meta', '亚马逊', 'Amazon', 'Oracle', '甲骨文', 'IBM', 'Intel', '英特尔', 'NVIDIA', '英伟达', 'AMD', 'Cisco', '思科', 'SAP', 'Salesforce', 'Adobe', 'Dell', '惠普', 'HP', 'LinkedIn', 'Uber', 'Tesla', '沃尔玛', 'Walmart', 'Nike', '耐克', 'Adidas', '阿迪达斯', '百事', 'Pepsi', '宝洁', 'P&G', '联合利华', 'Unilever', '欧莱雅', '雀巢', 'Nestle', '强生', 'Johnson', '辉瑞', 'Pfizer', '默沙东', 'Merck', '礼来', 'Lilly', '诺华', 'Novartis', '罗氏', 'Roche', '拜耳', 'Bayer', '赛诺菲', 'Sanofi', '阿斯利康', 'AstraZeneca', '西门子', 'Siemens', '飞利浦', 'Philips', '通用电气', 'GE', '博世', 'Bosch', '施耐德', 'Schneider', 'ABB', '巴斯夫', 'BASF', '陶氏', 'Dow', '3M',
-  // 知名民企/新消费/服务
+  // Famous private/new-consumer/service
   '伊利', '蒙牛', '农夫山泉', '娃哈哈', '星巴克', 'Starbucks', '麦当劳', 'McDonald', '百胜', '肯德基', '海底捞', '瑞幸', '喜茶', '奈雪', '波司登', '李宁', '安踏', '特步', '良品铺子', '百果园', '孩子王', '京东健康', '阿里健康', '三只松鼠', '绝味', '周黑鸭', '蓝月亮', '立白', '纳爱斯', '珀莱雅', '薇诺娜', '花西子', '完美日记',
-  // 电商/跨境/新兴
+  // E-commerce/cross-border/emerging
   'SHEIN', '希音', 'Temu', 'TikTok', 'Shopee', 'Lazada', '速卖通', '阿里国际', '跨境', '宝尊', '微盟', '有赞', 'Ping++',
-  // 其他明显直招：教育/医疗/地产
+  // Other obviously direct-hire: education/medical/real-estate
   '新东方', '好未来', '学而思', '中公', '华图', '爱尔', '通策', '迈瑞', '联影', '华大', '药明', '恒瑞', '百济', '信达', '君实', '万科', '碧桂园', '龙湖', '保利发展', '华润置地', '中海', '万达', '融创', '绿城', '金地', '招商蛇口', '旭辉', '新城', '世茂',
 ];
-// 快速命中判定（公司名包含任一白名单词即非猎头，首层直出）
-// 使用 Set 加速，但白名单含中英文混合 + 部分公司名含多于 2 个字符，用 every 检查效率也够
+// Quick hit check (company name containing any whitelist word = non-recruiter, direct from layer 1)
+// Uses Set for speed; whitelist is mixed CN/EN, some company names >2 chars, every check is efficient enough
 const RECTYPE_FILL = new Set(DIRECT_HIRE_BRANDS.map((s) => s.toLowerCase()));
 
-// ----- 第 2 层：已知猎头/人力服务公司（命中直接 true） -----
+// ----- Layer 2: known recruiter / HR-service companies (hit → true directly) -----
 const RECRUITER_KNOWN_BRANDS = [
-  // 国际猎头五大
+  // Global top 5 recruiters
   '海德思哲', 'Heidrick', '光辉国际', 'Korn Ferry', 'KornFerry', 'Korn', '亿康先达', 'Egon Zehnder', '史宾沙', 'Spencer Stuart', '罗盛', 'Russell Reynolds',
-  // 其他国际知名猎头/人力
+  // Other international recruiters/HR
   '米高蒲志', 'Michael Page', 'MichaelPage', '任仕达', 'Randstad', '德科', 'Adecco', '万宝盛华', 'ManpowerGroup', 'Manpower', 'Recruit', '瑞可利', 'Persol', 'Hays', '瀚纳仕', 'Robert Walters', 'RobertHalf', '瀚德', 'Hudson',
-  // 国内头部猎头/咨询
+  // Domestic top recruiters/consulting
   '科锐', '科锐国际', '锐仕方达', '对点', '对点咨询', '沃锐猎头', '沃锐', '嘉驰', '嘉驰国际', '探也', '探也猎头', '仲望咨询', '仲望', '泰来', '泰来猎头', '大瀚', '大瀚猎头', '展动力', '展动力猎头', '埃摩森', '猎上网', '猎萝卜', '猎聘外包', '猎聘BPO', '猎聘事业部',
-  // 人事外包/劳务派遣/背景调查
+  // HR outsourcing/labor dispatch/background check
   '中智', '中智集团', '上海外服', '外服', 'FESCO', '北京外企', '北京外服', '易才', '易才集团', '海峡人力', '薪宝', '薪宝科技', '人瑞', '人瑞人才', '佩琪', '佩琪人才', '君润', '君润人力', '杰博', '杰博人力', '博尔捷', '博尔捷人力', '社保通', '天坤', '天坤人力', '上海外服', '天津外服', '浙江外服', '深圳外服', '广东外服',
-  // RPO / 招聘流程外包
+  // RPO / recruitment process outsourcing
   '光辉国际', '光辉', 'Korn', 'Futurestep', '翰德', 'RPO', '招聘流程外包',
-  // 商务服务/管理咨询（偶有猎头业务混杂）
+  // Business services/management consulting (occasionally mixed with recruiter business)
   '埃森哲', 'Accenture', '德勤', 'Deloitte', '安永', 'EY', '毕马威', 'KPMG', '普华永道', 'PwC', '麦肯锡', 'McKinsey', '波士顿咨询', 'BCG', '贝恩', 'Bain', '罗兰贝格', 'Roland Berger',
-  // 常见分类平台/招聘网站
+  // Common classified platforms/job sites
   '猎聘', '猎聘网', '51job', '前程无忧', '智联招聘', '智联', 'BOSS直聘', 'BOSS直聘直聘', '拉勾', '脉脉', '大街', '应届生求职网',
 ];
 const REC_BRANDS_SET = new Set(RECRUITER_KNOWN_BRANDS.map((s) => s.toLowerCase()));
@@ -311,7 +311,7 @@ function isDirectHireBrand(comp) {
   const c = comp.toLowerCase();
   for (const brand of RECTYPE_FILL) {
     if (brand.length > 2 && c.includes(brand)) return true;
-    // 短品牌（1~2 字符）跳过防误判（如"三一"、"中金"等需要完整匹配场景有限，直接按 include 处理）
+    // Short brands (1~2 chars) skipped to avoid mis-judgment (e.g. "三一", "中金" need full match in limited cases, handled by include)
   }
   return false;
 }
@@ -325,47 +325,47 @@ function isKnownRecruiterBrand(comp) {
   return false;
 }
 
-// ----- 第 3 层：启发式加权评分（行业+公司特征+JD 关键词融合） -----
+// ----- Layer 3: heuristic weighted scoring (industry + company feature + JD keyword fusion) -----
 const RECRUITER_FEATURE_IND = /人力资源服务|劳务派遣|外包|猎头|人才服务|管理咨询|商务服务|招聘服务|职业中介/;
 const NON_RECRUITER_IND = /互联网|人工智能|软件|计算机|金融|银行|保险|证券|基金|制造|汽车|医疗|医药|教育|培训|房地产|建筑|能源|化工|食品|饮料|零售|电商/;
 const RECRUITER_COMP_FEATURE = /劳务派遣|人力资源|猎头|人才服务|劳务外包|中介|招聘|人力资本|雇员外包/i;
 const RECRUITER_JD_FEATURE = /猎头|代招|劳务派遣|外包岗位|RPO|派遣|劳务外包|人事外包/i;
-// 公司名明确排除词：当公司名含以下之一时大概率是猎头
+// Company-name explicit exclusion words: when company name contains one of these, likely a recruiter
 const RECRUITER_COMP_EXCLUDE = /咨询|人才|猎头|猎聘|人力|劳务|派遣|外包|中介/i;
-// 直招公司名信号：当公司名含以下且无猎头信号时增强非猎头判定
+// Direct-hire company-name signals: when company name contains these and no recruiter signal, strengthen non-recruiter judgment
 const DIRECT_SIGNAL = /集团|股份|有限公|有限公司|科技|技术|网络|电子|实业|投资|股份有限|制造|实业有限/i;
 
 function headhunterScore(job) {
-  // 返回 0~100 的猎头概率分数：≤20 为直招，≥80 为猎头，中间需人工
+  // Returns a 0~100 recruiter-probability score: ≤20 direct-hire, ≥80 recruiter, middle needs manual check
   const ind = job.industry || '';
   const comp = job.company || '';
   const detail = job.jobDetail || job.description || '';
   let score = 0;
-  // 行业特征：猎头行业 +20，直招行业 -15
+  // Industry feature: recruiter industry +20, direct-hire industry -15
   if (RECRUITER_FEATURE_IND.test(ind)) score += 20;
   if (NON_RECRUITER_IND.test(ind)) score -= 15;
-  // 公司名特征：猎头词 +25，直招信号 -10
+  // Company-name feature: recruiter word +25, direct-hire signal -10
   if (RECRUITER_COMP_FEATURE.test(comp)) score += 25;
   if (RECRUITER_COMP_EXCLUDE.test(comp)) score += 10;
   if (DIRECT_SIGNAL.test(comp)) score -= 10;
-  // JD 文本特征
+  // JD text feature
   if (RECRUITER_JD_FEATURE.test(detail)) score += 25;
-  // 综合归一化到 0~100
+  // Normalize to 0~100
   return Math.max(0, Math.min(100, score + 50));
 }
 
 function isRecruiterJob(job) {
   const comp = job.company || '';
-  // 第 1 层：白名单直接排除
+  // Layer 1: whitelist direct exclude
   if (isDirectHireBrand(comp)) return false;
-  // 第 2 层：已知猎头品牌直接判定
+  // Layer 2: known recruiter brand direct judge
   if (isKnownRecruiterBrand(comp)) return true;
-  // 第 3 层：加权评分，≥60 判定为猎头
+  // Layer 3: weighted score, ≥60 judged recruiter
   return headhunterScore(job) >= 60;
 }
 
-// ---------------- 搜索：解析服务端原始 JSON（多候选容错） ----------------
-// 响应结构 [需核实]：主假设 {data:{list:[...]}}，依次回退其它常见包裹方式
+// ---------------- Search: parse server raw JSON (multi-candidate tolerant) ----------------
+// Response structure [needs verification]: main hypothesis {data:{list:[...]}}, fall back to other common wrappers in order
 function extractJobList(adapted) {
   let obj;
   try {
@@ -384,7 +384,7 @@ function extractJobList(adapted) {
   return [];
 }
 
-// 岗位字段别名容错（响应字段名 [需核实]）
+// Job field alias tolerant (response field names [needs verification])
 function first(...vals) {
   for (const v of vals) if (v !== undefined && v !== null && v !== '') return v;
   return undefined;
@@ -398,25 +398,25 @@ function normalizeJob(j) {
     salary: first(j.salary, j.salaryText, j.salaryDesc, j.salaryShow) || '',
     location: first(j.location, j.city, j.address, j.workCity, j.cityName) || '',
     jobDetail: first(j.jobDetail, j.description, j.jobDesc, j.detail) || '',
-    // apply 必填的 job-kind：复用搜索结果中的职位类型值（官方强制要求，禁止猜测）
+    // apply-required job-kind: reuse the position-type value from search results (official mandatory, do not guess)
     jobKind: String(first(j.jobKind, j.jobType, j.recruitType, j.type, j.jobTypeId) || '2'),
   };
 }
 
-// CURRENT_LOCATION：由 main 注入，用于服务端 location 过滤（明文低风险）
+// CURRENT_LOCATION: injected by main, used for server-side location filtering (plaintext, low risk)
 let CURRENT_LOCATION = '__ALL__';
 
 async function searchJobs(keyword, salaryFloorYuan, salaryCeilYuan, page, extraOpts) {
   const args = ['job', 'search', '--job-name', keyword, '--page', String(page), '--output', 'json'];
-  // 地点过滤（v2.3.0 所有官方参数已配齐）
+  // Location filter (v2.3.0 all official params configured)
   if (CURRENT_LOCATION && CURRENT_LOCATION !== '__ALL__') {
     const toks = splitKeywords(CURRENT_LOCATION);
     if (toks.length === 1) args.push('--address', toks[0]);
   }
-  // 薪资过滤（官方 --salary-floor --salary-cap）
+  // Salary filter (official --salary-floor --salary-cap)
   if (salaryFloorYuan > 0) args.push('--salary-floor', String(salaryFloorYuan));
   if (salaryCeilYuan > 0 && salaryCeilYuan < 999000) args.push('--salary-cap', String(salaryCeilYuan));
-  // 额外过滤参数（v2.3.0 新增：--work-experience --edu-level --comp-nature --company-name --salary-kind）
+  // Extra filter params (v2.3.0 new: --work-experience --edu-level --comp-nature --company-name --salary-kind)
   if (extraOpts) {
     if (extraOpts.workExperience) args.push('--work-experience', extraOpts.workExperience);
     if (extraOpts.eduLevel) args.push('--edu-level', extraOpts.eduLevel);
@@ -426,9 +426,9 @@ async function searchJobs(keyword, salaryFloorYuan, salaryCeilYuan, page, extraO
   }
   let adapted;
   try {
-    adapted = await runCliGuarded(args, `搜索[${keyword}]p${page}`);
+    adapted = await runCliGuarded(args, `search[${keyword}]p${page}`);
   } catch (e) {
-    log('搜索中断:', e.message);
+    log('Search interrupted:', e.message);
     throw e;
   }
   if (!probeSearchSaved) { saveProbe(PROBE_SEARCH, adapted); probeSearchSaved = true; }
@@ -436,15 +436,15 @@ async function searchJobs(keyword, salaryFloorYuan, salaryCeilYuan, page, extraO
   return list.map(normalizeJob).filter((j) => j.jobId);
 }
 
-// ---------------- 投递 ----------------
+// ---------------- Apply ----------------
 async function applyJob(jobId, jobKind) {
   const args = ['job', 'apply', '--job-id', String(jobId), '--job-kind', String(jobKind), '--output', 'json'];
-  const adapted = await runCliGuarded(args, `投递[${jobId}]`);
+  const adapted = await runCliGuarded(args, `apply[${jobId}]`);
   if (!probeApplySaved) { saveProbe(PROBE_APPLY, adapted); probeApplySaved = true; }
   return adapted;
 }
 
-// ---------------- 跨会话去重 ----------------
+// ---------------- Cross-session de-dup ----------------
 function loadDelivered(workdir) {
   const dir = workdir || WORKDIR;
   const set = new Set();
@@ -463,15 +463,15 @@ function loadDelivered(workdir) {
   return set;
 }
 
-// ---------------- 简历求职期望同步（v2.3.0 关键修复）----------------
-// 搜索前先调 `liepin-cli resume update-job-want` 把用户的求职期望写到简历，
-// 否则猎聘后台按简历里"旧的期望"匹配，不按用户当前搜索条件——这是大量投递石沉大海的根因。
-// 官方参数：--jobtitle --dq --want-salary-low --want-salary-high
+// ---------------- Resume job-expectation sync (v2.3.0 key fix) ----------------
+// Before search, call `liepin-cli resume update-job-want` to write the user's job expectation into the resume,
+// otherwise Liepin backend matches by the "old expectation" in the resume, not the user's current search criteria — the root cause of many applications going nowhere.
+// Official params: --jobtitle --dq --want-salary-low --want-salary-high
 async function ensureJobWant(keywords, location, salaryFloor, salaryCeil) {
   const args = ['resume', 'update-job-want'];
-  // 期望职位：用第一个关键词（向导只允许一个核心方向）
+  // Expected position: use first keyword (wizard allows only one core direction)
   if (keywords && keywords.length) args.push('--jobtitle', String(keywords[0]).slice(0, 30));
-  // 期望地点：单城市时透传，多城市/全国不传（让猎聘匹配简历地）
+  // Expected location: pass when single city, skip when multi-city/nationwide (let Liepin match resume location)
   if (location && location !== '__ALL__') {
     const toks = splitKeywords(location);
     if (toks.length === 1) args.push('--dq', toks[0]);
@@ -479,53 +479,53 @@ async function ensureJobWant(keywords, location, salaryFloor, salaryCeil) {
   if (salaryFloor > 0) args.push('--want-salary-low', String(salaryFloor));
   if (salaryCeil > 0 && salaryCeil < 999) args.push('--want-salary-high', String(salaryCeil));
   try {
-    const r = await runCliGuarded(args, '同步求职期望');
-    log('  ✅ 简历求职期望已同步：' + args.slice(2, 2 + 4).join(' '));
+    const r = await runCliGuarded(args, 'sync job expectation');
+    log('  ✅ resume job expectation synced: ' + args.slice(2, 2 + 4).join(' '));
     return { ok: true, args };
   } catch (e) {
-    log('  ⚠️ 求职期望同步失败（不影响投递）：' + e.message);
+    log('  ⚠️ job expectation sync failed (does not affect delivery): ' + e.message);
     return { ok: false, error: e.message };
   }
 }
 
-// ============ v2.3.0 全新：auth 状态 + resume 全套 + --token 透传 ============
+// ============ v2.3.0 new: auth status + full resume suite + --token passthrough ============
 
 // --- auth status ---
-// 官方文档 `liepin-cli auth status`：查看当前 token 状态（脱敏显示）
+// Official doc `liepin-cli auth status`: view current token status (desensitized)
 async function authStatus() {
   const args = ['auth', 'status'];
   try {
-    const r = await runCliGuarded(args, '检查认证状态');
+    const r = await runCliGuarded(args, 'check auth status');
     const adapted = adaptCliResult(r);
     const txt = adapted.error ? JSON.stringify(adapted.error) : (adapted.result && adapted.result.content[0] && adapted.result.content[0].text);
-    log('  🔑 认证状态：' + (txt || '未知'));
+    log('  🔑 auth status: ' + (txt || 'unknown'));
     return { ok: true, text: txt };
   } catch (e) {
-    log('  ⚠️ 认证状态查询失败：' + e.message);
+    log('  ⚠️ auth status query failed: ' + e.message);
     return { ok: false, error: e.message };
   }
 }
 
 // --- auth clear ---
-// 官方文档 `liepin-cli auth clear`：清除本地 token
+// Official doc `liepin-cli auth clear`: clear local token
 async function authClear() {
   const args = ['auth', 'clear'];
   try {
-    const r = await runCliGuarded(args, '清除 token');
-    log('  ✅ 本地 token 已清除');
+    const r = await runCliGuarded(args, 'clear token');
+    log('  ✅ local token cleared');
     return { ok: true };
   } catch (e) {
-    log('  ⚠️ token 清除失败：' + e.message);
+    log('  ⚠️ token clear failed: ' + e.message);
     return { ok: false };
   }
 }
 
 // --- resume get ---
-// 官方文档 `liepin-cli resume get`：获取当前简历
+// Official doc `liepin-cli resume get`: get current resume
 async function resumeGet() {
   const args = ['resume', 'get', '--output', 'json'];
   try {
-    const r = await runCliGuarded(args, '读取简历');
+    const r = await runCliGuarded(args, 'read resume');
     const adapted = adaptCliResult(r);
     const txt = adapted.error ? null : (adapted.result && adapted.result.content[0] && adapted.result.content[0].text);
     if (txt) {
@@ -534,88 +534,88 @@ async function resumeGet() {
     }
     return { ok: true, data: null };
   } catch (e) {
-    log('  ⚠️ 简历读取失败：' + e.message);
+    log('  ⚠️ resume read failed: ' + e.message);
     return { ok: false, error: e.message, data: null };
   }
 }
 
 // --- resume update-base-info ---
-// 官方文档 `liepin-cli resume update-base-info`：更新基础资料
+// Official doc `liepin-cli resume update-base-info`: update basic profile
 async function resumeSyncBaseInfo(fields) {
-  if (!fields || !Object.keys(fields).length) return { ok: true, note: '无字段，跳过' };
+  if (!fields || !Object.keys(fields).length) return { ok: true, note: 'no fields, skip' };
   const args = ['resume', 'update-base-info'];
   for (const [k, v] of Object.entries(fields)) {
     if (v !== undefined && v !== null && v !== '') args.push('--' + k, String(v));
   }
-  if (args.length <= 3) return { ok: true, note: '无有效字段，跳过' };
+  if (args.length <= 3) return { ok: true, note: 'no valid fields, skip' };
   try {
-    const r = await runCliGuarded(args, '更新基础资料');
-    log('  ✅ 简历基础资料已更新');
+    const r = await runCliGuarded(args, 'update basic info');
+    log('  ✅ resume basic info updated');
     return { ok: true };
   } catch (e) {
-    log('  ⚠️ 基础资料更新失败：' + e.message);
+    log('  ⚠️ basic info update failed: ' + e.message);
     return { ok: false, error: e.message };
   }
 }
 
 // --- resume update-self-assess ---
-// 官方文档 `liepin-cli resume update-self-assess`：更新自我评价
+// Official doc `liepin-cli resume update-self-assess`: update self-assessment
 async function resumeSyncSelfAssess(text) {
-  if (!text || !text.trim()) return { ok: true, note: '无内容，跳过' };
+  if (!text || !text.trim()) return { ok: true, note: 'no content, skip' };
   const args = ['resume', 'update-self-assess', '--self-assess', text.trim().slice(0, 500)];
   try {
-    const r = await runCliGuarded(args, '更新自我评价');
-    log('  ✅ 自我评价已更新');
+    const r = await runCliGuarded(args, 'update self-assessment');
+    log('  ✅ self-assessment updated');
     return { ok: true };
   } catch (e) {
-    log('  ⚠️ 自我评价更新失败：' + e.message);
+    log('  ⚠️ self-assessment update failed: ' + e.message);
     return { ok: false };
   }
 }
 
 // --- resume add-work-exp ---
-// 官方文档 `liepin-cli resume add-work-exp`
+// Official doc `liepin-cli resume add-work-exp`
 async function resumeSyncWorkExp(entries) {
-  if (!entries || !entries.length) return { ok: true, note: '无工作经历，跳过' };
+  if (!entries || !entries.length) return { ok: true, note: 'no work experience, skip' };
   let ok = 0;
   for (const e of entries) {
     if (!e.compName && !e.rwTitle) continue;
     const r = await runCliGuarded(
       ['resume', 'add-work-exp', '--comp-name', String(e.compName || '').slice(0, 50),
        '--rw-title', String(e.rwTitle || '').slice(0, 30),
-       '--work-start', String(e.workStart || '202001'), '--work-end', String(e.workEnd || '至今'),
+       '--work-start', String(e.workStart || '202001'), '--work-end', String(e.workEnd || 'now'),
        '--salary', String(e.salary || '0')],
-      '新增工作经历'
+      'add work experience'
     ).catch(() => null);
     if (r) ok++;
   }
-  if (ok) log('  ✅ 工作经历已同步 ' + ok + '/' + entries.length);
+  if (ok) log('  ✅ work experience synced ' + ok + '/' + entries.length);
   return { ok: ok > 0 };
 }
 
 // --- resume add-edu-exp ---
-// 官方文档 `liepin-cli resume add-edu-exp`
+// Official doc `liepin-cli resume add-edu-exp`
 async function resumeSyncEduExp(entries) {
-  if (!entries || !entries.length) return { ok: true, note: '无教育经历，跳过' };
+  if (!entries || !entries.length) return { ok: true, note: 'no education experience, skip' };
   let ok = 0;
   for (const e of entries) {
     if (!e.school) continue;
     const r = await runCliGuarded(
       ['resume', 'add-edu-exp', '--school', String(e.school).slice(0, 50),
-       '--major', String(e.major || '').slice(0, 50), '--degree', String(e.degree || '本科'),
+       '--major', String(e.major || '').slice(0, 50), '--degree', String(e.degree || 'Bachelor'),
        '--start', String(e.start || '201009'), '--end', String(e.end || '201406')],
-      '新增教育经历'
+      'add education experience'
     ).catch(() => null);
     if (r) ok++;
   }
-  if (ok) log('  ✅ 教育经历已同步 ' + ok + '/' + entries.length);
+  if (ok) log('  ✅ education experience synced ' + ok + '/' + entries.length);
   return { ok: ok > 0 };
 }
 
 // --- resume add-project-exp ---
-// 官方文档 `liepin-cli resume add-project-exp`
+// Official doc `liepin-cli resume add-project-exp`
 async function resumeSyncProjectExp(entries) {
-  if (!entries || !entries.length) return { ok: true, note: '无项目经历，跳过' };
+  if (!entries || !entries.length) return { ok: true, note: 'no project experience, skip' };
   let ok = 0;
   for (const e of entries) {
     if (!e.name) continue;
@@ -623,48 +623,48 @@ async function resumeSyncProjectExp(entries) {
       ['resume', 'add-project-exp', '--name', String(e.name).slice(0, 50),
        '--position', String(e.position || '').slice(0, 30),
        '--start', String(e.start || '202001'), '--end', String(e.end || '202012')],
-      '新增项目经历'
+      'add project experience'
     ).catch(() => null);
     if (r) ok++;
   }
-  if (ok) log('  ✅ 项目经历已同步 ' + ok + '/' + entries.length);
+  if (ok) log('  ✅ project experience synced ' + ok + '/' + entries.length);
   return { ok: ok > 0 };
 }
 
-// --- resume add-job-want（备用）---
-// 官方文档 `liepin-cli resume add-job-want`：新增求职期望（当不存在时）
-// 主流程已用 update-job-want 更新；add 为备选方案
+// --- resume add-job-want (fallback) ---
+// Official doc `liepin-cli resume add-job-want`: add job expectation (when none exists)
+// Main flow already uses update-job-want; add is the fallback
 async function resumeAddJobWant(jobtitle, dq, low, high) {
-  if (!jobtitle) return { ok: true, note: '无岗位名，跳过' };
+  if (!jobtitle) return { ok: true, note: 'no job title, skip' };
   const args = ['resume', 'add-job-want', '--jobtitle', String(jobtitle).slice(0, 30)];
   if (dq) args.push('--dq', dq);
   if (low > 0) args.push('--want-salary-low', String(low));
   if (high > 0 && high < 999) args.push('--want-salary-high', String(high));
   try {
-    await runCliGuarded(args, '新增求职期望');
-    log('  ✅ 求职期望已新增');
+    await runCliGuarded(args, 'add job expectation');
+    log('  ✅ job expectation added');
     return { ok: true };
   } catch (e) {
-    log('  ⚠️ 新增求职期望失败：' + e.message);
+    log('  ⚠️ add job expectation failed: ' + e.message);
     return { ok: false };
   }
 }
 
-// --- resume 全面健康检查（搜索前调用）---
-// 读简历 → 检查完整性 → 同步求职期望
+// --- resume full health check (called before search) ---
+// Read resume → check completeness → sync job expectation
 async function resumeHealthCheck(keywords, location, salaryFloor, salaryCeil) {
-  log('【步骤 0】简历健康检查…');
+  log('[Step 0] resume health check…');
   const resume = await resumeGet();
   if (!resume.ok || !resume.data) {
-    log('  ⚠️ 未读取到简历数据（不影响投递，但建议先完善简历）');
-    return { ok: false, note: '未读取到简历' };
+    log('  ⚠️ no resume data read (does not affect delivery, but completing resume is recommended)');
+    return { ok: false, note: 'no resume read' };
   }
   await ensureJobWant(keywords, location, salaryFloor, salaryCeil);
-  return { ok: true, note: '简历健康检查完成' };
+  return { ok: true, note: 'resume health check done' };
 }
 
 
-// ---------------- 每日配额 ----------------
+// ---------------- Daily quota ----------------
 function loadQuota(workdir) {
   const today = new Date().toISOString().slice(0, 10);
   const qp = workdir ? path.join(workdir, 'liepin_daily_quota.json') : QUOTA_PATH;
@@ -677,18 +677,18 @@ function loadQuota(workdir) {
 }
 function saveQuota(q) { fs.writeFileSync(QUOTA_PATH, JSON.stringify(q, null, 2), 'utf8'); }
 
-// ---------------- 频控检测（兼容旧签名：读 result.content[0].text 或 error.message） ----------------
+// ---------------- Rate-limit detection (compatible with old signature: read result.content[0].text or error.message) ----------------
 function isRateLimit(resp) {
   let txt = '';
   try { txt = resp.error ? JSON.stringify(resp.error) : resp.result.content[0].text; } catch (e) {}
   return /频繁|429|过于频繁|受限|rate.?limit/i.test(txt);
 }
 
-// ---------------- 结果四态判定（绝不谎报） ----------------
+// ---------------- Four-state result judgment (never fake success) ----------------
 function evalResult(resp) {
   if (resp && resp.error) return { status: 'fail', message: JSON.stringify(resp.error).slice(0, 160) };
-  let content; try { content = resp.result.content; } catch (e) { return { status: 'unknown', message: '无返回' }; }
-  if (!content || !content[0]) return { status: 'unknown', message: '空返回' };
+  let content; try { content = resp.result.content; } catch (e) { return { status: 'unknown', message: 'no return' }; }
+  if (!content || !content[0]) return { status: 'unknown', message: 'empty return' };
   let text = content[0].text;
   let parsed; try { parsed = JSON.parse(text); } catch (e) { parsed = { raw: text }; }
   const errCode = parsed.errCode !== undefined ? parsed.errCode : (parsed.code !== undefined ? parsed.code : null);
@@ -701,7 +701,7 @@ function evalResult(resp) {
   return { status: 'unknown', message: msg };
 }
 
-// ---------------- 报告 ----------------
+// ---------------- Report ----------------
 function recordOne(job, ev, quota, results, counts) {
   results.push({ jobId: job.jobId, jobName: job.jobName, company: job.company, industry: job.industry, salary: job.salary, location: job.location, recruiter: job.recruiter, status: ev.status, message: ev.message });
   counts[ev.status] = (counts[ev.status] || 0) + 1;
@@ -725,43 +725,43 @@ function writeReport(toApply, results, counts, quota, quotaReached, note) {
 function writeSummary(out) {
   const c = out.summary;
   const lines = [];
-  lines.push('# 猎聘投递成果汇总');
+  lines.push('# Liepin Delivery Result Summary');
   lines.push('');
-  lines.push(`生成时间：${new Date().toLocaleString('zh-CN')}`);
+  lines.push(`Generated at: ${new Date().toLocaleString('en-US')}`);
   lines.push('');
-  lines.push(`## 概览`);
-  lines.push(`- 本次待投总数：${c.total}`);
-  lines.push(`- 实际处理：${c.applied}`);
-  lines.push(`- ✅ 成功：${c.success}　⚠️ 已投过：${c.already}　❌ 失败：${c.fail}　❓ 未知：${c.unknown}`);
-  lines.push(`- 今日已投：${out.dailyQuota.count} 份`);
-  if (out.quotaReached) lines.push(`- ⏸ 已达每日上限，剩余岗位留待明日`);
-  if (out.note) lines.push(`- 备注：${out.note}`);
+  lines.push(`## Overview`);
+  lines.push(`- Total to apply this run: ${c.total}`);
+  lines.push(`- Actually processed: ${c.applied}`);
+  lines.push(`- ✅ Success: ${c.success}　⚠️ Already applied: ${c.already}　❌ Fail: ${c.fail}　❓ Unknown: ${c.unknown}`);
+  lines.push(`- Applied today: ${out.dailyQuota.count}`);
+  if (out.quotaReached) lines.push(`- ⏸ Daily cap reached, remaining roles left for tomorrow`);
+  if (out.note) lines.push(`- Note: ${out.note}`);
   lines.push('');
   const by = (st) => out.results.filter((r) => r.status === st);
   if (by('success').length) {
-    lines.push(`## ✅ 成功（${by('success').length}）`);
-    by('success').forEach((r) => lines.push(`- ${r.jobName} @ ${r.company}（${r.location || ''}）`));
+    lines.push(`## ✅ Success (${by('success').length})`);
+    by('success').forEach((r) => lines.push(`- ${r.jobName} @ ${r.company} (${r.location || ''})`));
     lines.push('');
   }
   if (by('fail').length) {
-    lines.push(`## ❌ 失败及原因（${by('fail').length}）`);
-    by('fail').forEach((r) => lines.push(`- ${r.jobName} @ ${r.company}： ${r.message}`));
+    lines.push(`## ❌ Fail and reasons (${by('fail').length})`);
+    by('fail').forEach((r) => lines.push(`- ${r.jobName} @ ${r.company}: ${r.message}`));
     lines.push('');
   }
   if (by('already').length) {
-    lines.push(`## ⚠️ 已投过（跳过，${by('already').length}）`);
+    lines.push(`## ⚠️ Already applied (skipped, ${by('already').length})`);
     by('already').forEach((r) => lines.push(`- ${r.jobName} @ ${r.company}`));
     lines.push('');
   }
   if (by('unknown').length) {
-    lines.push(`## ❓ 未知（需人工核对，${by('unknown').length}）`);
-    by('unknown').forEach((r) => lines.push(`- ${r.jobName} @ ${r.company}： ${r.message}`));
+    lines.push(`## ❓ Unknown (needs manual check, ${by('unknown').length})`);
+    by('unknown').forEach((r) => lines.push(`- ${r.jobName} @ ${r.company}: ${r.message}`));
     lines.push('');
   }
   fs.writeFileSync(SUMMARY_PATH, lines.join('\n'), 'utf8');
 }
 
-// ---------------- Token 来源检测 ----------------
+// ---------------- Token source detection ----------------
 function tokenAvailable() {
   if (process.env.LIEPIN_USER_TOKEN && process.env.LIEPIN_USER_TOKEN.trim()) return true;
   if (process.env.LIEPIN_TOKEN && process.env.LIEPIN_TOKEN.trim()) return true;
@@ -775,14 +775,14 @@ function tokenAvailable() {
   return false;
 }
 
-// ---------------- 主流程 ----------------
+// ---------------- Main flow ----------------
 async function main() {
   if (!tokenAvailable()) {
-    console.error('缺少 Token：请先运行 `liepin-cli setup`（写入 ~/.config/liepin-cli/config.json），或设置环境变量 LIEPIN_USER_TOKEN；详见技能「依赖预检」章节。');
+    console.error('Missing Token: please run `liepin-cli setup` first (writes ~/.config/liepin-cli/config.json), or set env LIEPIN_USER_TOKEN; see skill "Dependency Pre-check".');
     process.exit(3);
   }
-  if (!fs.existsSync(CONFIG_PATH)) { console.error('缺少 liepin_wizard_config.json（请先完成弹窗向导收集需求）'); process.exit(3); }
-  // 每次运行前清空上次的实时进度文件，避免追加到历史记录
+  if (!fs.existsSync(CONFIG_PATH)) { console.error('Missing liepin_wizard_config.json (please complete the popup wizard to collect criteria first)'); process.exit(3); }
+  // Clear last run's real-time progress file before each run, avoid appending to history
   try { fs.unlinkSync(PROGRESS_PATH); } catch (e) {}
 
   const cfg = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
@@ -795,12 +795,12 @@ async function main() {
   let recruitmentType = cfg.recruitmentType;
   if (!recruitmentType) recruitmentType = cfg.preferNonRecruiter === false ? 'all' : 'nonRecruiter';
   const dailyCap = cfg.dailyCap || 999;
-  const maxPages = 1;  // v2.3.0：只搜第1页（猎聘CLI搜索结果已按相关性排序，第1页即最相关），不再多页翻找——原来要搜 3关键词×6页=18次，现在 3×1=3次，从30分钟缩短到1分钟
+  const maxPages = 1;  // v2.3.0: only search page 1 (liepin-cli search results are relevance-sorted, page 1 is most relevant), no more multi-page scanning — previously 3 keywords × 6 pages = 18 calls, now 3×1 = 3 calls, from 30 min down to 1 min
   const unattended = cfg.unattended === true;
   const schedule = cfg.schedule || '0 9 * * *';
   if (unattended) {
-    if (dailyCap >= 999) log('⚠️ 无人值守模式建议设置合理的 dailyCap（如 30~50），避免单日过量触发风控；当前未限制');
-    else log(`无人值守模式已启用（频率=${schedule}），将全程无需干预自动运行，仍受每日上限/频控/熔断护栏保护`);
+    if (dailyCap >= 999) log('⚠️ unattended mode should set a reasonable dailyCap (e.g. 30~50) to avoid over-applying in one day tripping risk control; currently unlimited');
+    else log(`unattended mode enabled (frequency=${schedule}), will run automatically with zero touch, still guarded by daily cap / rate-limit / circuit-break`);
   }
 
   const salaryFloorYuan = salaryFloor * 1000;
@@ -808,54 +808,54 @@ async function main() {
   let quota = loadQuota();
   const appliedThisRun = new Set();
 
-  log(`招聘类型=${recruitmentType}；每日上限=${dailyCap}；今日已投=${quota.count}；CLI=基于 liepin-cli`);
+  log(`recruitmentType=${recruitmentType}; dailyCap=${dailyCap}; appliedToday=${quota.count}; CLI=based on liepin-cli`);
 
-  // 0) 简历健康检查（v2.3.0：读简历+检查完整性+同步求职期望）
-  log('【步骤 0】简历健康检查…');
+  // 0) Resume health check (v2.3.0: read resume + check completeness + sync job expectation)
+  log('[Step 0] resume health check…');
   await resumeHealthCheck(keywords, CURRENT_LOCATION, salaryFloor, salaryCeil);
 
-  // 1) 搜索 + 过滤（严格按用户向导设置；任一硬条件不达标即过滤，但字段解析失败一律放过，不误杀）
+  // 1) Search + filter (strictly per wizard settings; any hard condition not met → filtered, but field-parse failure always passes, no false kill)
   const locToks = CURRENT_LOCATION === '__ALL__' ? [] : splitKeywords(CURRENT_LOCATION);
-  log('【筛选设定】关键词=[' + keywords.join('、') + ']；行业=' + (industry.includes('__ALL__') ? '不限' : industry.join('/')) +
-      '；地点=' + (locToks.length ? locToks.join('/') : '全国') + '；薪资=' + salaryFloor + '~' + salaryCeil + 'K；招聘类型=' + recruitmentType);
+  log('[Filter settings] keywords=[' + keywords.join(',') + ']; industry=' + (industry.includes('__ALL__') ? 'All' : industry.join('/')) +
+      '; location=' + (locToks.length ? locToks.join('/') : 'Nationwide') + '; salary=' + salaryFloor + '~' + salaryCeil + 'K; recruitmentType=' + recruitmentType);
   const candidates = [];
   const seen = new Set();
   for (const kw of keywords) {
     for (let pg = 0; pg < maxPages; pg++) {
       let list;
       try { list = await searchJobs(kw, salaryFloorYuan, salaryCeil * 1000, pg, { workExperience: cfg.workExperience, eduLevel: cfg.eduLevel, compNature: cfg.compNature }); }
-      catch (e) { log('搜索中断:', e.message); break; }
+      catch (e) { log('Search interrupted:', e.message); break; }
       if (list.length === 0) break;
       for (const j of list) {
         const id = Number(j.jobId);
         if (!id || seen.has(id)) continue;
         const sal = parseSalary(j.salary);
-        // 薪资：解析失败时不过滤（避免误杀）；仅当能解析且确实超出下限/上限才过滤
+        // Salary: on parse failure do not filter (avoid false kill); only filter when parseable and genuinely out of floor/ceiling
         if (salaryFloor > 0 && sal.floor !== null && sal.floor < salaryFloor) continue;
         if (sal.ceil !== null && sal.ceil > salaryCeil) continue;
-        // 行业：多关键词任一包含即通过（OR）
+        // Industry: any of multiple keywords contains → pass (OR)
         if (!industry.includes('__ALL__') && !industry.some((ind) => (j.industry || '').includes(ind))) continue;
-        // 地点：多城市任一包含即通过（OR）；全国(__ALL__)不限制
+        // Location: any of multiple cities contains → pass (OR); nationwide (__ALL__) unrestricted
         if (locToks.length && !locToks.some((lc) => (j.location || '').includes(lc))) continue;
-        // 层级：岗位名称已合并「岗位+职级」，不再单独过滤
+        // Level: job title already merges "role+level", no separate level filter
         seen.add(id);
         candidates.push({ ...j, jobId: id, recruiter: isRecruiterJob(j) });
       }
     }
   }
 
-  // 2) 招聘类型过滤
+  // 2) Recruitment-type filter
   let filtered = candidates;
   if (recruitmentType === 'nonRecruiter') filtered = candidates.filter((c) => !c.recruiter);
   else if (recruitmentType === 'recruiter') filtered = candidates.filter((c) => c.recruiter);
-  else filtered.sort((a, b) => (a.recruiter ? 1 : 0) - (b.recruiter ? 1 : 0)); // all：非猎头优先
+  else filtered.sort((a, b) => (a.recruiter ? 1 : 0) - (b.recruiter ? 1 : 0)); // all: non-recruiter priority
 
-  // 3) 去重
+  // 3) De-dup
   const pending = filtered.filter((c) => !delivered.has(c.jobId) && !appliedThisRun.has(c.jobId));
-  log(`【筛选结果】本次按你的设置，共筛选出符合要求的有效岗位 ${pending.length} 个，现在立刻开始投递…`);
+  log(`[Filter result] By your settings, ${pending.length} valid matching roles were found, starting delivery now…`);
   if (pending.length === 0) {
-    log('没有符合当前设置的岗位，已停止。可调整向导（关键词/行业/地点/薪资）后重试。');
-    const out = writeReport([], [], counts, quota, false, '无符合设置的岗位');
+    log('No roles matching current settings, stopped. You can adjust the wizard (keyword / industry / location / salary) and retry.');
+    const out = writeReport([], [], counts, quota, false, 'No roles match current settings');
     console.log(SUMMARY_BLOCK(out));
     process.exit(0);
   }
@@ -864,69 +864,69 @@ async function main() {
   const counts = { success: 0, already: 0, fail: 0, unknown: 0 };
   runState.quota = quota;
 
-  // 4) 每日配额
+  // 4) Daily quota
   const remain = dailyCap - quota.count;
   if (remain <= 0) {
-    log(`今日已达上限 ${dailyCap}，停止。今日已投 ${quota.count}。`);
-    const out = writeReport(pending, [], counts, quota, true, '已达每日上限');
+    log(`Daily cap ${dailyCap} reached today, stopping. Applied ${quota.count} today.`);
+    const out = writeReport(pending, [], counts, quota, true, 'Daily cap reached');
     console.log(SUMMARY_BLOCK(out));
     process.exit(0);
   }
-  // 获取运行模式（v2.3.0 新增前台/后台 + 投递前预览清单）
+  // Get run mode (v2.3.0 new foreground/background + pre-delivery preview list)
   const runMode = (cfg.runMode === 'background') ? 'background' : 'foreground';
   const toApply = pending.slice(0, remain);
   runState.toApply = toApply;
-  if (toApply.length < pending.length) log(`受每日上限 ${dailyCap} 限制，本次投 ${toApply.length}（剩余可投 ${remain}），其余 ${pending.length - toApply.length} 条留待明日`);
+  if (toApply.length < pending.length) log(`Limited by daily cap ${dailyCap}, applying ${toApply.length} this run (remaining ${remain}), other ${pending.length - toApply.length} left for tomorrow`);
 
-  // ============ v2.3.0：生成拟投递岗位清单（投递前预览）============
+  // ============ v2.3.0: generate pending-application list (pre-delivery preview) ============
   log('');
-  log('==================== 拟投递岗位清单预览 ====================');
-  log('共 ' + toApply.length + ' 个岗位，以下将逐条投递：');
+  log('==================== Pending Application List Preview ====================');
+  log('Total ' + toApply.length + ' roles, will be applied one by one:');
   toApply.forEach(function(j, i) {
-    log('  [' + (i+1) + '/' + toApply.length + '] ' + j.jobName + ' @ ' + j.company + (j.salary ? '（' + j.salary + '）' : '') + (j.location ? ' ' + j.location : ''));
+    log('  [' + (i+1) + '/' + toApply.length + '] ' + j.jobName + ' @ ' + j.company + (j.salary ? ' (' + j.salary + ')' : '') + (j.location ? ' ' + j.location : ''));
   });
-  log('运行模式：' + (runMode === 'foreground' ? '前台（逐条展示结果）' : '后台（统一汇总报告）'));
+  log('Run mode: ' + (runMode === 'foreground' ? 'Foreground (per-item result display)' : 'Background (consolidated report)'));
   log('============================================================');
   log('');
 
-  // 5) 预检首条
+  // 5) First-item pre-check
   if (toApply.length > 0) {
     const first = toApply[0];
     let r0;
     try { r0 = await applyJob(first.jobId, first.jobKind); }
     catch (e) {
       if (e.message === 'RATE_LIMIT_PERSIST') {
-        log('频控持续超 30 分钟，已自动暂停；去重保证可稍后安全续投');
-        const out = writeReport(toApply, results, counts, quota, false, '频控持续超30分钟，已自动暂停');
+        log('Persistent rate-limit >30min, auto-paused; de-dup guarantees safe resume later');
+        const out = writeReport(toApply, results, counts, quota, false, 'Persistent rate-limit >30min, auto-paused');
         console.log(SUMMARY_BLOCK(out));
         process.exit(3);
       }
-      log('预检失败（频控持续）:', e.message);
+      log('Pre-check failed (persistent rate-limit):', e.message);
       const out = writeReport(toApply, results, counts, quota, false, e.message);
       console.log(SUMMARY_BLOCK(out));
       process.exit(3);
     }
     const e0 = evalResult(r0);
     if (e0.status === 'fail' && /401|unauthorized|未授权/i.test(e0.message)) {
-      log('预检 401：Token 失效或无权限，请重新运行 `liepin-cli setup` 刷新凭证');
-      const out = writeReport(toApply, results, counts, quota, false, 'apply 权限 401');
+      log('Pre-check 401: Token invalid or no permission, please re-run `liepin-cli setup` to refresh credentials');
+      const out = writeReport(toApply, results, counts, quota, false, 'apply permission 401');
       console.log(SUMMARY_BLOCK(out));
       process.exit(2);
     }
     recordOne(first, e0, quota, results, counts);
     if (runMode === 'foreground') {
-      log(`[投递 1/${toApply.length}] ${first.jobName} @ ${first.company}（${first.location || ''}）｜${statusZh(e0.status)}：${e0.message}`);
+      log(`[Apply ${1}/${toApply.length}] ${first.jobName} @ ${first.company} (${first.location || ''})｜${statusZh(e0.status)}: ${e0.message}`);
     }
     appendProgress(1, first, e0);
-    log(`预检通过，开始批量投递（共 ${toApply.length} 条）`);
+    log(`Pre-check passed, starting bulk delivery (total ${toApply.length})`);
   }
 
-  // 6) 批量投递
+  // 6) Bulk delivery
   let consecutiveFails = 0;
   for (let i = 1; i < toApply.length; i++) {
     if (overRuntime()) {
-      log(`已达最大运行时长 ${Math.round(MAX_RUNTIME_MS / 60000)} 分钟，安全停机并保存进度，重跑即续投`);
-      const out = writeReport(toApply, results, counts, quota, false, '已达最大运行时长，已安全停机');
+      log(`Reached max runtime ${Math.round(MAX_RUNTIME_MS / 60000)} min, safe stop and save progress, rerun resumes`);
+      const out = writeReport(toApply, results, counts, quota, false, 'Max runtime reached, safe stop');
       console.log(SUMMARY_BLOCK(out));
       process.exit(0);
     }
@@ -937,10 +937,10 @@ async function main() {
       let resp;
       try { resp = await applyJob(j.jobId, j.jobKind); }
       catch (e) {
-        // 频控持续属全局状态，应中止整轮；其余异常（超时/CLI 缺失/解析失败）单条降级为失败并续投
+        // Persistent rate-limit is global, should abort whole run; other exceptions (timeout / CLI missing / parse fail) degrade single item to fail and continue
         if (e && e.message === 'RATE_LIMIT_PERSIST') {
-          log('频控持续超 30 分钟，已自动暂停；去重保证可稍后安全续投');
-          const out = writeReport(toApply, results, counts, quota, false, '频控持续超30分钟，已自动暂停');
+          log('Persistent rate-limit >30min, auto-paused; de-dup guarantees safe resume later');
+          const out = writeReport(toApply, results, counts, quota, false, 'Persistent rate-limit >30min, auto-paused');
           console.log(SUMMARY_BLOCK(out));
           process.exit(3);
         }
@@ -949,32 +949,32 @@ async function main() {
       ev = evalResult(resp);
       recordOne(j, ev, quota, results, counts);
     } catch (e) {
-      // 单条异常兜底：绝不因此中断整轮，记为失败后可重跑续投
-      const msg = (e && e.message) ? String(e.message).slice(0, 160) : '投递异常';
+      // Single-item exception fallback: never break whole run because of it, mark fail and resume (rerun can retry)
+      const msg = (e && e.message) ? String(e.message).slice(0, 160) : 'delivery exception';
       ev = { status: 'fail', message: msg };
       recordOne(j, ev, quota, results, counts);
-      log(`[投递 ${seq}/${toApply.length}] ${j.jobName} @ ${j.company}（${j.location || ''}）｜失败（已降级续投）：${msg}`);
+      log(`[Apply ${seq}/${toApply.length}] ${j.jobName} @ ${j.company} (${j.location || ''})｜Failed (degraded, continuing): ${msg}`);
       appendProgress(seq, j, ev);
       consecutiveFails += 1;
       if (consecutiveFails >= CIRCUIT_FAIL_LIMIT) {
-        log(`连续 ${CIRCUIT_FAIL_LIMIT} 次投递失败，疑似 Token 失效或接口异常，已熔断停机；去重保证可稍后重跑`);
-        const out = writeReport(toApply, results, counts, quota, false, `连续${CIRCUIT_FAIL_LIMIT}次失败，疑似Token失效，已熔断`);
+        log(`Consecutive ${CIRCUIT_FAIL_LIMIT} delivery failures, likely token invalid or API anomaly, circuit-broken; de-dup guarantees safe rerun later`);
+        const out = writeReport(toApply, results, counts, quota, false, `Consecutive ${CIRCUIT_FAIL_LIMIT} failures, likely token invalid, circuit-broken`);
         console.log(SUMMARY_BLOCK(out));
         process.exit(3);
       }
       await sleep(1500);
       continue;
     }
-    // v2.3.0：前台/后台模式——前台逐条展示，后台只计数不逐条输出
+    // v2.3.0: foreground/background mode — foreground shows per-item, background only counts
     if (runMode === 'foreground') {
-      log(`[投递 ${seq}/${toApply.length}] ${j.jobName} @ ${j.company}（${j.location || ''}）｜${statusZh(ev.status)}：${ev.message}`);
+      log(`[Apply ${seq}/${toApply.length}] ${j.jobName} @ ${j.company} (${j.location || ''})｜${statusZh(ev.status)}: ${ev.message}`);
     }
     appendProgress(seq, j, ev);
     if (ev.status === 'fail') {
       consecutiveFails += 1;
       if (consecutiveFails >= CIRCUIT_FAIL_LIMIT) {
-        log(`连续 ${CIRCUIT_FAIL_LIMIT} 次投递失败，疑似 Token 失效或接口异常，已熔断停机；去重保证可稍后重跑`);
-        const out = writeReport(toApply, results, counts, quota, false, `连续${CIRCUIT_FAIL_LIMIT}次失败，疑似Token失效，已熔断`);
+        log(`Consecutive ${CIRCUIT_FAIL_LIMIT} delivery failures, likely token invalid or API anomaly, circuit-broken; de-dup guarantees safe rerun later`);
+        const out = writeReport(toApply, results, counts, quota, false, `Consecutive ${CIRCUIT_FAIL_LIMIT} failures, likely token invalid, circuit-broken`);
         console.log(SUMMARY_BLOCK(out));
         process.exit(3);
       }
@@ -991,23 +991,23 @@ async function main() {
 function SUMMARY_BLOCK(out) {
   const c = out.summary;
   return [
-    '========== 投递成果 ==========',
-    `待投总数:${c.total}  实际处理:${c.applied}`,
-    `成功:${c.success}  已投过:${c.already}  失败:${c.fail}  未知:${c.unknown}`,
-    `今日已投:${out.dailyQuota.count} 份${out.quotaReached ? '（已达上限）' : ''}`,
-    out.note ? `备注:${out.note}` : '',
-    `报告:${REPORT_PATH}`,
-    `成果汇总:${SUMMARY_PATH}`,
-    out.quotaReached ? '' : '（首次真实响应字段名 [需核实]：见 ' + PROBE_SEARCH + ' / ' + PROBE_APPLY + '）',
+    '========== Delivery Result ==========',
+    `Total:${c.total}  Processed:${c.applied}`,
+    `Success:${c.success}  Already:${c.already}  Fail:${c.fail}  Unknown:${c.unknown}`,
+    `Applied today:${out.dailyQuota.count}${out.quotaReached ? ' (cap reached)' : ''}`,
+    out.note ? `Note:${out.note}` : '',
+    `Report:${REPORT_PATH}`,
+    `Summary:${SUMMARY_PATH}`,
+    out.quotaReached ? '' : ' (first real-response field names [needs verification]: see ' + PROBE_SEARCH + ' / ' + PROBE_APPLY + ')',
     '==============================',
   ].filter(Boolean).join('\n');
 }
 
-// ---------------- 中断优雅处理 ----------------
+// ---------------- Graceful interruption handling ----------------
 function onInterrupt(sig) {
-  log(`收到 ${sig}，正在保存进度并退出…（去重保证可安全续投）`);
+  log(`Received ${sig}, saving progress and exiting… (de-dup guarantees safe resume)`);
   try {
-    runState.note = `用户中断（${sig}），已安全保存进度，可重新运行续投`;
+    runState.note = `User interrupted (${sig}), progress safely saved, rerun to resume`;
     writeReport(runState.toApply, runState.results, runState.counts, runState.quota, false, runState.note);
   } catch (e) {}
   process.exit(130);
@@ -1031,7 +1031,7 @@ module.exports = {
   adaptCliResult,
   extractJobList,
   normalizeJob,
-  // v2.3.0 新增导出
+  // v2.3.0 new exports
   authStatus,
   authClear,
   resumeGet,
@@ -1047,8 +1047,8 @@ module.exports = {
 if (require.main === module) {
   process.on('SIGINT', () => onInterrupt('SIGINT'));
   process.on('SIGTERM', () => onInterrupt('SIGTERM'));
-  // 全局兜底：未捕获异常/未处理拒绝一律落盘完整堆栈再退出，避免静默 exit 1 无 [致命]
-  process.on('uncaughtException', (e) => { flushExit(1, '[致命-uncaughtException] ' + (e && e.stack ? e.stack : e)); });
-  process.on('unhandledRejection', (reason) => { flushExit(1, '[致命-unhandledRejection] ' + (reason && reason.stack ? reason.stack : String(reason))); });
-  main().catch((e) => { flushExit(1, '[致命] ' + (e && e.stack ? e.stack : (e && e.message ? e.message : e))); });
+  // Global fallback: any uncaught exception / unhandled rejection dumps full stack then exits, avoid silent exit 1 with no [FATAL]
+  process.on('uncaughtException', (e) => { flushExit(1, '[FATAL-uncaughtException] ' + (e && e.stack ? e.stack : e)); });
+  process.on('unhandledRejection', (reason) => { flushExit(1, '[FATAL-unhandledRejection] ' + (reason && reason.stack ? reason.stack : String(reason))); });
+  main().catch((e) => { flushExit(1, '[FATAL] ' + (e && e.stack ? e.stack : (e && e.message ? e.message : e))); });
 }

@@ -1,15 +1,15 @@
 // scripts/quickstart.js  (v2.2.0)
-// 一键初始化脚本：自动检查 + 自动安装 liepin-cli + Token 引导 + 打开向导
-// 用户只需要获取 Token 告诉我即可，无需手动安装任何东西。
+// One-click init script: auto-check + auto-install liepin-cli + Token guidance + open wizard
+// The user only needs to get a Token and tell me; no manual install needed.
 //
-// 运行方式：node scripts/quickstart.js
+// Run: node scripts/quickstart.js
 //
-// 典型流程：
-//   1. 检测 Node 版本 → OK
-//   2. 检测 liepin-cli → 未安装 → 自动安装（pip install liepin-cli 到受管 venv）
-//   3. 检测 Token → 未设置 → 输出「请从 https://www.liepin.com/mcp/auth 获取 x-user-token」
-//   4. 检测向导配置 → 未设置 → 自动打开 Web 向导页面
-//   5. 全部就绪 → 输出「run node scripts/apply_pipeline.js 开始投递」
+// Typical flow:
+//   1. Check Node version → OK
+//   2. Check liepin-cli → not installed → auto-install (pip install liepin-cli into managed venv)
+//   3. Check Token → not set → print "please get x-user-token from https://www.liepin.com/mcp/auth"
+//   4. Check wizard config → not set → auto-open web wizard page
+//   5. All ready → print "run node scripts/apply_pipeline.js to start delivery"
 'use strict';
 const { spawnSync, spawn } = require('child_process');
 const path = require('path');
@@ -21,9 +21,9 @@ const CLI_DIR = path.join(HOME, '.workbuddy', 'binaries', 'python', 'envs', 'lie
 const CLI_EXE = path.join(CLI_DIR, 'liepin-cli.exe');
 const BANNER = `
 ╔══════════════════════════════════════════════╗
-║   猎聘全自动投递 · 一键初始化向导 v2.2.0    ║
+║   Liepin Auto-Apply · One-click Init Wizard v2.2.0    ║
 ╠══════════════════════════════════════════════╣
-║  AI 已接管所有安装配置，你只管给我 Token！   ║
+║   AI has taken over all install/config; just give me the Token!   ║
 ╚══════════════════════════════════════════════╝`;
 
 function log(...a) { console.log(...a); }
@@ -31,35 +31,35 @@ function ok(t) { log('✅ ' + t); }
 function warn(t) { log('⚠️  ' + t); }
 function info(t) { log('📌 ' + t); }
 
-// 步骤 1：检测 Node
+// Step 1: check Node
 function step1() {
   const v = parseInt(process.versions.node.split('.')[0], 10);
-  if (v >= 18) { ok('Node 版本 ' + process.versions.node + ' ✅'); return true; }
-  warn('Node 版本过低：' + process.versions.node + '，需要 >= 18');
+  if (v >= 18) { ok('Node version ' + process.versions.node + ' ✅'); return true; }
+  warn('Node version too low: ' + process.versions.node + ', need >= 18');
   return false;
 }
 
-// 步骤 2：自动安装 liepin-cli
+// Step 2: auto-install liepin-cli
 function step2() {
   log('');
-  log('───────────────── 步骤 2：检测 liepin-cli ─────────────────');
+  log('───────────────── Step 2: check liepin-cli ─────────────────');
 
-  // 先检测是否已有
+  // Check if already present
   const r0 = spawnSync(CLI_EXE, ['--help'], { windowsHide: true, timeout: 5000 });
   if (r0.status === 0) {
-    ok('liepin-cli 已就绪');
+    ok('liepin-cli ready');
     return true;
   }
 
-  // 检测裸命令
+  // Check bare command
   const r1 = spawnSync('liepin-cli', ['--help'], { windowsHide: true, timeout: 5000 });
   if (r1.status === 0) {
-    ok('liepin-cli 已就绪（系统 PATH）');
+    ok('liepin-cli ready (system PATH)');
     return true;
   }
 
-  // 未安装 → 自动安装
-  info('liepin-cli 未安装，AI 正在自动安装…（约 1~2 分钟）');
+  // Not installed → auto-install
+  info('liepin-cli not installed, AI is auto-installing… (~1~2 min)');
   const selfcheckPath = path.join(__dirname, 'selfcheck.js');
   const r2 = spawnSync(process.execPath, [selfcheckPath, '--auto-install'], {
     cwd: process.cwd(),
@@ -68,100 +68,100 @@ function step2() {
     timeout: 180000,
   });
   if (r2.status !== 0) {
-    warn('自动安装失败，请手动运行：pip install liepin-cli');
+    warn('Auto-install failed, please run manually: pip install liepin-cli');
     return false;
   }
 
-  // 安装后验证
+  // Verify after install
   const r3 = spawnSync(CLI_EXE, ['--help'], { windowsHide: true, timeout: 5000 });
-  if (r3.status === 0) { ok('liepin-cli 安装成功 ✅'); return true; }
+  if (r3.status === 0) { ok('liepin-cli installed successfully ✅'); return true; }
 
-  warn('安装后验证失败，可能 PATH 未更新');
+  warn('Verification failed after install, PATH may not be updated');
   return false;
 }
 
-// 步骤 3：Token 检测
+// Step 3: Token check
 function step3() {
   log('');
-  log('───────────────── 步骤 3：Token 检测 ─────────────────');
+  log('───────────────── Step 3: Token check ─────────────────');
 
   const env = process.env.LIEPIN_USER_TOKEN || process.env.LIEPIN_TOKEN || '';
   if (env && env.trim()) {
-    ok('Token 已就绪（环境变量）');
+    ok('Token ready (environment variable)');
     return true;
   }
 
-  // 检查配置文件
+  // Check config file
   const cfgPath = path.join(HOME, '.config', 'liepin-cli', 'config.json');
   try {
     if (fs.existsSync(cfgPath)) {
       const d = JSON.parse(fs.readFileSync(cfgPath, 'utf8'));
       if (d.token && String(d.token).trim()) {
-        ok('Token 已就绪（配置文件：~/.config/liepin-cli/config.json）');
+        ok('Token ready (config file: ~/.config/liepin-cli/config.json)');
         return true;
       }
     }
   } catch (e) {}
 
-  warn('未检测到 Token');
-  info('请通过以下方式获取 Token：');
+  warn('No Token detected');
+  info('Please obtain Token via:');
   info('  https://www.liepin.com/mcp/auth');
-  info('  复制 x-user-token（一串 JWT 字符串）');
-  info('  然后把 Token 发给我，我会自动设置。');
+  info('  Copy x-user-token (a JWT string)');
+  info('  Then send the Token to me and I will configure it automatically.');
   info('');
-  info('或者你自己设置环境变量：');
-  info('  set LIEPIN_USER_TOKEN=你的Token');
-  info('然后重新运行本脚本。');
+  info('Or set the environment variable yourself:');
+  info('  set LIEPIN_USER_TOKEN=yourToken');
+  info('Then rerun this script.');
   return false;
 }
 
-// 步骤 4：检查向导配置
+// Step 4: check wizard config
 function step4() {
   log('');
-  log('───────────────── 步骤 4：向导配置 ─────────────────');
+  log('───────────────── Step 4: wizard config ─────────────────');
   const cfgPath = path.join(process.cwd(), 'liepin_wizard_config.json');
   if (fs.existsSync(cfgPath)) {
     try {
       const cfg = JSON.parse(fs.readFileSync(cfgPath, 'utf8'));
       if (cfg.keywords && cfg.keywords.length) {
-        ok('向导配置已就绪：' + cfg.keywords.join('、'));
+        ok('Wizard config ready: ' + cfg.keywords.join(','));
         return true;
       }
     } catch (e) {}
   }
 
-  info('未检测到向导配置，将为你打开 Web 向导页面…');
-  info('请通过 Web 页面填写求职需求，点「提交」即可。');
+  info('No wizard config detected, opening the web wizard page for you…');
+  info('Please fill your job criteria on the web page and click "Submit".');
   log('');
-  log('  提示：直接对我说「帮我在猎聘投简历」即可自动打开向导。');
+  log('   Tip: just say "help me apply on Liepin" to auto-open the wizard.');
   return false;
 }
 
-// ----- 主流程 -----
+// ----- Main flow -----
 function main() {
   console.log(BANNER);
   log('');
 
   const s1 = step1();
-  if (!s1) { warn('Node 版本过低，请升级到 Node 18+'); process.exit(1); }
+  if (!s1) { warn('Node version too low, please upgrade to Node 18+'); process.exit(1); }
 
   const s2 = step2();
-  if (!s2) { warn('liepin-cli 安装失败，请手动安装后重试'); process.exit(1); }
+  if (!s2) { warn('liepin-cli install failed, please install manually then retry'); process.exit(1); }
 
   const s3 = step3();
   const s4 = step4();
 
   log('');
-  log('───────────────── 初始化结果 ─────────────────');
+  log('───────────────── Init result ─────────────────');
   if (s1 && s2 && s3 && s4) {
-    ok('全部就绪！可以开始自动投递了 🎉');
-    info('运行投递：node scripts/apply_pipeline.js');
-    info('或对我说：「帮我在猎聘投简历」');
+    ok('All ready! You can start auto-apply 🎉');
+    info('Run delivery: node scripts/apply_pipeline.js');
+    info('Or tell me: "help me apply on Liepin"');
   } else {
-    log('尚未完全就绪（缺 Token 或配置），需补充后即可开始。');
+    log('Not fully ready yet (missing Token or config), supplement then start.');
   }
   log('');
-  info('有 Token 就直接发给我，我帮你设置并启动投递。');
+  info('If you have a Token, just send it to me and I will set it up and start delivery.');
 }
 
 main();
